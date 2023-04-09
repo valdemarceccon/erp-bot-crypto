@@ -1,0 +1,9 @@
+node_modules
+/backend/venv
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+__pycache__/
+*.log
+
