@@ -16,9 +16,6 @@ def read_root():
     return {"Hello": "World"}
 
 
-app = FastAPI()
-
-
 # EXTERNAL_API_URL = "https://example.com/api/health"
 
 

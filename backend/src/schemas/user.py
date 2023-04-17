@@ -5,7 +5,7 @@ from pydantic import EmailStr
 
 # Pydantic models
 class UserCreate(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     name: str
 

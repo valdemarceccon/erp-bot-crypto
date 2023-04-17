@@ -13,7 +13,7 @@ from src.schemas.user import Token
 from src.schemas.user import UserCreate
 from src.schemas.user import UserLogin
 
-router = APIRouter()
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 def create_access_token(data: dict):
@@ -21,7 +21,7 @@ def create_access_token(data: dict):
 
 
 # API endpoints
-@router.post("/users", response_model=Token)
+@router.post("/", response_model=Token)
 def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
     db_user = user_repo.create_user(db, user)
     access_token = create_access_token(data={"sub": db_user.email})
