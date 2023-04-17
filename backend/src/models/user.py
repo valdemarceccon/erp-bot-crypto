@@ -44,7 +44,7 @@ class User(Base):
     email = Column(String, primary_key=True, index=True)
     name = Column(String, index=True)
     hashed_password = Column(String)
-    role_id = Column(Integer, ForeignKey(Role.id), nullable=True)
+    # role_id = Column(Integer, ForeignKey(Role.id), nullable=True)
 
     apikeys = relationship(
         "APIKey", back_populates="user", lazy="select"

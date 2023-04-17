@@ -3,9 +3,11 @@ from typing import List
 from fastapi import Depends
 from fastapi import HTTPException
 from passlib.hash import bcrypt
+from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from src.dependencies.database import get_db
+from src.models.roles import PermissionEnum
 from src.models.user import Permission
 from src.models.user import Role
 from src.models.user import RolePermission
@@ -58,13 +60,21 @@ def all(db: Session) -> List[User]:
 from typing import List
 
 
-def user_has_permission(session: Session, user: User, permission_name: str) -> bool:
+def user_has_permission(
+    session: Session, user_email: str, permission_name: str
+) -> bool:
     stmt = (
         select(RolePermission)
         .join(Role, RolePermission.role_id == Role.id)
         .join(UserRole, UserRole.role_id == Role.id)
         .join(Permission, RolePermission.permission_id == Permission.id)
-        .where(UserRole.user_id == user.id, Permission.name == permission_name)
+        .where(
+            UserRole.user_id == user_email,
+            or_(
+                Permission.name == permission_name,
+                Permission.name == PermissionEnum.ADMIN.value,
+            ),
+        )
     )
 
     result = session.execute(stmt)

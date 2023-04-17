@@ -19,11 +19,13 @@ depends_on = None
 
 def upgrade():
     # ...
-    connection = op.get_bind()
-    connection.execute(text("INSERT INTO roles (name) VALUES ('admin');"))
+    op.execute("INSERT INTO roles (name) VALUES ('admin');")
 
 
 def downgrade():
     # ...
-    connection = op.get_bind()
-    connection.execute(text("DELETE FROM roles WHERE name = 'admin';"))
+
+    op.execute(
+        "DELETE FROM user_roles WHERE role_id = (SELECT role_id FROM roles where name = 'admin')"
+    )
+    op.execute("DELETE FROM roles WHERE name = 'admin';")

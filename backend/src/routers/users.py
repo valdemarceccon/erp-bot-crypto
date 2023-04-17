@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from src.config.settings import ALGORITHM
 from src.config.settings import SECRET_KEY
 from src.dependencies.database import get_db
+from src.models.roles import PermissionEnum
 from src.models.user import User
 from src.repository import user as user_repo
 from src.repository.user import user_has_permission
@@ -22,6 +23,7 @@ from src.schemas.user import UserInfo
 from src.schemas.user import UserList
 from src.schemas.user import UserLogin
 
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -29,14 +31,16 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return decode_jwt_token(token)
 
 
-def has_permission(
-    permission_name: str,
-    session: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-):
-    if not user_has_permission(session, user, permission_name):
-        raise HTTPException(status_code=403, detail="Permission denied")
-    return user
+def has_permission(permission_name: str):
+    def inner(
+        session: Session = Depends(get_db),
+        user: UserInfo = Depends(get_current_user),
+    ) -> UserInfo:
+        if not user_has_permission(session, user.email, permission_name):
+            raise HTTPException(status_code=403, detail="Permission denied")
+        return user
+
+    return inner
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -79,19 +83,14 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=UserList)
 def list_user_endpoint(
-    current_user: UserInfo = Depends(get_current_user), db: Session = Depends(get_db)
+    current_user: User = Depends(has_permission(PermissionEnum.LIST_USERS.value)),
+    db: Session = Depends(get_db),
 ):
-    db_user = user_repo.get_user(db, current_user.email)
-    if db_user is None:
+    # db_user = user_repo.get_user(db, str(current_user.email)
+    if current_user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    if db_user.role.desc != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User not authorized",
             headers={"WWW-Authenticate": "Bearer"},
         )
     users: List[User] = user_repo.all(db)
