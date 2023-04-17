@@ -46,13 +46,18 @@ services:
       POSTGRES_HOST: db
       POSTGRES_DB: dev
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
+    # user: "1000:1000"
+    ports:
+      - 8000:8000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`) || PathPrefix(`/openapi.json`)"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.middlewares=stripprefix"
       - "traefik.http.middlewares.stripprefix.stripprefix.prefixes=/api"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
+
     volumes:
       - ./backend:/app
 
