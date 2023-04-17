@@ -9,8 +9,8 @@ services:
       POSTGRES_DB: dev
     ports:
       - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+    # volumes:
+    #   - db_data:/var/lib/postgresql/data
 
   traefik:
     image: "traefik:v2.5"
@@ -62,4 +62,5 @@ services:
       - ./backend:/app
 
 volumes:
-  db_data: {}
+  # db_data: {}
+  db_test: {}

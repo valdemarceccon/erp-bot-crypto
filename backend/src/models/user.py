@@ -8,11 +8,34 @@ from src.models.base import Base
 
 
 class Role(Base):
-    __tablename__ = "users_role"
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String, nullable=False, index=True)
+    __tablename__ = "roles"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    users = relationship("User", secondary="user_roles", back_populates="roles")
+    permissions = relationship(
+        "Permission", secondary="role_permissions", back_populates="roles"
+    )
 
-    users = relationship("User", back_populates="role")
+
+class Permission(Base):
+    __tablename__ = "permissions"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    roles = relationship(
+        "Role", secondary="role_permissions", back_populates="permissions"
+    )
+
+
+class UserRole(Base):
+    __tablename__ = "user_roles"
+    user_id = Column(String, ForeignKey("users.email"), primary_key=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), primary_key=True)
+
+
+class RolePermission(Base):
+    __tablename__ = "role_permissions"
+    role_id = Column(Integer, ForeignKey("roles.id"), primary_key=True)
+    permission_id = Column(Integer, ForeignKey("permissions.id"), primary_key=True)
 
 
 class User(Base):
@@ -27,7 +50,7 @@ class User(Base):
         "APIKey", back_populates="user", lazy="select"
     )  # Add apikeys relationship
 
-    role: Relationship[Role] = relationship("Role")
+    roles = relationship("Role", secondary="user_roles", back_populates="users")
 
 
 class APIKey(Base):

@@ -15,22 +15,35 @@ from src.config.settings import SECRET_KEY
 from src.dependencies.database import get_db
 from src.models.user import User
 from src.repository import user as user_repo
+from src.repository.user import user_has_permission
 from src.schemas.user import Token
 from src.schemas.user import UserCreate
 from src.schemas.user import UserInfo
 from src.schemas.user import UserList
 from src.schemas.user import UserLogin
 
-router = APIRouter(prefix="/users", tags=["users"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    return decode_jwt_token(token)
+
+
+def has_permission(
+    permission_name: str,
+    session: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    if not user_has_permission(session, user, permission_name):
+        raise HTTPException(status_code=403, detail="Permission denied")
+    return user
+
+
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 def create_access_token(data: dict):
     return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    return decode_jwt_token(token)
 
 
 # Create a function to decode a JWT token
