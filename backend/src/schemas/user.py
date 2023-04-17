@@ -12,6 +12,12 @@ class UserCreate(BaseModel):
     name: str
 
 
+class UserUpdate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+
 class UserInfo(BaseModel):
     email: str
     name: str

@@ -14,6 +14,7 @@ from src.models.user import RolePermission
 from src.models.user import User
 from src.models.user import UserRole
 from src.schemas.user import UserCreate
+from src.schemas.user import UserUpdate
 
 
 def get_password_hash(password: str) -> str:
@@ -28,6 +29,18 @@ def create_user(db: Session, user: UserCreate) -> User:
     hashed_password = get_password_hash(user.password)
     db_user = User(email=user.email, hashed_password=hashed_password, name=user.name)
     db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def update_user(db: Session, user: UserUpdate) -> User | None:
+    hashed_password = get_password_hash(user.password)
+    db_user = db.get(User, user.email)
+    if not db_user:
+        return None
+
+    db_user.hashed_password = hashed_password
     db.commit()
     db.refresh(db_user)
     return db_user

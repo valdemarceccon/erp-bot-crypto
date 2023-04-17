@@ -22,6 +22,7 @@ from src.schemas.user import UserCreate
 from src.schemas.user import UserInfo
 from src.schemas.user import UserList
 from src.schemas.user import UserLogin
+from src.schemas.user import UserUpdate
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -69,6 +70,16 @@ def decode_jwt_token(token: str) -> UserInfo:
             detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+# API endpoints
+@router.patch("/", response_model=UserInfo)
+def update_user_endpoint(user: UserUpdate, db: Session = Depends(get_db)):
+    db_user = user_repo.update_user(db, user)
+    # access_token = create_access_token(
+    #     data={"email": db_user.email, "name": db_user.name}
+    # )
+    return {"email": db_user.email, "name": db_user.name}
 
 
 # API endpoints
