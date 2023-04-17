@@ -46,7 +46,7 @@ services:
       POSTGRES_HOST: db
       POSTGRES_DB: dev
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
-    # user: "1000:1000"
+    user: "1000:1000"
     ports:
       - 8000:8000
     labels:
