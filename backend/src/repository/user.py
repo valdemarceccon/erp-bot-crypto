@@ -1,3 +1,5 @@
+from typing import List
+
 from passlib.hash import bcrypt
 from sqlalchemy.orm import Session
 from src.models.user import User
@@ -38,3 +40,7 @@ def get_user(db: Session, email: str) -> User | None:
         return None
 
     return user
+
+
+def all(db: Session) -> List[User]:
+    return db.query(User).all()

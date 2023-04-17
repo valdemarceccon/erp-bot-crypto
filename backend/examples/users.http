@@ -1,0 +1,16 @@
+POST http://localhost/api/users/
+accept: application/json
+Content-Type: application/json
+
+{
+  "email": "valdemar.ceccon@gmail.com",
+  "password": "123456",
+  "name": "Valdemar Ceccon"
+}
+
+###
+
+GET http://localhost/api/users/me
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZhbGRlbWFyLmNlY2NvbkBnbWFpbC5jb20iLCJuYW1lIjoiVmFsZGVtYXIgQ2VjY29uIn0.5FF1ONC3IJ1Oqx7uh0pqaFJw8sfjJhawYxSwE9K0u9Q
