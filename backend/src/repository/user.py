@@ -34,9 +34,9 @@ def create_user(db: Session, user: UserCreate) -> User:
     return db_user
 
 
-def update_user(db: Session, user: UserUpdate) -> User | None:
+def update_user(db: Session, email: str, user: UserUpdate) -> User | None:
     hashed_password = get_password_hash(user.password)
-    db_user = db.get(User, user.email)
+    db_user = db.get(User, email)
     if not db_user:
         return None
 

@@ -13,7 +13,6 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    email: EmailStr
     password: str
     name: str
 

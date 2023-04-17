@@ -74,11 +74,12 @@ def decode_jwt_token(token: str) -> UserInfo:
 
 # API endpoints
 @router.patch("/", response_model=UserInfo)
-def update_user_endpoint(user: UserUpdate, db: Session = Depends(get_db)):
-    db_user = user_repo.update_user(db, user)
-    # access_token = create_access_token(
-    #     data={"email": db_user.email, "name": db_user.name}
-    # )
+def update_user_endpoint(
+    user: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: UserInfo = Depends(get_current_user),
+):
+    db_user = user_repo.update_user(db, current_user.email, user)
     return {"email": db_user.email, "name": db_user.name}
 
 
