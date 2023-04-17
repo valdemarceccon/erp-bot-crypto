@@ -46,6 +46,8 @@ services:
       POSTGRES_HOST: db
       POSTGRES_DB: dev
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
+      JWT_SECRET_KEY: your-secret-key
+      JWT_ALGORITHM: HS256
     user: "1000:1000"
     ports:
       - 8000:8000

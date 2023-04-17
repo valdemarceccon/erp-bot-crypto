@@ -13,5 +13,5 @@ POSTGRES_URL = (
     f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}"
 )
 
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
