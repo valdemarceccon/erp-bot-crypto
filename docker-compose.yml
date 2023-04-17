@@ -51,7 +51,7 @@ services:
       - 8000:8000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && PathPrefix(`/api`) || PathPrefix(`/openapi.json`)"
+      - "traefik.http.routers.backend.rule=Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/openapi.json`) || PathPrefix(`/redoc`))"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.routers.backend.middlewares=stripprefix"
       - "traefik.http.middlewares.stripprefix.stripprefix.prefixes=/api"
