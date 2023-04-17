@@ -22,10 +22,19 @@ def create_user(db: Session, user: UserCreate) -> User:
 
 
 def authenticate_user(db: Session, email: str, password: str) -> User | None:
-    user: User = db.query(User).filter(User.email == email).first()
+    user = get_user(db, email)
+
     if not user:
         return None
 
     if not verify_password(password, str(user.hashed_password)):
         return None
+    return user
+
+
+def get_user(db: Session, email: str) -> User | None:
+    user: User = db.query(User).filter(User.email == email).first()
+    if not user:
+        return None
+
     return user
