@@ -61,6 +61,8 @@ def run_migrations_online() -> None:
 
     """
     database_url = os.getenv("POSTGRES_URL", config.get_main_option("sqlalchemy.url"))
+    if not database_url:
+        raise SystemExit(1)
     connectable = create_engine(database_url, poolclass=pool.NullPool)
 
     # connectable = engine_from_config(
