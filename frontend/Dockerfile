@@ -12,4 +12,3 @@ RUN pnpm install --frozen-lockfile --prod
 COPY . .
 
 CMD ["npm", "run", "dev"]
-

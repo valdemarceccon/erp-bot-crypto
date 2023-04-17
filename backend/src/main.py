@@ -1,7 +1,10 @@
 from fastapi import FastAPI
-from .models.base import engine
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 from sqlalchemy import text
+
+from .models.base import engine
 
 # import httpx
 
@@ -48,6 +51,25 @@ async def health_check():
     else:
         raise HTTPException(status_code=500, detail=health_status)
 
+
+# Pydantic models
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+# OAuth2 setup
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 if __name__ == "__main__":
     import uvicorn
