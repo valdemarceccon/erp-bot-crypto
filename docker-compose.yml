@@ -25,16 +25,16 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-  # frontend:
-  #   build: frontend
-  #   image: your-frontend:latest
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)"
-  #     - "traefik.http.routers.frontend.entrypoints=web"
-  #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-  #   volumes:
-  #     - ./frontend:/app
+  frontend:
+    build: frontend
+    image: your-frontend:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    # volumes:
+    #   - ./frontend:/app
 
   backend:
     build: backend
