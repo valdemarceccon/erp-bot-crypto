@@ -1,8 +1,8 @@
 """populate permissions
 
-Revision ID: f8d237f91be0
-Revises: 34d120bbc603
-Create Date: 2023-04-23 17:56:14.397959
+Revision ID: 1038a80f8498
+Revises: b75f3890c9b5
+Create Date: 2023-04-23 21:56:23.298703
 
 """
 import sqlalchemy as sa
@@ -14,28 +14,28 @@ from src.models.user import Role
 from src.models.user import RolePermission
 from src.models.user import UserRole
 
+
 Session = sessionmaker()
 
 # revision identifiers, used by Alembic.
-revision = "f8d237f91be0"
-down_revision = "34d120bbc603"
+revision = "1038a80f8498"
+down_revision = "b75f3890c9b5"
 branch_labels = None
 depends_on = None
 
 
-# This migration adds pre-defined roles to the roles table
 def upgrade():
     session = Session(bind=op.get_bind())
 
     # Create a set of existing role names
-    existing_roles = set([r.name for r in session.query(Permission)])
+    existing_permissions = set([r.name for r in session.query(Permission)])
 
     # Loop over each value in the PermissionEnum
     for permission in PermissionEnum:
         permission_name = permission.value
 
         # Only add the role if it doesn't already exist in the table
-        if permission_name not in existing_roles:
+        if permission_name not in existing_permissions:
             new_permission = Permission(name=permission_name)
             session.add(new_permission)
 

@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 34d120bbc603
+Revision ID: b75f3890c9b5
 Revises:
-Create Date: 2023-04-23 17:55:37.534366
+Create Date: 2023-04-23 21:56:04.878448
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = "34d120bbc603"
+revision = "b75f3890c9b5"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,8 +30,8 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("name", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name"),
     )
+    op.create_index(op.f("ix_roles_name"), "roles", ["name"], unique=True)
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
@@ -71,7 +71,7 @@ def upgrade() -> None:
     )
     op.create_table(
         "user_roles",
-        sa.Column("user_id", sa.String(), nullable=False),
+        sa.Column("user_id", sa.Integer(), nullable=False),
         sa.Column("role_id", sa.Integer(), nullable=False),
         sa.ForeignKeyConstraint(
             ["role_id"],
@@ -79,7 +79,7 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(
             ["user_id"],
-            ["users.email"],
+            ["users.id"],
         ),
         sa.PrimaryKeyConstraint("user_id", "role_id"),
     )
@@ -95,6 +95,7 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_users_username"), table_name="users")
     op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
+    op.drop_index(op.f("ix_roles_name"), table_name="roles")
     op.drop_table("roles")
     op.drop_table("permissions")
     # ### end Alembic commands ###

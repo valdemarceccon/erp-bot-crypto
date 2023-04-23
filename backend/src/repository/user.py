@@ -27,7 +27,12 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_user(db: Session, user: UserCreate) -> User:
     hashed_password = get_password_hash(user.password)
-    db_user = User(email=user.email, hashed_password=hashed_password, name=user.name)
+    db_user = User(
+        email=user.email,
+        hashed_password=hashed_password,
+        name=user.name,
+        username=user.username,
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -46,8 +51,8 @@ def update_user(db: Session, email: str, user: UserUpdate) -> User | None:
     return db_user
 
 
-def authenticate_user(db: Session, email: str, password: str) -> User | None:
-    user = get_user(db, email)
+def authenticate_user(db: Session, username: str, password: str) -> User | None:
+    user = get_user_by_username(db, username)
 
     if not user:
         return None
@@ -57,8 +62,16 @@ def authenticate_user(db: Session, email: str, password: str) -> User | None:
     return user
 
 
-def get_user(db: Session, email: str) -> User | None:
-    user: User = db.query(User).filter(User.email == email).first()
+def get_user(db: Session, user_id: int) -> User | None:
+    user: User | None = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return None
+
+    return user
+
+
+def get_user_by_username(db: Session, username: str) -> User | None:
+    user: User | None = db.query(User).filter(User.username == username).first()
     if not user:
         return None
 
@@ -73,16 +86,14 @@ def all(db: Session) -> List[User]:
 from typing import List
 
 
-def user_has_permission(
-    session: Session, user_email: str, permission_name: str
-) -> bool:
+def user_has_permission(session: Session, user_id: int, permission_name: str) -> bool:
     stmt = (
         select(RolePermission)
         .join(Role, RolePermission.role_id == Role.id)
         .join(UserRole, UserRole.role_id == Role.id)
         .join(Permission, RolePermission.permission_id == Permission.id)
         .where(
-            UserRole.user_id == user_email,
+            UserRole.user_id == user_id,
             or_(
                 Permission.name == permission_name,
                 Permission.name == PermissionEnum.ADMIN.value,

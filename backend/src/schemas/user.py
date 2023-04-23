@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     name: str
+    username: str
 
 
 class UserUpdate(BaseModel):
@@ -20,10 +21,11 @@ class UserUpdate(BaseModel):
 class UserInfo(BaseModel):
     email: str
     name: str
+    username: str
 
 
 class UserLogin(BaseModel):
-    email: str
+    username: str
     password: str
 
 
