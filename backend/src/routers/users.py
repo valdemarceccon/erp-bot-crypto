@@ -46,8 +46,11 @@ def has_permission(permission_name: PermissionEnum):
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+import datetime
+
 
 def create_access_token(data: dict):
+    data["timestamp"] = datetime.datetime.now().isoformat()
     return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
 
@@ -55,6 +58,12 @@ def create_access_token(data: dict):
 def decode_jwt_token(token: str) -> int:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        if "id" not in token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         id: int = int(payload["id"])
         return id
 
@@ -77,15 +86,27 @@ def decode_jwt_token(token: str) -> int:
 def update_user_endpoint(
     user: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: UserInfo = Depends(get_current_user),
+    user_id: int = Depends(get_current_user),
 ):
-    db_user = user_repo.update_user(db, current_user.email, user)
-    return {"email": db_user.email, "name": db_user.name}
+    db_user = user_repo.update_user(db, user_id, user)
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return UserInfo(email=db_user.email, name=db_user.name, username=db_user.username)
 
 
 # API endpoints
 @router.post("/", response_model=Token)
 def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
+    if user_repo.user_exists(db, user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Username or email already taken",
+        )
     db_user = user_repo.create_user(db, user)
     access_token = create_access_token(data={"id": db_user.id})
     return {"access_token": access_token, "token_type": "bearer"}
@@ -100,7 +121,7 @@ def list_user_endpoint(
     users: List[User] = user_repo.all(db)
     return UserList(
         users=[
-            UserInfo(email=str(u.email), name=str(u.name), username=(u.username))
+            UserInfo(email=str(u.email), name=str(u.name), username=str(u.username))
             for u in users
         ]
     )

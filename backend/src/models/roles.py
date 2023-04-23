@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class PermissionEnum(Enum):
-    FULL = "Full"
-    FULL_READ = "FullRead"
     LIST_USERS = "ListUsers"
+    GET_USER_INFO = "GetUserInfo"
     # Add other permissions as needed

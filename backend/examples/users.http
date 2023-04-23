@@ -10,11 +10,23 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost/api/users/
+accept: application/json
+Content-Type: application/json
+
+{
+  "email": "valdemar.ceccon1@gmail.com",
+  "password": "123456",
+  "name": "Valdemar Ceccon 1",
+  "username": "valdemar.ceccon1"
+}
+
+###
 
 GET http://localhost/api/users/me
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MX0.mXR-gUlIenwKp24_EhVGNpTL6DJctO288B2HvJggDEA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMjo0MjoxNy45ODYxNDkifQ.k787zHS1aaDJjmWtg0sWS-rEYR-euy_TsIj6nFRrW6w
 
 ###
 
@@ -23,8 +35,8 @@ accept: application/json
 Content-Type: application/json
 
 {
-  "username": "valdemar.ceccon",
-  "password": "123456"
+  "username": "valdemar.ceccon1",
+  "password": "1234567"
 }
 
 ###
@@ -33,13 +45,13 @@ Content-Type: application/json
 GET http://localhost/api/users/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NH0.smjSmH_oemCbLXhqv_MAqgi__zTePIvgB3-mfmcnnBo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMjo0Mzo0OS44MjcxOTUifQ.lT0hSnqB9Ph7UHCX_6kHvljrKUJpVdCOzwGWh4dILaE
 
 ###
 PATCH http://localhost/api/users/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZhbGRlbWFyLmNlY2NvbkBnbWFpbC5jb20iLCJuYW1lIjoiVmFsZGVtYXIgQ2VjY29uIn0.5FF1ONC3IJ1Oqx7uh0pqaFJw8sfjJhawYxSwE9K0u9Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMjo0Mzo0OS44MjcxOTUifQ.lT0hSnqB9Ph7UHCX_6kHvljrKUJpVdCOzwGWh4dILaE
 
 {
   "email": "valdemar.ceccon@gmail.com",

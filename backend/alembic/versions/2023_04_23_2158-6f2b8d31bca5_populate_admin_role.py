@@ -29,13 +29,9 @@ def upgrade() -> None:
     session = Session(bind=op.get_bind())
 
     # Create a set of existing role names
-    permissions = (
-        session.query(Permission)
-        .filter(Permission.name == PermissionEnum.FULL.value)
-        .first()
-    )
+    permissions = session.query(Permission).all()
     admin_role = Role(name="Admin")
-    admin_role.permissions = [permissions]
+    admin_role.permissions = permissions
     session.add(admin_role)
     session.commit()
 

@@ -1,3 +1,4 @@
+import itertools
 from typing import List
 
 from fastapi import Depends
@@ -39,9 +40,20 @@ def create_user(db: Session, user: UserCreate) -> User:
     return db_user
 
 
-def update_user(db: Session, email: str, user: UserUpdate) -> User | None:
+def user_exists(db: Session, user: UserCreate) -> bool:
+    dbuser = (
+        db.query(User)
+        .filter(or_(User.email == user.email, User.username == user.username))
+        .first()
+    )
+    if dbuser is None:
+        return False
+    return True
+
+
+def update_user(db: Session, user_id: int, user: UserUpdate) -> User | None:
     hashed_password = get_password_hash(user.password)
-    db_user = db.get(User, email)
+    db_user = db.get(User, user_id)
     if not db_user:
         return None
 
@@ -87,19 +99,13 @@ from typing import List
 
 
 def user_has_permission(session: Session, user_id: int, permission_name: str) -> bool:
-    stmt = (
-        select(RolePermission)
-        .join(Role, RolePermission.role_id == Role.id)
-        .join(UserRole, UserRole.role_id == Role.id)
-        .join(Permission, RolePermission.permission_id == Permission.id)
-        .where(
-            UserRole.user_id == user_id,
-            or_(
-                Permission.name == permission_name,
-                Permission.name == PermissionEnum.ADMIN.value,
-            ),
-        )
-    )
+    user = session.query(User).filter(User.id == user_id).first()
 
-    result = session.execute(stmt)
-    return result.scalar_one_or_none() is not None
+    if not user:
+        return False
+
+    user_roles: List[Role] = user.roles
+    permissions = [ur.permissions for ur in user_roles]
+    permissions = itertools.chain(*permissions)
+
+    return permission_name in [p.name for p in permissions]
