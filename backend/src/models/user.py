@@ -41,10 +41,11 @@ class RolePermission(Base):
 class User(Base):
     __tablename__ = "users"
 
-    email = Column(String, primary_key=True, index=True)
-    name = Column(String, index=True)
-    hashed_password = Column(String)
-    # role_id = Column(Integer, ForeignKey(Role.id), nullable=True)
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    email = Column(String, index=True, unique=True, nullable=False)
+    username = Column(String, index=True, unique=True, nullable=False)
+    name = Column(String)
+    hashed_password = Column(String, nullable=False)
 
     apikeys = relationship(
         "APIKey", back_populates="user", lazy="select"
