@@ -2,14 +2,13 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy.orm import Relationship
 from sqlalchemy.orm import relationship
 from src.models.base import Base
 
 
 class Role(Base):
     __tablename__ = "roles"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
     users = relationship("User", secondary="user_roles", back_populates="roles")
     permissions = relationship(
@@ -19,7 +18,7 @@ class Role(Base):
 
 class Permission(Base):
     __tablename__ = "permissions"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
     roles = relationship(
         "Role", secondary="role_permissions", back_populates="permissions"
@@ -58,7 +57,7 @@ class APIKey(Base):
     __tablename__ = "apikeys"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_email = Column(String, ForeignKey(User.email), primary_key=True)
+    user_id = Column(Integer, ForeignKey(User.id), primary_key=True)
     apikey = Column(String, nullable=False)
 
     user = relationship(
