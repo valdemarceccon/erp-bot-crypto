@@ -9,6 +9,7 @@ from src.models.user import ApiKey
 from src.models.user import Role
 from src.models.user import User
 from src.schemas.user import ApiKeyRequestIn
+from src.schemas.user import ApiKeyRequestUpdate
 from src.schemas.user import UserCreateRequest
 from src.schemas.user import UserUpdateRequest
 
@@ -140,7 +141,7 @@ def delete_api_key(db: Session, user_id: int, api_key_id: int) -> None:
 
 
 def update_api_key(
-    db: Session, user_id: int, api_key_id: int, api_key: ApiKeyRequestIn
+    db: Session, user_id: int, api_key_id: int, api_key: ApiKeyRequestUpdate
 ) -> ApiKey | None:
     db_api_key = (
         db.query(ApiKey)
@@ -149,10 +150,11 @@ def update_api_key(
     )
     if not db_api_key:
         return None
-    db_api_key.name = api_key.name
-    db_api_key.status = api_key.status.value
-    db_api_key.exchange = api_key.exchange
-    db_api_key.api_key = api_key.api_key
-    db_api_key.secret = api_key.api_secret
+
+    db_api_key.name = api_key.name if api_key.name else db_api_key.name
+    db_api_key.status = api_key.status.value if api_key.status else db_api_key.status
+    db_api_key.exchange = api_key.exchange if api_key.exchange else db_api_key.exchange
+    db_api_key.api_key = api_key.api_key if api_key.api_key else db_api_key.api_key
+    db_api_key.secret = api_key.api_secret if api_key.api_secret else db_api_key.secret
     db.commit()
     return db_api_key

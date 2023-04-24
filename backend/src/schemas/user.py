@@ -55,3 +55,11 @@ class ApiKeyRequestOut(ApiKeyRequestBase):
 
     class Config:
         orm_mode = True
+
+
+class ApiKeyRequestUpdate(BaseModel):
+    name: str | None
+    api_key: str | None
+    exchange: str | None
+    status: ApiKeyStatusEnum | None = ApiKeyStatusEnum.INACTIVE
+    api_secret: str | None

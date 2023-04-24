@@ -97,9 +97,5 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
 
 {
-  "name": "bybit funcional",
-  "api_key": "nada",
-  "api_secret": "monte de nada",
-  "exchange": "bybit",
   "status": 2
 }

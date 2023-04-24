@@ -16,6 +16,7 @@ from src.routers.auth import get_current_user
 from src.routers.auth import has_permission
 from src.schemas.user import ApiKeyRequestIn
 from src.schemas.user import ApiKeyRequestOut
+from src.schemas.user import ApiKeyRequestUpdate
 from src.schemas.user import UserInfo
 from src.schemas.user import UserList
 from src.schemas.user import UserUpdateRequest
@@ -117,7 +118,7 @@ def delete_api_key(
 )
 def update_api_key(
     api_key_id: int,
-    values: ApiKeyRequestIn,
+    values: ApiKeyRequestUpdate,
     user_id: Annotated[int, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
 ) -> Any:
