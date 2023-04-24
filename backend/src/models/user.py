@@ -58,26 +58,25 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255))
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    apikeys = relationship(
-        "APIKey", back_populates="user", lazy="select"
+    api_keys = relationship(
+        "ApiKey", back_populates="user", lazy="select"
     )  # Add apikeys relationship
 
     roles = relationship("Role", secondary="user_roles", back_populates="users")
 
 
-class APIKey(Base):
-    __tablename__ = "apikeys"
+class ApiKey(Base):
+    __tablename__ = "api_key"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey(User.id))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    apikey: Mapped[str] = mapped_column(String(255), nullable=False)
     exchange: Mapped[str] = mapped_column(String(255), nullable=False)
     api_key: Mapped[str] = mapped_column(String(255), nullable=False)
-    api_secret: Mapped[str] = mapped_column(String(255), nullable=False)
+    secret: Mapped[str] = mapped_column(String(255), nullable=False)
 
     user = relationship(
         "User",
-        back_populates="apikeys",
+        back_populates="api_keys",
     )

@@ -1,21 +1,15 @@
 import itertools
 from typing import List
 
-from fastapi import Depends
-from fastapi import HTTPException
 from passlib.hash import bcrypt
 from sqlalchemy import or_
-from sqlalchemy import select
 from sqlalchemy.orm import Session
-from src.dependencies.database import get_db
-from src.models.roles import PermissionEnum
-from src.models.user import Permission
+from src.models.user import ApiKey
 from src.models.user import Role
-from src.models.user import RolePermission
 from src.models.user import User
-from src.models.user import UserRole
-from src.schemas.user import UserCreate
-from src.schemas.user import UserUpdate
+from src.schemas.user import ApiKeyRequest
+from src.schemas.user import UserCreateRequest
+from src.schemas.user import UserUpdateRequest
 
 
 def get_password_hash(password: str) -> str:
@@ -26,7 +20,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.verify(plain_password, hashed_password)
 
 
-def create_user(db: Session, user: UserCreate) -> User:
+def create_user(db: Session, user: UserCreateRequest) -> User:
     hashed_password = get_password_hash(user.password)
     db_user = User(
         email=user.email,
@@ -40,7 +34,7 @@ def create_user(db: Session, user: UserCreate) -> User:
     return db_user
 
 
-def user_exists(db: Session, user: UserCreate) -> bool:
+def user_exists(db: Session, user: UserCreateRequest) -> bool:
     dbuser = (
         db.query(User)
         .filter(or_(User.email == user.email, User.username == user.username))
@@ -51,7 +45,7 @@ def user_exists(db: Session, user: UserCreate) -> bool:
     return True
 
 
-def update_user(db: Session, user_id: int, user: UserUpdate) -> User | None:
+def update_user(db: Session, user_id: int, user: UserUpdateRequest) -> User | None:
     hashed_password = get_password_hash(user.password)
     db_user = db.get(User, user_id)
     if not db_user:
@@ -94,10 +88,6 @@ def all(db: Session) -> List[User]:
     return db.query(User).all()
 
 
-# Add this code to main.py
-from typing import List
-
-
 def user_has_permission(session: Session, user_id: int, permission_name: str) -> bool:
     user = session.query(User).filter(User.id == user_id).first()
 
@@ -109,3 +99,16 @@ def user_has_permission(session: Session, user_id: int, permission_name: str) ->
     permissions = itertools.chain(*permissions)
 
     return permission_name in [p.name for p in permissions]
+
+
+def add_api_key(session: Session, user_id: int, api_key: ApiKeyRequest) -> ApiKey:
+    # user = session.get(User, user_id)
+    api_key_db = ApiKey(
+        name=api_key.name,
+        api_key=api_key.key,
+        secret=api_key.api_secret,
+        exchange=api_key.exchange,
+        user_id=user_id,
+    )
+    session.add(api_key_db)
+    return api_key_db

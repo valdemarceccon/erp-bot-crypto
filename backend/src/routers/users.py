@@ -13,9 +13,10 @@ from src.models.user import User
 from src.repository import user as user_repo
 from src.routers.auth import get_current_user
 from src.routers.auth import has_permission
+from src.schemas.user import ApiKeyRequest
 from src.schemas.user import UserInfo
 from src.schemas.user import UserList
-from src.schemas.user import UserUpdate
+from src.schemas.user import UserUpdateRequest
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 # API endpoints
 @router.patch("/", response_model=UserInfo)
 def update_user(
-    user: UserUpdate,
+    user: UserUpdateRequest,
     db: Annotated[Session, Depends(get_db)],
     user_id: Annotated[int, Depends(get_current_user)],
 ):
@@ -65,3 +66,14 @@ def me(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return UserInfo(email=user.email, name=user.name, username=user.username)
+
+
+@router.post("/api_key", status_code=status.HTTP_201_CREATED)
+def add_apikey(
+    api_key_req: ApiKeyRequest,
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    user_repo.add_api_key(db, user_id, api_key_req)
+
+    return {"message": "ok"}

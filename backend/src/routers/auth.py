@@ -17,7 +17,7 @@ from src.models.roles import PermissionEnum
 from src.repository import user as user_repo
 from src.repository.user import user_has_permission
 from src.schemas.user import Token
-from src.schemas.user import UserCreate
+from src.schemas.user import UserCreateRequest
 from src.schemas.user import UserLogin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -85,8 +85,8 @@ def login(user: UserLogin, db: Annotated[Session, Depends(get_db)]):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.post("/signup", response_model=Token)
-def create_user(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
+@router.post("/signup", response_model=Token, status_code=status.HTTP_201_CREATED)
+def create_user(user: UserCreateRequest, db: Annotated[Session, Depends(get_db)]):
     if user_repo.user_exists(db, user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

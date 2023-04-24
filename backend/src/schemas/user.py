@@ -6,14 +6,14 @@ from pydantic import EmailStr
 
 
 # Pydantic models
-class UserCreate(BaseModel):
+class UserCreateRequest(BaseModel):
     email: EmailStr
     password: str
     name: str
     username: str
 
 
-class UserUpdate(BaseModel):
+class UserUpdateRequest(BaseModel):
     password: str
     name: str
 
@@ -36,3 +36,10 @@ class UserList(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class ApiKeyRequest(BaseModel):
+    name: str
+    key: str
+    api_secret: str
+    exchange: str

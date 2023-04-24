@@ -58,3 +58,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
   "password": "1234567",
   "name": "Valdemar Ceccon"
 }
+
+###
+POST http://localhost/api/users/api_key
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
+{
+  "name": "some key",
+  "key": "some key id",
+  "api_secret": "some key secret",
+  "exchange": "bybit"
+}
