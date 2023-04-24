@@ -4,10 +4,10 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import text
 from src.dependencies.database import engine
 from src.routers import auth
-from src.routers import users
+from src.routers import user
 
 app = FastAPI()
-app.include_router(users.router)
+app.include_router(user.router)
 app.include_router(auth.router)
 
 

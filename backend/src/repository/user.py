@@ -1,5 +1,6 @@
 import itertools
 from typing import List
+from typing import Type
 
 from passlib.hash import bcrypt
 from sqlalchemy import or_
@@ -7,7 +8,7 @@ from sqlalchemy.orm import Session
 from src.models.user import ApiKey
 from src.models.user import Role
 from src.models.user import User
-from src.schemas.user import ApiKeyRequest
+from src.schemas.user import ApiKeyRequestIn
 from src.schemas.user import UserCreateRequest
 from src.schemas.user import UserUpdateRequest
 
@@ -84,7 +85,7 @@ def get_user_by_username(db: Session, username: str) -> User | None:
     return user
 
 
-def all(db: Session) -> List[User]:
+def get_all(db: Session) -> List[User]:
     return db.query(User).all()
 
 
@@ -101,14 +102,57 @@ def user_has_permission(session: Session, user_id: int, permission_name: str) ->
     return permission_name in [p.name for p in permissions]
 
 
-def add_api_key(session: Session, user_id: int, api_key: ApiKeyRequest) -> ApiKey:
-    # user = session.get(User, user_id)
+def add_api_key(session: Session, user_id: int, api_key: ApiKeyRequestIn) -> ApiKey:
     api_key_db = ApiKey(
         name=api_key.name,
-        api_key=api_key.key,
+        api_key=api_key.api_key,
         secret=api_key.api_secret,
         exchange=api_key.exchange,
         user_id=user_id,
     )
     session.add(api_key_db)
+    session.commit()
+    session.refresh(api_key_db)
     return api_key_db
+
+
+def get_api_key(
+    db: Session, user_id: int, api_key_id: int | None = None
+) -> List[ApiKey]:
+    if api_key_id:
+        return (
+            db.query(ApiKey)
+            .filter(ApiKey.user_id == user_id, ApiKey.id == api_key_id)
+            .all()
+        )
+    return db.query(ApiKey).filter(ApiKey.user_id == user_id).all()
+
+
+def delete_api_key(db: Session, user_id: int, api_key_id: int) -> None:
+    api_keys = (
+        db.query(ApiKey)
+        .filter(ApiKey.user_id == user_id, ApiKey.id == api_key_id)
+        .first()
+    )
+    if api_keys:
+        db.delete(api_keys)
+        db.commit()
+
+
+def update_api_key(
+    db: Session, user_id: int, api_key_id: int, api_key: ApiKeyRequestIn
+) -> ApiKey | None:
+    db_api_key = (
+        db.query(ApiKey)
+        .filter(ApiKey.user_id == user_id, ApiKey.id == api_key_id)
+        .first()
+    )
+    if not db_api_key:
+        return None
+    db_api_key.name = api_key.name
+    db_api_key.status = api_key.status.value
+    db_api_key.exchange = api_key.exchange
+    db_api_key.api_key = api_key.api_key
+    db_api_key.secret = api_key.api_secret
+    db.commit()
+    return db_api_key

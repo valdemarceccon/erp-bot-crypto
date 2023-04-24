@@ -1,5 +1,6 @@
 # routers/users.py
 from typing import Annotated
+from typing import Any
 from typing import List
 
 from fastapi import APIRouter
@@ -13,7 +14,8 @@ from src.models.user import User
 from src.repository import user as user_repo
 from src.routers.auth import get_current_user
 from src.routers.auth import has_permission
-from src.schemas.user import ApiKeyRequest
+from src.schemas.user import ApiKeyRequestIn
+from src.schemas.user import ApiKeyRequestOut
 from src.schemas.user import UserInfo
 from src.schemas.user import UserList
 from src.schemas.user import UserUpdateRequest
@@ -44,7 +46,7 @@ def list_user(
     _: Annotated[int, Depends(has_permission(PermissionEnum.LIST_USERS))],
     db: Annotated[Session, Depends(get_db)],
 ):
-    users: List[User] = user_repo.all(db)
+    users: List[User] = user_repo.get_all(db)
     return UserList(
         users=[
             UserInfo(email=str(u.email), name=str(u.name), username=str(u.username))
@@ -68,12 +70,62 @@ def me(
     return UserInfo(email=user.email, name=user.name, username=user.username)
 
 
-@router.post("/api_key", status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/api_key", status_code=status.HTTP_201_CREATED, response_model=ApiKeyRequestOut
+)
 def add_apikey(
-    api_key_req: ApiKeyRequest,
+    api_key_req: ApiKeyRequestIn,
     user_id: Annotated[int, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
 ):
-    user_repo.add_api_key(db, user_id, api_key_req)
+    return user_repo.add_api_key(db, user_id, api_key_req)
 
+
+@router.get("/api_key", response_model=List[ApiKeyRequestOut])
+def get_apikey(
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    api_key_list = user_repo.get_api_key(db, user_id)
+    return api_key_list
+
+
+@router.get("/api_key/{api_key_id}", response_model=List[ApiKeyRequestOut])
+def get_apikey_id(
+    api_key_id: int,
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    api_key_list = user_repo.get_api_key(db, user_id, api_key_id)
+    return api_key_list
+
+
+@router.delete("/api_key/{api_key_id}", status_code=status.HTTP_202_ACCEPTED)
+def delete_api_key(
+    api_key_id: int,
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    user_repo.delete_api_key(db, user_id, api_key_id)
     return {"message": "ok"}
+
+
+@router.patch(
+    "/api_key/{api_key_id}",
+    response_model=ApiKeyRequestOut,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def update_api_key(
+    api_key_id: int,
+    values: ApiKeyRequestIn,
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    updated_api_key = user_repo.update_api_key(db, user_id, api_key_id, values)
+
+    if not updated_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Api key not found"
+        )
+
+    return updated_api_key

@@ -3,6 +3,7 @@ from typing import List
 
 from pydantic import BaseModel
 from pydantic import EmailStr
+from src.models.user import ApiKeyStatusEnum
 
 
 # Pydantic models
@@ -38,8 +39,19 @@ class Token(BaseModel):
     token_type: str
 
 
-class ApiKeyRequest(BaseModel):
+class ApiKeyRequestBase(BaseModel):
     name: str
-    key: str
-    api_secret: str
+    api_key: str
     exchange: str
+    status: ApiKeyStatusEnum = ApiKeyStatusEnum.INACTIVE
+
+
+class ApiKeyRequestIn(ApiKeyRequestBase):
+    api_secret: str
+
+
+class ApiKeyRequestOut(ApiKeyRequestBase):
+    id: int
+
+    class Config:
+        orm_mode = True

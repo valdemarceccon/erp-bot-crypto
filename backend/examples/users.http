@@ -36,7 +36,7 @@ Content-Type: application/json
 
 {
   "username": "valdemar.ceccon",
-  "password": "1234567"
+  "password": "123456"
 }
 
 ###
@@ -63,11 +63,43 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
 POST http://localhost/api/users/api_key
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
 
 {
   "name": "some key",
-  "key": "some key id",
+  "api_key": "some key id",
   "api_secret": "some key secret",
   "exchange": "bybit"
+}
+
+###
+GET http://localhost/api/users/api_key
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
+###
+GET http://localhost/api/users/api_key/3
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
+###
+DELETE http://localhost/api/users/api_key/3
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
+###
+PATCH http://localhost/api/users/api_key/6
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
+
+{
+  "name": "some key 2",
+  "api_key": "some key id 2",
+  "api_secret": "some key secret 2",
+  "exchange": "binance",
+  "status": 2
 }

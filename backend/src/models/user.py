@@ -1,5 +1,7 @@
+from enum import IntEnum
 from typing import List
 
+from sqlalchemy import Enum
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped
@@ -65,18 +67,28 @@ class User(Base):
     roles = relationship("Role", secondary="user_roles", back_populates="users")
 
 
+class ApiKeyStatusEnum(IntEnum):
+    INACTIVE = 0
+    WAITING = 1
+    ACTIVE = 2
+
+
 class ApiKey(Base):
     __tablename__ = "api_key"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     exchange: Mapped[str] = mapped_column(String(255), nullable=False)
     api_key: Mapped[str] = mapped_column(String(255), nullable=False)
     secret: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[int] = mapped_column(default=ApiKeyStatusEnum.INACTIVE.value)
 
     user = relationship(
         "User",
         back_populates="api_keys",
     )
+
+    class Config:
+        orm_mode = True

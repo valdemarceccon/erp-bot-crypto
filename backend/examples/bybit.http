@@ -1,6 +1,0 @@
-GET /v5/position/closed-pnl?category=linear&limit=1 HTTP/1.1
-Host: api.bybit.com
-X-BAPI-SIGN: XXXXX
-X-BAPI-API-KEY: Y4IKLNEX9E1f6FnbJm
-X-BAPI-TIMESTAMP: 1672284128523
-X-BAPI-RECV-WINDOW: 5000
