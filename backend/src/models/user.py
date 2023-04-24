@@ -1,50 +1,62 @@
-from sqlalchemy import Column
+from typing import List
+
 from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from src.models.base import Base
 
 
 class Role(Base):
     __tablename__ = "roles"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False, unique=True, index=True)
-    users = relationship("User", secondary="user_roles", back_populates="roles")
-    permissions = relationship(
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(
+        String(255), nullable=False, unique=True, index=True
+    )
+    users: Mapped[List["User"]] = relationship(
+        "User", secondary="user_roles", back_populates="roles"
+    )
+    permissions: Mapped[List["Permission"]] = relationship(
         "Permission", secondary="role_permissions", back_populates="roles"
     )
 
 
 class Permission(Base):
     __tablename__ = "permissions"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String, nullable=False, unique=True)
-    roles = relationship(
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    roles: Mapped[List["Role"]] = relationship(
         "Role", secondary="role_permissions", back_populates="permissions"
     )
 
 
 class UserRole(Base):
     __tablename__ = "user_roles"
-    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    role_id = Column(Integer, ForeignKey("roles.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), primary_key=True)
 
 
 class RolePermission(Base):
     __tablename__ = "role_permissions"
-    role_id = Column(Integer, ForeignKey("roles.id"), primary_key=True)
-    permission_id = Column(Integer, ForeignKey("permissions.id"), primary_key=True)
+    role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), primary_key=True)
+    permission_id: Mapped[int] = mapped_column(
+        ForeignKey("permissions.id"), primary_key=True
+    )
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, autoincrement=True, primary_key=True)
-    email = Column(String, index=True, unique=True, nullable=False)
-    username = Column(String, index=True, unique=True, nullable=False)
-    name = Column(String)
-    hashed_password = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)
+    email: Mapped[str] = mapped_column(
+        String(255), index=True, unique=True, nullable=False
+    )
+    username: Mapped[str] = mapped_column(
+        String(255), index=True, unique=True, nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(255))
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     apikeys = relationship(
         "APIKey", back_populates="user", lazy="select"
@@ -56,11 +68,16 @@ class User(Base):
 class APIKey(Base):
     __tablename__ = "apikeys"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey(User.id), primary_key=True)
-    apikey = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey(User.id))
+
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    apikey: Mapped[str] = mapped_column(String(255), nullable=False)
+    exchange: Mapped[str] = mapped_column(String(255), nullable=False)
+    api_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    api_secret: Mapped[str] = mapped_column(String(255), nullable=False)
 
     user = relationship(
         "User",
         back_populates="apikeys",
-    )  # Add user relationship
+    )

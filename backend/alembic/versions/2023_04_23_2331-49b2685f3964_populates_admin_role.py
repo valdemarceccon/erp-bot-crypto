@@ -1,8 +1,8 @@
-"""populate admin role
+"""populates admin role
 
-Revision ID: 6f2b8d31bca5
-Revises: 1038a80f8498
-Create Date: 2023-04-23 21:58:01.714615
+Revision ID: 49b2685f3964
+Revises: cda3a476a789
+Create Date: 2023-04-23 23:31:21.172340
 
 """
 import sqlalchemy as sa
@@ -17,10 +17,9 @@ from src.models.user import UserRole
 
 Session = sessionmaker()
 
-
 # revision identifiers, used by Alembic.
-revision = "6f2b8d31bca5"
-down_revision = "1038a80f8498"
+revision = "49b2685f3964"
+down_revision = "cda3a476a789"
 branch_labels = None
 depends_on = None
 

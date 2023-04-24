@@ -1,10 +1,9 @@
 import logging
 import os
 
+from fastapi.logger import logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-logger = logging.getLogger(__name__)
 
 fallback_url = "sqlite:///fallback.db"
 

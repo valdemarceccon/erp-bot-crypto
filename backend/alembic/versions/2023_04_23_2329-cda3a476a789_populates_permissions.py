@@ -1,25 +1,20 @@
-"""populate permissions
+"""populates_roles
 
-Revision ID: 1038a80f8498
-Revises: b75f3890c9b5
-Create Date: 2023-04-23 21:56:23.298703
+Revision ID: cda3a476a789
+Revises: b0d86911531b
+Create Date: 2023-04-23 23:29:55.704510
 
 """
-import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.orm import sessionmaker
 from src.models.roles import PermissionEnum
 from src.models.user import Permission
-from src.models.user import Role
-from src.models.user import RolePermission
-from src.models.user import UserRole
-
 
 Session = sessionmaker()
 
 # revision identifiers, used by Alembic.
-revision = "1038a80f8498"
-down_revision = "b75f3890c9b5"
+revision = "cda3a476a789"
+down_revision = "b0d86911531b"
 branch_labels = None
 depends_on = None
 

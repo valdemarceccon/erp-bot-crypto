@@ -1,8 +1,8 @@
 """init
 
-Revision ID: b75f3890c9b5
+Revision ID: b0d86911531b
 Revises:
-Create Date: 2023-04-23 21:56:04.878448
+Create Date: 2023-04-23 23:29:11.596103
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = "b75f3890c9b5"
+revision = "b0d86911531b"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,24 +21,24 @@ def upgrade() -> None:
     op.create_table(
         "permissions",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
     )
     op.create_table(
         "roles",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_roles_name"), "roles", ["name"], unique=True)
     op.create_table(
         "users",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("email", sa.String(), nullable=False),
-        sa.Column("username", sa.String(), nullable=False),
-        sa.Column("name", sa.String(), nullable=True),
-        sa.Column("hashed_password", sa.String(), nullable=False),
+        sa.Column("email", sa.String(length=255), nullable=False),
+        sa.Column("username", sa.String(length=255), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("hashed_password", sa.String(length=255), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=True)
@@ -47,12 +47,16 @@ def upgrade() -> None:
         "apikeys",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("apikey", sa.String(), nullable=False),
+        sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("apikey", sa.String(length=255), nullable=False),
+        sa.Column("exchange", sa.String(length=255), nullable=False),
+        sa.Column("api_key", sa.String(length=255), nullable=False),
+        sa.Column("api_secret", sa.String(length=255), nullable=False),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
         ),
-        sa.PrimaryKeyConstraint("id", "user_id"),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_apikeys_id"), "apikeys", ["id"], unique=False)
     op.create_table(
