@@ -1,7 +1,7 @@
 .PHONY: up down new auto
 
-EXEC_BACK=docker-compose exec backend
-EXEC_DB=docker-compose exec db
+EXEC_BACK=docker compose exec backend
+EXEC_DB=docker compose exec db
 
 up:
 	$(EXEC_BACK) alembic upgrade head

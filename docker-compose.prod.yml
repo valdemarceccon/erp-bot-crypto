@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev_123456
+      POSTGRES_DB: dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - /mnt/database/db_data:/var/lib/postgresql/data
+
+  traefik:
+    image: "traefik:v2.5"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  # frontend:
+  #   build: frontend
+  #   image: prod-your-frontend:latest
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/demo-bot-erp`)"
+  #     - "traefik.http.routers.backend.priority=1"
+  #     - "traefik.http.middlewares.stripprefix-frontend.stripprefix.prefixes=/demo-bot-erp"
+  #     - "traefik.http.routers.frontend.middlewares=stripprefix-frontend"
+  #     - "traefik.http.routers.frontend.entrypoints=web"
+  #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile.api
+    image: prod-your-backend-python:latest
+    command: ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev_123456
+      POSTGRES_HOST: db
+      POSTGRES_DB: dev
+      POSTGRES_URL: postgresql://dev:dev_123456@db/dev
+      JWT_SECRET_KEY: your-secret-key
+      JWT_ALGORITHM: HS256
+    user: "1000:1000"
+    ports:
+      - 8000:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`localhost`) && (PathPrefix(`/demo-bot-erp/api`) || PathPrefix(`/demo-bot-erp/openapi.json`) || PathPrefix(`/demo-bot-erp/redoc`))"
+      - "traefik.http.routers.backend.priority=10"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.middlewares.stripprefix-backend.stripprefix.prefixes=/demo-bot-erp/api,/demo-bot-erp"
+      - "traefik.http.routers.backend.middlewares=stripprefix-backend"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
+  daemon:
+    build:
+      context: backend
+      dockerfile: Dockerfile.daemon
+    image: prod-your-daemon-python:latest
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev_123456
+      POSTGRES_HOST: db
+      POSTGRES_DB: dev
+      POSTGRES_URL: postgresql://dev:dev_123456@db/dev
+      JWT_SECRET_KEY: your-secret-key
+      JWT_ALGORITHM: HS256
+    volumes:
+      - ./backend/daemon:/app/daemon
