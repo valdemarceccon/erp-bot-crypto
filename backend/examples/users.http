@@ -1,11 +1,24 @@
-POST http://localhost/api/users/
+POST http://localhost/api/auth/signup
 accept: application/json
 Content-Type: application/json
 
 {
   "email": "valdemar.ceccon@gmail.com",
   "password": "123456",
-  "name": "Valdemar Ceccon"
+  "name": "Valdemar Ceccon",
+  "username": "valdemar.ceccon"
+}
+
+###
+POST http://localhost/api/auth/signup
+accept: application/json
+Content-Type: application/json
+
+{
+  "email": "valdemar.ceccon1@gmail.com",
+  "password": "123456",
+  "name": "Valdemar Ceccon 1",
+  "username": "valdemar.ceccon1"
 }
 
 ###
@@ -13,35 +26,82 @@ Content-Type: application/json
 GET http://localhost/api/users/me
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZhbGRlbWFyLmNlY2NvbkBnbWFpbC5jb20iLCJuYW1lIjoiVmFsZGVtYXIgQ2VjY29uIn0.5FF1ONC3IJ1Oqx7uh0pqaFJw8sfjJhawYxSwE9K0u9Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
 
 ###
 
-POST http://localhost/api/users/token
+POST http://localhost/api/auth/token
 accept: application/json
 Content-Type: application/json
 
 {
-  "email": "valdemar.ceccon@gmail.com",
-  "password": "123456"
+  "username": "valdemar.ceccon",
+  "password": "1234567"
 }
 
 ###
-
-
 GET http://localhost/api/users/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZhbGRlbWFyLmNlY2NvbkBnbWFpbC5jb20iLCJuYW1lIjoiVmFsZGVtYXIgQ2VjY29uIn0.5FF1ONC3IJ1Oqx7uh0pqaFJw8sfjJhawYxSwE9K0u9Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
 
+###
+GET http://localhost/api/users/1
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
 ###
 PATCH http://localhost/api/users/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InZhbGRlbWFyLmNlY2NvbkBnbWFpbC5jb20iLCJuYW1lIjoiVmFsZGVtYXIgQ2VjY29uIn0.5FF1ONC3IJ1Oqx7uh0pqaFJw8sfjJhawYxSwE9K0u9Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
 
 {
   "email": "valdemar.ceccon@gmail.com",
   "password": "1234567",
   "name": "Valdemar Ceccon"
+}
+
+###
+POST http://localhost/api/users/api_key
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
+
+{
+  "name": "teste",
+  "api_key": "abobrinha",
+  "api_secret": "abobrinha",
+  "exchange": "bybit"
+}
+
+###
+GET http://localhost/api/users/api_key
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
+
+
+
+###
+GET http://localhost/api/users/api_key/3
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
+###
+DELETE http://localhost/api/users/api_key/6
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+
+###
+PATCH http://localhost/api/users/api_key/11
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
+
+{
+  "status": 2
 }

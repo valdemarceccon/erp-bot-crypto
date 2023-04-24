@@ -3,12 +3,12 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import text
 from src.dependencies.database import engine
-from src.routers import users
-
-# import httpx
+from src.routers import auth
+from src.routers import user
 
 app = FastAPI()
-app.include_router(users.router)
+app.include_router(user.router)
+app.include_router(auth.router)
 
 
 @app.get("/")
@@ -51,7 +51,6 @@ async def health_check():
 
 # OAuth2 setup
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 
 if __name__ == "__main__":
     import uvicorn

@@ -3,16 +3,18 @@ from typing import List
 
 from pydantic import BaseModel
 from pydantic import EmailStr
+from src.models.user import ApiKeyStatusEnum
 
 
 # Pydantic models
-class UserCreate(BaseModel):
+class UserCreateRequest(BaseModel):
     email: EmailStr
     password: str
     name: str
+    username: str
 
 
-class UserUpdate(BaseModel):
+class UserUpdateRequest(BaseModel):
     password: str
     name: str
 
@@ -20,17 +22,47 @@ class UserUpdate(BaseModel):
 class UserInfo(BaseModel):
     email: str
     name: str
+    username: str
+
+    class Config:
+        orm_mode = True
+
+
+class ApiKeyRequestBase(BaseModel):
+    name: str
+    api_key: str
+    exchange: str
+    status: ApiKeyStatusEnum = ApiKeyStatusEnum.INACTIVE
+
+
+class ApiKeyRequestIn(ApiKeyRequestBase):
+    api_secret: str
+
+
+class ApiKeyRequestOut(ApiKeyRequestBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class UserDetail(UserInfo):
+    api_keys: List[ApiKeyRequestOut]
 
 
 class UserLogin(BaseModel):
-    email: str
+    username: str
     password: str
-
-
-class UserList(BaseModel):
-    users: List[UserInfo]
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class ApiKeyRequestUpdate(BaseModel):
+    name: str | None
+    api_key: str | None
+    exchange: str | None
+    status: ApiKeyStatusEnum | None = ApiKeyStatusEnum.INACTIVE
+    api_secret: str | None

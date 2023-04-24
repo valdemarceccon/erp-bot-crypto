@@ -1,5 +1,6 @@
 node_modules
 /backend/venv
+/backend/daemon
 *.pyc
 *.pyo
 *.egg-info/
