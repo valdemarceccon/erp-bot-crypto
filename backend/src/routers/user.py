@@ -17,8 +17,8 @@ from src.routers.auth import has_permission
 from src.schemas.user import ApiKeyRequestIn
 from src.schemas.user import ApiKeyRequestOut
 from src.schemas.user import ApiKeyRequestUpdate
+from src.schemas.user import UserDetail
 from src.schemas.user import UserInfo
-from src.schemas.user import UserList
 from src.schemas.user import UserUpdateRequest
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -42,20 +42,6 @@ def update_user(
     return UserInfo(email=db_user.email, name=db_user.name, username=db_user.username)
 
 
-@router.get("/", response_model=UserList)
-def list_user(
-    _: Annotated[int, Depends(has_permission(PermissionEnum.LIST_USERS))],
-    db: Annotated[Session, Depends(get_db)],
-):
-    users: List[User] = user_repo.get_all(db)
-    return UserList(
-        users=[
-            UserInfo(email=str(u.email), name=str(u.name), username=str(u.username))
-            for u in users
-        ]
-    )
-
-
 @router.get("/me", response_model=UserInfo)
 def me(
     user_id: Annotated[int, Depends(get_current_user)],
@@ -69,6 +55,29 @@ def me(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return UserInfo(email=user.email, name=user.name, username=user.username)
+
+
+@router.get("/", response_model=List[UserInfo])
+def list_user(
+    _: Annotated[int, Depends(has_permission(PermissionEnum.LIST_USERS))],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    return user_repo.get_all(db)
+
+
+@router.get("/{user_id}", response_model=UserDetail)
+def get_user_detail(
+    user_id: int,
+    _: Annotated[int, Depends(has_permission(PermissionEnum.GET_USER_INFO))],
+    db: Annotated[Session, Depends(get_db)],
+):
+    user_detail: User | None = user_repo.get_user(db, user_id=user_id)
+    if not user_detail:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return user_detail
 
 
 @router.post(

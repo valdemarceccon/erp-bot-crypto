@@ -47,7 +47,6 @@ class JsonResponse(BaseModel):
 
 
 def get_closed_pnl(api_key, secret, days=1) -> JsonResponse:
-    print(f"{api_key=} {secret=}")
     session = HTTP(
         testnet=False,
         api_key=api_key,

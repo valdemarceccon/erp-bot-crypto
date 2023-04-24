@@ -24,19 +24,8 @@ class UserInfo(BaseModel):
     name: str
     username: str
 
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-
-class UserList(BaseModel):
-    users: List[UserInfo]
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+    class Config:
+        orm_mode = True
 
 
 class ApiKeyRequestBase(BaseModel):
@@ -55,6 +44,20 @@ class ApiKeyRequestOut(ApiKeyRequestBase):
 
     class Config:
         orm_mode = True
+
+
+class UserDetail(UserInfo):
+    api_keys: List[ApiKeyRequestOut]
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
 class ApiKeyRequestUpdate(BaseModel):

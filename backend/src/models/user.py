@@ -61,7 +61,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
 
     api_keys: Mapped[List["ApiKey"]] = relationship(
-        "ApiKey", back_populates="user", lazy="select"
+        "ApiKey", back_populates="user"
     )  # Add apikeys relationship
 
     roles = relationship("Role", secondary="user_roles", back_populates="users")
