@@ -60,7 +60,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(255))
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    api_keys = relationship(
+    api_keys: Mapped[List["ApiKey"]] = relationship(
         "ApiKey", back_populates="user", lazy="select"
     )  # Add apikeys relationship
 
@@ -92,3 +92,29 @@ class ApiKey(Base):
 
     class Config:
         orm_mode = True
+
+
+class ClosedPnl(Base):
+    __tablename__ = "closed_pnl"
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    api_key_id: Mapped[int] = mapped_column(ForeignKey("api_key.id"), index=True)
+
+    symbol: Mapped[str] = mapped_column(String(100))
+    orderId: Mapped[str] = mapped_column(String(100))
+    side: Mapped[str] = mapped_column(String(100))
+    qty: Mapped[str] = mapped_column(String(100))
+    orderPrice: Mapped[str] = mapped_column(String(100))
+    orderType: Mapped[str] = mapped_column(String(100))
+    execType: Mapped[str] = mapped_column(String(100))
+    closedSize: Mapped[str] = mapped_column(String(100))
+    cumEntryValue: Mapped[str] = mapped_column(String(100))
+    avgEntryPrice: Mapped[str] = mapped_column(String(100))
+    cumExitValue: Mapped[str] = mapped_column(String(100))
+    avgExitPrice: Mapped[str] = mapped_column(String(100))
+    closedPnl: Mapped[str] = mapped_column(String(100))
+    fillCount: Mapped[str] = mapped_column(String(100))
+    leverage: Mapped[str] = mapped_column(String(100))
+    createdTime: Mapped[str] = mapped_column(String(100))
+    updatedTime: Mapped[str] = mapped_column(String(100))

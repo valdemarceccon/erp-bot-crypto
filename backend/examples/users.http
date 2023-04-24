@@ -66,9 +66,9 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
 
 {
-  "name": "some key",
-  "api_key": "some key id",
-  "api_secret": "some key secret",
+  "name": "teste",
+  "api_key": "abobrinha",
+  "api_secret": "abobrinha",
   "exchange": "bybit"
 }
 
@@ -85,21 +85,21 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
 
 ###
-DELETE http://localhost/api/users/api_key/3
+DELETE http://localhost/api/users/api_key/6
 accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
 
 ###
-PATCH http://localhost/api/users/api_key/6
+PATCH http://localhost/api/users/api_key/11
 accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
 
 {
-  "name": "some key 2",
-  "api_key": "some key id 2",
-  "api_secret": "some key secret 2",
-  "exchange": "binance",
+  "name": "bybit funcional",
+  "api_key": "nada",
+  "api_secret": "monte de nada",
+  "exchange": "bybit",
   "status": 2
 }
