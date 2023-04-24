@@ -31,7 +31,6 @@ services:
   #   labels:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/demo-bot-erp`)"
-  #     - "traefik.http.routers.backend.priority=1"
   #     - "traefik.http.middlewares.stripprefix-frontend.stripprefix.prefixes=/demo-bot-erp"
   #     - "traefik.http.routers.frontend.middlewares=stripprefix-frontend"
   #     - "traefik.http.routers.frontend.entrypoints=web"
@@ -57,7 +56,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=(PathPrefix(`/demo-bot-erp/api`) || PathPrefix(`/openapi.json`) || PathPrefix(`/redoc`))"
-      - "traefik.http.routers.backend.priority=10"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.middlewares.stripprefix-backend.stripprefix.prefixes=/demo-bot-erp/api"
       - "traefik.http.routers.backend.middlewares=stripprefix-backend"
