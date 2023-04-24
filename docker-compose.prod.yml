@@ -56,7 +56,7 @@ services:
       - 8000:8000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && (PathPrefix(`/demo-bot-erp/api`) || PathPrefix(`/demo-bot-erp/openapi.json`) || PathPrefix(`/demo-bot-erp/redoc`))"
+      - "traefik.http.routers.backend.rule=(PathPrefix(`/demo-bot-erp/api`) || PathPrefix(`/demo-bot-erp/openapi.json`) || PathPrefix(`/demo-bot-erp/redoc`))"
       - "traefik.http.routers.backend.priority=10"
       - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.middlewares.stripprefix-backend.stripprefix.prefixes=/demo-bot-erp/api,/demo-bot-erp"
