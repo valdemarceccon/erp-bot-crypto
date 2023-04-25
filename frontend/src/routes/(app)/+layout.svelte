@@ -9,7 +9,10 @@
 
 	let navItems: NavigationItem[] = [
 		{ label: 'Dashboard', href: '/' },
-		{ label: 'Users', href: '/users' }
+		{ label: 'Users', href: '/users' },
+		{ label: 'APIs', href: '/apis' },
+		{ label: 'Comissions', href: '/comissions' },
+		{ label: 'Referal link', href: '/referal' },
 	];
 
 	function openDrawer() {
