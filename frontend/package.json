@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev --host 0.0.0.0",
+		"dev": "ORIGIN=http://demo.localhost vite dev --host 0.0.0.0",
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "playwright test",
@@ -17,6 +17,7 @@
 		"@playwright/test": "^1.28.1",
 		"@skeletonlabs/skeleton": "^1.2.0",
 		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/adapter-node": "^1.2.3",
 		"@sveltejs/kit": "^1.5.0",
 		"@tailwindcss/forms": "^0.5.3",
 		"@tailwindcss/typography": "^0.5.9",

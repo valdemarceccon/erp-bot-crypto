@@ -9,6 +9,6 @@ export default defineConfig({
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
 	server: {
-		base: process.env.FRONTEND_BASE
+		port: process.env.PORT ? parseInt(process.env.PORT) : 3000
 	}
 });

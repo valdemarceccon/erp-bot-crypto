@@ -8,7 +8,7 @@ export async function load({ params, cookies }) {
         throw redirect(301, "/login")
     }
 
-    const userInfoEndpoint = new URL("/users/me", BACKEND_HOST)
+    const userInfoEndpoint = new URL("/api/users/me", BACKEND_HOST)
 
     const user_data = await fetch(userInfoEndpoint, {
         headers: {

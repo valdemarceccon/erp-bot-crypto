@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
@@ -6,7 +8,9 @@ from src.dependencies.database import engine
 from src.routers import auth
 from src.routers import user
 
-app = FastAPI()
+root_path = os.getenv("BASE_PATH", "")
+
+app = FastAPI(root_path=root_path)
 app.include_router(user.router)
 app.include_router(auth.router)
 

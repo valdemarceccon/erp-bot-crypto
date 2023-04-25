@@ -12,32 +12,24 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-  traefik:
-    image: "traefik:v2.5"
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
+  proxy:
+    build:
+      context: nginx-conf
+      dockerfile: Dockerfile
+    image: proxy:latest
     ports:
       - "80:80"
       - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
   frontend:
     build: frontend
     image: your-frontend:latest
     environment:
-      BACKEND_HOST: http://backend:8000
+      ORIGIN: http://demo.localhost
+      PORT: 3000
     ports:
-      - "5173:5173"
+      - "3000:3000"
     user: "1000:1000"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)"
-      - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
     volumes:
       - ./frontend:/app
 
@@ -55,17 +47,10 @@ services:
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
       JWT_SECRET_KEY: your-secret-key
       JWT_ALGORITHM: HS256
+      BASE_PATH: /api
     user: "1000:1000"
     ports:
       - 8000:8000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`localhost`) && (PathPrefix(`/api`) || PathPrefix(`/openapi.json`) || PathPrefix(`/redoc`))"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.routers.backend.middlewares=stripprefix"
-      - "traefik.http.middlewares.stripprefix.stripprefix.prefixes=/api"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"
-
 
     volumes:
       - ./backend:/app
