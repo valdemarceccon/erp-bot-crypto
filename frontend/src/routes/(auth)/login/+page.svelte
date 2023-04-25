@@ -1,4 +1,5 @@
 <script lang="ts">
+	import LoginLogout from '$lib/components/LoginLogout.svelte';
 	import { fade } from 'svelte/transition';
 	export let form;
 	$: error_message = !form || form.ok ? "" : form.detail;
@@ -17,7 +18,7 @@
 <div class="card">
 <form method="POST">
 	<header class="card-header flex flex-col">
-    Login
+		<LoginLogout active="login" />
   </header>
 	<section class="p-4">
 		<label class="label">

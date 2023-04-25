@@ -48,8 +48,12 @@
 					<strong class="text-xl uppercase">Bot Erp</strong>
 				</svelte:fragment>
 				<svelte:fragment slot="trail">
-					<a type="button" class="btn !bg-transparent" href="/auth/logout">Logout</a>
-					<Avatar initials={initials} background="bg-primary-500" width="w-10" />
+					<form action="/logout" method="GET">
+						<div class="flex">
+							<button type="submit" class="btn !bg-transparent">Logout</button>
+							<Avatar initials={initials} background="bg-primary-500" width="w-10" />
+						</div>
+					</form>
 				</svelte:fragment>
 			</AppBar>
 		</svelte:fragment>
