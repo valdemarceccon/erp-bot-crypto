@@ -1,6 +1,7 @@
 <script lang="ts">
 	import LoginLogout from '$lib/components/LoginLogout.svelte';
-import { fade } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
+	import { toastStore } from '@skeletonlabs/skeleton';
 	export let form;
 	$: error_message = !form || form.ok ? "" : form.detail;
 	$: validation_errors = form?.validation;
@@ -12,6 +13,11 @@ import { fade } from 'svelte/transition';
 	$: password_confirm = form?.values?.password_confirm;
 
 	$: password_match = password == password_confirm;
+	$: {
+		if (error_message) {
+			toastStore.trigger({message: error_message, 	background: 'variant-filled-error',});
+		}
+	}
 
 	function clearServerError() {
 		if (form) {
@@ -19,17 +25,8 @@ import { fade } from 'svelte/transition';
 			form.detail = "";
 		}
 	}
-</script>
 
-{#if error_message}
-<aside transition:fade|local={{ duration: 200 }} class="alert variant-filled-error">		<!-- Icon -->
-		<div class="alert-message">
-				<h3>Register error</h3>
-				<p class="text-error-800">{error_message}</p>
-		</div>
-		<div class="alert-actions"><button on:click={clearServerError}>x</button></div>
-</aside>
-{/if}
+</script>
 
 <div class="card">
 <form method="POST">

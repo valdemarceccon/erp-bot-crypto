@@ -18,7 +18,7 @@
   ];
 </script>
 
-<div class="flex">
+<div class="flex justify-center">
   {#each buttons as button (button.href) }
   <a href={button.href}
     class="btn"
