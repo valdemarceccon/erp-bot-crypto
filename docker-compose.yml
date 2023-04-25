@@ -28,13 +28,18 @@ services:
   frontend:
     build: frontend
     image: your-frontend:latest
+    environment:
+      BACKEND_HOST: http://backend:8000
+    ports:
+      - "5173:5173"
+    user: "1000:1000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/`)"
       - "traefik.http.routers.frontend.entrypoints=web"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-    # volumes:
-    #   - ./frontend:/app
+      - "traefik.http.services.frontend.loadbalancer.server.port=5173"
+    volumes:
+      - ./frontend:/app
 
   backend:
     build:
