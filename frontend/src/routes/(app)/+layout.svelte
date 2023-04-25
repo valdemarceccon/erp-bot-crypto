@@ -48,7 +48,7 @@
 					<strong class="text-xl uppercase">Bot Erp</strong>
 				</svelte:fragment>
 				<svelte:fragment slot="trail">
-					<form action="/logout" method="GET">
+					<form action="/logout" method="POST">
 						<div class="flex">
 							<button type="submit" class="btn !bg-transparent">Logout</button>
 							<Avatar initials={initials} background="bg-primary-500" width="w-10" />

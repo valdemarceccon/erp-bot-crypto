@@ -1,4 +1,5 @@
 import { type Actions, error, json, redirect } from "@sveltejs/kit";
+
 export function load({cookies}) {
   let c = cookies.get("access_token");
   if (c) {

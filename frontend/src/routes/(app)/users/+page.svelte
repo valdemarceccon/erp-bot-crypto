@@ -6,7 +6,7 @@
 </script>
 
 <div>
-  <h1>Users</h1>
+  <h2>Users</h2>
 
 <!-- Responsive Container (recommended) -->
 <div class="table-container">
