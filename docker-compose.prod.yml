@@ -12,29 +12,24 @@ services:
     volumes:
       - /mnt/database/db_data:/var/lib/postgresql/data
 
-  traefik:
-    image: "traefik:v2.5"
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
+  proxy:
+    build:
+      context: nginx-conf
+      dockerfile: Dockerfile
+    image: proxy:latest
     ports:
       - "80:80"
       - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
-  # frontend:
-  #   build: frontend
-  #   image: prod-your-frontend:latest
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.frontend.rule=Host(`localhost`) && PathPrefix(`/demo-bot-erp`)"
-  #     - "traefik.http.middlewares.stripprefix-frontend.stripprefix.prefixes=/demo-bot-erp"
-  #     - "traefik.http.routers.frontend.middlewares=stripprefix-frontend"
-  #     - "traefik.http.routers.frontend.entrypoints=web"
-  #     - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile.prod
+    image: prod-your-frontend:latest
+    environment:
+      ORIGIN: https://demo.valdemar.dev
+      HOST: 0.0.0.0
+      PORT: 3000
 
   backend:
     build:
@@ -50,16 +45,10 @@ services:
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
       JWT_SECRET_KEY: your-secret-key
       JWT_ALGORITHM: HS256
+      BASE_PATH: /api
     user: "1000:1000"
     ports:
       - 8000:8000
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=(PathPrefix(`/demo-bot-erp/api`) || PathPrefix(`/openapi.json`) || PathPrefix(`/redoc`))"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.middlewares.stripprefix-backend.stripprefix.prefixes=/demo-bot-erp/api"
-      - "traefik.http.routers.backend.middlewares=stripprefix-backend"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"
 
   daemon:
     build:
