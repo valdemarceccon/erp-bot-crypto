@@ -1,8 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { userStore } from "../stores/user";
 
-  $: u = userStore;
 </script>
 
 <div>
