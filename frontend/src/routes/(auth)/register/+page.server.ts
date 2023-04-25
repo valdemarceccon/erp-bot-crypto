@@ -1,5 +1,4 @@
 import { type Actions, error, json, redirect } from "@sveltejs/kit";
-import { BACKEND_PRIVATE_HOST } from '$env/static/private';
 export function load({cookies}) {
   let c = cookies.get("access_token");
   if (c) {
@@ -31,7 +30,7 @@ export const actions: Actions = {
       }
     }
 
-    let resp = await fetch(`http://${BACKEND_PRIVATE_HOST}/auth/signup`, {
+    let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

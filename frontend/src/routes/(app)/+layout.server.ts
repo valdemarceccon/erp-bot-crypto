@@ -1,5 +1,4 @@
 import { error, redirect } from '@sveltejs/kit';
-import { BACKEND_PRIVATE_HOST } from '$env/static/private';
 
 export async function load({ cookies, fetch }) {
 
@@ -8,7 +7,7 @@ export async function load({ cookies, fetch }) {
         throw redirect(301, "/login")
     }
     try {
-        const user_data = await fetch(`http://${BACKEND_PRIVATE_HOST}/users/me`, {
+        const user_data = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/users/me`, {
             headers: {
                 "Authorization": `Bearer ${access_token}`,
             }

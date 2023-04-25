@@ -1,5 +1,4 @@
 import { type Actions, error, json, redirect } from "@sveltejs/kit";
-import { BACKEND_PRIVATE_HOST } from '$env/static/private';
 export function load({cookies}) {
   let c = cookies.get("access_token");
   if (c) {
@@ -16,7 +15,7 @@ export const actions: Actions = {
       throw error(401, { message: "username and password is mandatory" });
     }
 
-    let resp = await fetch(`http://${BACKEND_PRIVATE_HOST}/auth/token`, {
+    let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/auth/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -34,6 +33,10 @@ export const actions: Actions = {
         return {
           detail: data.detail,
           ok: false,
+          values: {
+            username: username,
+            password: password
+          }
         };
       }
       throw error(resp.status, data.message)
