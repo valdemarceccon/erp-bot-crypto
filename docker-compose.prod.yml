@@ -27,6 +27,7 @@ services:
       dockerfile: Dockerfile.prod
     image: prod-your-frontend:latest
     environment:
+      BACKEND_PRIVATE_HOST: backend:8000
       ORIGIN: https://demo.valdemar.dev
       HOST: 0.0.0.0
       PORT: 3000

@@ -1,6 +1,22 @@
+<script lang="ts">
+	import { fade } from 'svelte/transition';
+	export let form;
+	$: error_message = !form || form.ok ? "" : form.detail;
+</script>
+
+{#if error_message}
+<aside transition:fade|local={{ duration: 200 }} class="alert variant-filled-error">		<!-- Icon -->
+		<div class="alert-message">
+				<h3>Login error</h3>
+				<p>{error_message}</p>
+		</div>
+		<div class="alert-actions"><button on:click={() => {form = {ok: true, detail: ""}}}>x</button></div>
+</aside>
+{/if}
+
 <div class="card">
-<form action="/auth/login" method="POST">
-	<header class="card-header flex">
+<form method="POST">
+	<header class="card-header flex flex-col">
     Login
   </header>
 	<section class="p-4">
@@ -13,7 +29,8 @@
 			<input type="password" required name="password" class="input" placeholder="Password" />
 		</label>
 	</section>
-	<footer class="card-footer flex">
+	<footer class="card-footer flex flex-col">
+
 		<button type="submit" class="btn variant-filled-primary flex-auto">Login</button>
 	</footer>
 </form>

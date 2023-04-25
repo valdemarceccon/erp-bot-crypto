@@ -60,6 +60,9 @@
 		<!-- <svelte:fragment slot="pageHeader">Page Header</svelte:fragment> -->
 		<!-- Router Slot -->
 		<div class="container p-10 mx-auto">
+			{#if !data.success}
+				<h2>{data.message}</h2>
+			{/if}
 			<slot />
 		</div>
 
