@@ -113,16 +113,16 @@ def add_api_key(session: Session, user_id: int, api_key: ApiKeyRequestIn) -> Api
     return api_key_db
 
 
-def get_api_key(
-    db: Session, user_id: int, api_key_id: int | None = None
-) -> List[ApiKey]:
-    if api_key_id:
-        return (
-            db.query(ApiKey)
-            .filter(ApiKey.user_id == user_id, ApiKey.id == api_key_id)
-            .all()
-        )
+def get_user_api_keys(db: Session, user_id: int) -> List[ApiKey]:
     return db.query(ApiKey).filter(ApiKey.user_id == user_id).all()
+
+
+def get_api_key(db: Session, user_id: int, api_key_id: int) -> ApiKey | None:
+    return (
+        db.query(ApiKey)
+        .filter(ApiKey.user_id == user_id, ApiKey.id == api_key_id)
+        .first()
+    )
 
 
 def delete_api_key(db: Session, user_id: int, api_key_id: int) -> None:

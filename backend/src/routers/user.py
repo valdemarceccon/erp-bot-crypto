@@ -24,7 +24,6 @@ from src.schemas.user import UserUpdateRequest
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-# API endpoints
 @router.patch("/", response_model=UserInfo)
 def update_user(
     user: UserUpdateRequest,
@@ -42,6 +41,14 @@ def update_user(
     return UserInfo(email=db_user.email, name=db_user.name, username=db_user.username)
 
 
+@router.get("/", response_model=List[UserInfo])
+def list_user(
+    _: Annotated[int, Depends(has_permission(PermissionEnum.LIST_USERS))],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    return user_repo.get_all(db)
+
+
 @router.get("/me", response_model=UserInfo)
 def me(
     user_id: Annotated[int, Depends(get_current_user)],
@@ -55,14 +62,6 @@ def me(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return UserInfo(email=user.email, name=user.name, username=user.username)
-
-
-@router.get("/", response_model=List[UserInfo])
-def list_user(
-    _: Annotated[int, Depends(has_permission(PermissionEnum.LIST_USERS))],
-    db: Annotated[Session, Depends(get_db)],
-) -> Any:
-    return user_repo.get_all(db)
 
 
 @router.get("/{user_id}", response_model=UserDetail)
@@ -80,6 +79,32 @@ def get_user_detail(
     return user_detail
 
 
+@router.get("/api_key/{api_key_id}", response_model=ApiKeyRequestOut)
+def get_apikey_id(
+    api_key_id: int,
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    api_key_detail = user_repo.get_api_key(
+        db=db, api_key_id=api_key_id, user_id=user_id
+    )
+    if not api_key_detail:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Api key with id {api_key_id} not found",
+        )
+    return api_key_detail
+
+
+@router.get("/api_keys/", response_model=List[ApiKeyRequestOut])
+def get_apikey(
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    api_key_list = user_repo.get_user_api_keys(db, user_id)
+    return api_key_list
+
+
 @router.post(
     "/api_key", status_code=status.HTTP_201_CREATED, response_model=ApiKeyRequestOut
 )
@@ -89,25 +114,6 @@ def add_apikey(
     db: Annotated[Session, Depends(get_db)],
 ):
     return user_repo.add_api_key(db, user_id, api_key_req)
-
-
-@router.get("/api_key", response_model=List[ApiKeyRequestOut])
-def get_apikey(
-    user_id: Annotated[int, Depends(get_current_user)],
-    db: Annotated[Session, Depends(get_db)],
-) -> Any:
-    api_key_list = user_repo.get_api_key(db, user_id)
-    return api_key_list
-
-
-@router.get("/api_key/{api_key_id}", response_model=List[ApiKeyRequestOut])
-def get_apikey_id(
-    api_key_id: int,
-    user_id: Annotated[int, Depends(get_current_user)],
-    db: Annotated[Session, Depends(get_db)],
-) -> Any:
-    api_key_list = user_repo.get_api_key(db, user_id, api_key_id)
-    return api_key_list
 
 
 @router.delete("/api_key/{api_key_id}", status_code=status.HTTP_202_ACCEPTED)

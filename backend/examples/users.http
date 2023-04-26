@@ -3,10 +3,10 @@ accept: application/json
 Content-Type: application/json
 
 {
-  "email": "valdemar.ceccon@gmail.com",
+  "email": "valdemar.ceccon3@gmail.com",
   "password": "123456",
   "name": "Valdemar Ceccon",
-  "username": "valdemar.ceccon"
+  "username": "valdemar.ceccon3"
 }
 
 ###
@@ -36,12 +36,12 @@ accept: application/json
 Content-Type: application/json
 
 {
-  "username": "valdemar.ceccon",
-  "password": "1234567"
+  "username": "valdemar.ceccon1",
+  "password": "123456"
 }
 
 ###
-GET http://localhost/api/users/
+GET http://localhost/api/users
 accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
@@ -67,7 +67,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
 POST http://localhost/api/users/api_key
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0YW1wIjoiMjAyMy0wNC0yNVQyMTo0OTowNy4wMzc0NjgifQ.B-8QUmdeVH2DZTkIQhIPZFCc4jAe1wp1WRQPVyO2Ueg
 
 {
   "name": "teste",
@@ -77,15 +77,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
 }
 
 ###
-GET http://localhost/api/users/api_key
+GET http://localhost/api/users/api_keys/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0YW1wIjoiMjAyMy0wNC0yNVQyMTo0OTowNy4wMzc0NjgifQ.B-8QUmdeVH2DZTkIQhIPZFCc4jAe1wp1WRQPVyO2Ueg
 
 
 
 ###
-GET http://localhost/api/users/api_key/3
+GET http://localhost/api/users/api_key/1
 accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
@@ -97,7 +97,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
 
 ###
-PATCH http://localhost/api/users/api_key/11
+PATCH http://localhost/api/users/api_key/19
 accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQwMzoyNzowNS40NDE0MDIifQ.1HpyVMV_sMWPyxak6NWV-h_Z5C0Om9HCLQXvD-ibnOI
