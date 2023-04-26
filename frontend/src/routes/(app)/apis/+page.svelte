@@ -23,10 +23,10 @@
 		<table class="table table-hover w-6/12">
 			<thead>
 				<tr>
-					<th>Name</th>
+					<th>Name <a href="/apis/new" class="btn btn-sm variant-filled-success">+</a></th>
 					<th>Exchange</th>
 					<th class="text-center">Status</th>
-					<th class="text-center">Actions</th>
+					<!-- <th class="text-center "> <span> Actions </span> </th> -->
 				</tr>
 			</thead>
 			<tbody>
@@ -36,29 +36,29 @@
 						<td class="table-cell-fit">{row.exchange}</td>
 						<td class="table-cell-fit text-center ali">
 							<button
-								class="btn chip w-full"
+								class="btn chip w-full variant-filled-primary"
 								on:click={() => toggleStatus(row, i)}
 								class:variant-filled-error={row.status == 0}
 								class:variant-filled-success={row.status == 2}
-								class:variant-filled-warning={row.status == 1 || row.status == 3}
+								class:variant-filled-warning={row.status == 1}
+								class:variant-filled-primary={row.status == 3}
 							>
 								{hashMap.get(row.status)}
 							</button>
 						</td>
-						<td class="table-cell-fit">
-							<div class="flex flex-row gap-x-2">
-								<a
+						<!-- <td class="w-20">
+							<div class="btn-group variant-filled-warning">
+								<a class="btn-sm"
 									href="/apis/edit/{row.id}"
-									class="btn-icon btn-sm variant-filled-warning shrink-0"
-									><img src={edit_icon} class="w-5 green-800" /></a
-								>
+									>
+									Edit
+								</a>
 								<a
-									href="/apis/edit/{row.id}"
-									class="btn-icon btn-sm variant-filled-warning shrink-0"
-									><img src={trash_icon} class="w-3 green-800" /></a
-								>
+									href="/apis/edit/{row.id}">
+									Delete
+								</a>
 							</div>
-						</td>
+						</td> -->
 					</tr>
 				{/each}
 			</tbody>
