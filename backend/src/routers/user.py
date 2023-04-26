@@ -79,6 +79,15 @@ def get_user_detail(
     return user_detail
 
 
+@router.get("/api_keys/all", response_model=List[ApiKeyRequestOut])
+def get_apikey_all_users(
+    user_id: Annotated[int, Depends(has_permission(PermissionEnum.LIST_API_KEYS))],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    api_key_list = user_repo.list_api_keys(db=db)
+    return api_key_list
+
+
 @router.get("/api_key/{api_key_id}", response_model=ApiKeyRequestOut)
 def get_apikey_id(
     api_key_id: int,

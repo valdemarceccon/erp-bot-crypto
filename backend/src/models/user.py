@@ -69,8 +69,9 @@ class User(Base):
 
 class ApiKeyStatusEnum(IntEnum):
     INACTIVE = 0
-    WAITING = 1
+    WAITING_ACTIVE = 1
     ACTIVE = 2
+    WAITING_INATIVE = 3
 
 
 class ApiKey(Base):

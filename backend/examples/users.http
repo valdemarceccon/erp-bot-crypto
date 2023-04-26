@@ -36,7 +36,7 @@ accept: application/json
 Content-Type: application/json
 
 {
-  "username": "valdemar.ceccon1",
+  "username": "valdemar.ceccon",
   "password": "123456"
 }
 
@@ -59,7 +59,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
 
 {
   "email": "valdemar.ceccon@gmail.com",
-  "password": "1234567",
+  "password": "123456",
   "name": "Valdemar Ceccon"
 }
 
@@ -77,6 +77,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0Y
 }
 
 ###
+GET http://localhost/api/users/api_keys/all
+accept: application/json
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNlQwMToxMzo0OC4xMTA2MjEifQ.9CqzTNvfBW7QVrbZYNq_98CvWKpRlYitP1l6pV8RN_Y
+
+
+###
 GET http://localhost/api/users/api_keys/
 accept: application/json
 Content-Type: application/json
@@ -85,10 +92,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0Y
 
 
 ###
-GET http://localhost/api/users/api_key/1
+GET http://localhost/api/users/api_key/14
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0YW1wIjoiMjAyMy0wNC0yNVQyMTo0OTowNy4wMzc0NjgifQ.B-8QUmdeVH2DZTkIQhIPZFCc4jAe1wp1WRQPVyO2Ueg
 
 ###
 DELETE http://localhost/api/users/api_key/6

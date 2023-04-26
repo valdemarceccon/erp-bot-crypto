@@ -125,6 +125,10 @@ def get_api_key(db: Session, user_id: int, api_key_id: int) -> ApiKey | None:
     )
 
 
+def list_api_keys(db: Session) -> List[ApiKey] | None:
+    return db.query(ApiKey).all()
+
+
 def delete_api_key(db: Session, user_id: int, api_key_id: int) -> None:
     api_keys = (
         db.query(ApiKey)
