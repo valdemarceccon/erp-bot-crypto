@@ -1,1 +1,1 @@
-0 5 * * * cd /app && /usr/bin/python3 src/daemon.py >> daemon/cron_log.log 2>&1
+0 5 * * * cd /app && /usr/local/bin/python src/daemon.py >> daemon/cron_log.log 2>&1
