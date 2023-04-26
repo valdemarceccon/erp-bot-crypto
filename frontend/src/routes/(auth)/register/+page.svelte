@@ -2,6 +2,7 @@
 	import LoginLogout from '$lib/components/LoginLogout.svelte';
 	import { fade } from 'svelte/transition';
 	import { toastStore } from '@skeletonlabs/skeleton';
+	import { enhance } from '$app/forms';
 	export let form;
 	$: error_message = !form || form.ok ? "" : form.detail;
 	$: validation_errors = form?.validation;
@@ -29,7 +30,7 @@
 </script>
 
 <div class="card">
-<form method="POST">
+<form method="POST" use:enhance>
 	<header class="card-header flex flex-col">
 		<LoginLogout active="register" />
   </header>

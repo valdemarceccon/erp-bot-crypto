@@ -4,6 +4,8 @@
 	import type { UserToken } from '$lib/stores';
 
 	import type { PageData } from './$types';
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 
 	export let data: PageData;
 
@@ -27,12 +29,10 @@
 	};
 
 	$: initials = user && user.name ? user.name.split(" ").map((n)=>n[0]).join("") : "";
-
-
 </script>
 
 	<Drawer>
-		<Navigation items={navItems} />
+		<Navigation items={navItems}/>
 	</Drawer>
 
 	<AppShell slotSidebarLeft="w-0 md:w-52 bg-surface-500/10">
@@ -51,7 +51,7 @@
 					<strong class="text-xl uppercase">Bot Erp</strong>
 				</svelte:fragment>
 				<svelte:fragment slot="trail">
-					<form action="/logout" method="POST">
+					<form action="/logout" method="POST" use:enhance>
 						<div class="flex">
 							<button type="submit" class="btn !bg-transparent">Logout</button>
 							<Avatar initials={initials} background="bg-primary-500" width="w-10" />

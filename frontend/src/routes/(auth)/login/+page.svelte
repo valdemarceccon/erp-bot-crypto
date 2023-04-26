@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import LoginLogout from '$lib/components/LoginLogout.svelte';
+	import { toastStore } from '@skeletonlabs/skeleton';
 	import { fade } from 'svelte/transition';
 	export let form;
 	$: error_message = !form || form.ok ? "" : form.detail;
@@ -12,20 +14,16 @@
 		}
 	}
 
+	$: {
+		if (error_message) {
+			toastStore.trigger({message: error_message, 	background: 'variant-filled-error',});
+		}
+	}
+
 </script>
 
-{#if error_message}
-<aside transition:fade|local={{ duration: 200 }} class="alert variant-filled-error">		<!-- Icon -->
-		<div class="alert-message">
-				<h3>Login error</h3>
-				<p>{error_message}</p>
-		</div>
-		<div class="alert-actions"><button on:click={clearServerError}>x</button></div>
-</aside>
-{/if}
-
 <div class="card">
-<form method="POST">
+<form method="POST" use:enhance>
 	<header class="card-header flex flex-col">
 		<LoginLogout active="login" />
   </header>
