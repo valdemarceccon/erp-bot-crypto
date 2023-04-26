@@ -6,6 +6,7 @@ from passlib.hash import bcrypt
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from src.models.user import ApiKey
+from src.models.user import Permission
 from src.models.user import Role
 from src.models.user import User
 from src.schemas.user import ApiKeyRequestIn
@@ -86,15 +87,23 @@ def get_all(db: Session) -> List[User]:
     return db.query(User).all()
 
 
-def user_has_permission(session: Session, user_id: int, permission_name: str) -> bool:
-    user = session.query(User).filter(User.id == user_id).first()
-
+def list_user_permissions(db: Session, user_id: int) -> List[Permission] | None:
+    user: User | None = db.get(User, user_id)
     if not user:
-        return False
+        return None
 
     user_roles: List[Role] = user.roles
     permissions = [ur.permissions for ur in user_roles]
-    permissions = itertools.chain(*permissions)
+    flat_permissions = itertools.chain(*permissions)
+
+    return list(flat_permissions)
+
+
+def user_has_permission(session: Session, user_id: int, permission_name: str) -> bool:
+    permissions = list_user_permissions(db=session, user_id=user_id)
+
+    if not permissions:
+        return False
 
     return permission_name in [p.name for p in permissions]
 

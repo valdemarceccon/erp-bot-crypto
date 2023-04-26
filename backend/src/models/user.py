@@ -64,7 +64,9 @@ class User(Base):
         "ApiKey", back_populates="user"
     )  # Add apikeys relationship
 
-    roles = relationship("Role", secondary="user_roles", back_populates="users")
+    roles: Mapped[List[Role]] = relationship(
+        "Role", secondary="user_roles", back_populates="users"
+    )
 
 
 class ApiKeyStatusEnum(IntEnum):

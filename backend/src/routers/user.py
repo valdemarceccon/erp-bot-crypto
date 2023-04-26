@@ -10,6 +10,7 @@ from fastapi import status
 from sqlalchemy.orm import Session
 from src.dependencies.database import get_db
 from src.models.roles import PermissionEnum
+from src.models.user import Permission
 from src.models.user import User
 from src.repository import user as user_repo
 from src.routers.auth import get_current_user
@@ -17,6 +18,7 @@ from src.routers.auth import has_permission
 from src.schemas.user import ApiKeyRequestIn
 from src.schemas.user import ApiKeyRequestOut
 from src.schemas.user import ApiKeyRequestUpdate
+from src.schemas.user import PermissionResp
 from src.schemas.user import UserDetail
 from src.schemas.user import UserInfo
 from src.schemas.user import UserUpdateRequest
@@ -64,10 +66,25 @@ def me(
     return UserInfo(email=user.email, name=user.name, username=user.username)
 
 
+@router.get("/permissions", response_model=List[PermissionResp])
+def get_user_permissions(
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    user_permissions: List[Permission] | None = user_repo.list_user_permissions(
+        db, user_id=user_id
+    )
+    if user_permissions is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return user_permissions
+
+
 @router.get("/{user_id}", response_model=UserDetail)
 def get_user_detail(
-    user_id: int,
-    _: Annotated[int, Depends(has_permission(PermissionEnum.GET_USER_INFO))],
+    user_id: Annotated[int, Depends(has_permission(PermissionEnum.GET_USER_INFO))],
     db: Annotated[Session, Depends(get_db)],
 ):
     user_detail: User | None = user_repo.get_user(db, user_id=user_id)

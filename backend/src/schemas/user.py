@@ -50,6 +50,13 @@ class UserDetail(UserInfo):
     api_keys: List[ApiKeyRequestOut]
 
 
+class PermissionResp(BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 class UserLogin(BaseModel):
     username: str
     password: str
