@@ -112,7 +112,7 @@
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
 		<Navigation items={noSpecialPermitionRequired} title="Menu" />
-		{#if specialPermitionRequired}
+		{#if specialPermitionRequired.length > 0}
 			<hr class="!border-t-2" />
 			<Navigation items={specialPermitionRequired} title="Administration"/>
 		{/if}
