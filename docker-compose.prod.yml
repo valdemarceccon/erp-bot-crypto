@@ -19,7 +19,7 @@ services:
       - "8080:8080"
 
   frontend:
-    image: ghcr.io/valdemarceccon/prod-your-frontend:latest
+    image: ghcr.io/valdemarceccon/frontend:latest
     environment:
       BACKEND_PRIVATE_HOST: backend:8000
       ORIGIN: https://demo.valdemar.dev
@@ -27,7 +27,7 @@ services:
       PORT: 3000
 
   backend:
-    image: ghcr.io/valdemarceccon/prod-your-backend-python:latest
+    image: ghcr.io/valdemarceccon/backend:latest
     command: ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       POSTGRES_USER: dev
@@ -43,7 +43,7 @@ services:
       - 8000:8000
 
   daemon:
-    image: ghcr.io/valdemarceccon/prod-your-daemon-python:latest
+    image: ghcr.io/valdemarceccon/daemon:latest
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_123456
