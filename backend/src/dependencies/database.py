@@ -5,7 +5,8 @@ from fastapi.logger import logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-fallback_url = "sqlite:///fallback.db"
+# fallback_url = "sqlite:///fallback.db"
+fallback_url = "postgresql://dev:dev_123456@db/dev"
 
 SQLALCHEMY_DATABASE_URL = os.getenv("POSTGRES_URL", fallback_url)
 
