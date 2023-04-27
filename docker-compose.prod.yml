@@ -16,7 +16,7 @@ services:
     build:
       context: nginx-conf
       dockerfile: Dockerfile
-    image: ghcr.io/valdemarceccon/proxy:0.2.3-alpha1
+    image: ghcr.io/valdemarceccon/proxy:latest
     ports:
       - "80:80"
       - "8080:8080"
@@ -25,7 +25,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile.prod
-    image: ghcr.io/valdemarceccon/prod-your-frontend:0.2.3-alpha1
+    image: ghcr.io/valdemarceccon/prod-your-frontend:latest
     environment:
       BACKEND_PRIVATE_HOST: backend:8000
       ORIGIN: https://demo.valdemar.dev
@@ -36,7 +36,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile.api
-    image: ghcr.io/valdemarceccon/prod-your-backend-python:0.2.3-alpha1
+    image: ghcr.io/valdemarceccon/prod-your-backend-python:latest
     command: ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       POSTGRES_USER: dev
@@ -55,7 +55,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile.daemon
-    image: ghcr.io/valdemarceccon/prod-your-daemon-python:0.2.3-alpha1
+    image: ghcr.io/valdemarceccon/prod-your-daemon-python:latest
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_123456
