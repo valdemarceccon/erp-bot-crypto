@@ -1,1 +1,1 @@
-0 5 * * * cd /app && /usr/local/bin/python src/daemon.py >> daemon/cron_log.log 2>&1
+0 5 * * * cd /app && /usr/local/bin/python src/daemon.py >"$(date +%Y-%m-%d_%H-%M-%S.txt)" 2>&1
