@@ -98,6 +98,8 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
+    env:
+      AWS_INSTANCE_SG_ID: ${{ secrets.AWS_SG_INSTANCE }}
     if: ${{ always() }}
     needs: [build_and_deploy, update_production]
     steps:
