@@ -1,1 +1,1 @@
-30 */2 * * * cd /app && /venv/bin/python src/daemon.py > /app/daemon/daemon.log 2>&1
+30 */2 * * * cd /app && /venv/bin/python -m src.daemon > /app/daemon/daemon.log 2>&1
