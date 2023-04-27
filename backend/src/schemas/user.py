@@ -30,6 +30,7 @@ class UserInfo(BaseModel):
     email: str
     name: str
     username: str
+    id: int
 
     class Config:
         orm_mode = True
@@ -59,6 +60,16 @@ class ApiKeyRequestIn(ApiKeyRequestBase):
 
 class ApiKeyRequestOut(ApiKeyRequestBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+
+class ApiKeyAdminRequestOut(ApiKeyRequestOut):
+    id: int
+    user: UserInfo
+    api_key: str
+    secret: str
 
     class Config:
         orm_mode = True

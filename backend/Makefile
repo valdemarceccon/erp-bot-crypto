@@ -6,6 +6,8 @@ EXEC_DB=docker compose exec db
 up:
 	$(EXEC_BACK) alembic upgrade head
 down:
+	$(EXEC_BACK) alembic downgrade -1
+downall:
 	$(EXEC_BACK) alembic downgrade base
 new:
 	$(EXEC_BACK) alembic revision -m "$(MESSAGE)"

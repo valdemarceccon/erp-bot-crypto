@@ -16,6 +16,7 @@ from src.models.user import User
 from src.repository import user as user_repo
 from src.routers.auth import get_current_user
 from src.routers.auth import has_permission
+from src.schemas.user import ApiKeyAdminRequestOut
 from src.schemas.user import ApiKeyRequestIn
 from src.schemas.user import ApiKeyRequestOut
 from src.schemas.user import ApiKeyRequestUpdate
@@ -107,7 +108,7 @@ def get_user_detail(
     return user_detail
 
 
-@router.get("/api_keys/all", response_model=List[ApiKeyRequestOut])
+@router.get("/api_keys/all", response_model=List[ApiKeyAdminRequestOut])
 def get_apikey_all_users(
     user_id: Annotated[int, Depends(has_permission(PermissionEnum.LIST_API_KEYS))],
     db: Annotated[Session, Depends(get_db)],
@@ -179,6 +180,22 @@ def get_toggle_status_client(status: int) -> ApiKeyStatusEnum | None:
     return None
 
 
+def get_toggle_status_admin(status: int) -> ApiKeyStatusEnum | None:
+    if status == ApiKeyStatusEnum.ACTIVE:
+        return ApiKeyStatusEnum.INACTIVE
+
+    if status == ApiKeyStatusEnum.INACTIVE:
+        return ApiKeyStatusEnum.ACTIVE
+
+    if status == ApiKeyStatusEnum.WAITING_ACTIVE:
+        return ApiKeyStatusEnum.ACTIVE
+
+    if status == ApiKeyStatusEnum.WAITING_INATIVE:
+        return ApiKeyStatusEnum.INACTIVE
+
+    return None
+
+
 @router.patch(
     "/api_key/client-toggle/{api_key_id}", status_code=status.HTTP_202_ACCEPTED
 )
@@ -195,6 +212,42 @@ def client_api_key_toggle(
         )
     old_status = current_api_key.status
     new_status = get_toggle_status_client(old_status)
+
+    if new_status is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid status {old_status}",
+        )
+
+    user_repo.update_api_key(
+        db=db,
+        user_id=user_id,
+        api_key_id=api_key_id,
+        api_key=ApiKeyRequestUpdate(
+            status=new_status, api_key=None, api_secret=None, exchange=None, name=None
+        ),
+    )
+    return {"message": "ok"}
+
+
+@router.patch(
+    "/api_key/admin-toggle/{client_id}/{api_key_id}",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+def admin_api_key_toggle(
+    api_key_id: int,
+    user_id: Annotated[int, Depends(has_permission(PermissionEnum.WRITE_ALL_API_KEYS))],
+    client_id: int,
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    current_api_key = user_repo.get_api_key(db, user_id=user_id, api_key_id=api_key_id)
+    if not current_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Api key with id {api_key_id} not found",
+        )
+    old_status = current_api_key.status
+    new_status = get_toggle_status_admin(old_status)
 
     if new_status is None:
         raise HTTPException(

@@ -25,7 +25,8 @@
 		{ label: 'Users', href: '/users', permission: 'ListUsers' },
 		{ label: 'APIs', href: '/apis' },
 		{ label: 'Comissions', href: '/comissions', permission: 'None' },
-		{ label: 'Referal link', href: '/referal', permission: 'None' }
+		{ label: 'Referal link', href: '/referal', permission: 'None' },
+		{ label: 'APIs', href: '/admin_apis', permission: 'WriteAllApiKeys' },
 	];
 
 	function openDrawer() {

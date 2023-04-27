@@ -84,7 +84,7 @@ def get_user_by_username(db: Session, username: str) -> User | None:
 
 
 def get_all(db: Session) -> List[User]:
-    return db.query(User).all()
+    return db.query(User).order_by(User.id).all()
 
 
 def list_user_permissions(db: Session, user_id: int) -> List[Permission] | None:
@@ -135,7 +135,7 @@ def get_api_key(db: Session, user_id: int, api_key_id: int) -> ApiKey | None:
 
 
 def list_api_keys(db: Session) -> List[ApiKey] | None:
-    return db.query(ApiKey).all()
+    return db.query(ApiKey).order_by(ApiKey.id).all()
 
 
 def delete_api_key(db: Session, user_id: int, api_key_id: int) -> None:
