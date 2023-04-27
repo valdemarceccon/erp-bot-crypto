@@ -1,39 +1,40 @@
 <script lang="ts">
+	import type { PageData } from "./$types";
+	import type { UserBasicInfo } from "./+page.server";
+
+	export let data: PageData;
+
+	let users: UserBasicInfo[] = [];
+
+	if (data) {
+		users = data.user_list ? data.user_list : [];
+	}
 
 </script>
 
 <div>
-  <h2>Users</h2>
 
-<!-- Responsive Container (recommended) -->
+
 <div class="table-container">
-	<!-- Native Table Element -->
-	<!-- <table class="table table-hover">
+	<h2>Users</h2>
+	<table class="table table-hover">
 		<thead>
 			<tr>
-				<th>Position</th>
 				<th>Name</th>
-				<th>Symbol</th>
-				<th>Weight</th>
+				<th>Username</th>
+				<th>Email</th>
 			</tr>
 		</thead>
 		<tbody>
-			{#each tableArr as row, i}
+			{#each users as row, i}
 				<tr>
-					<td>{row.position}</td>
 					<td>{row.name}</td>
-					<td>{row.symbol}</td>
-					<td>{row.weight}</td>
+					<td>{row.username}</td>
+					<td>{row.email}</td>
 				</tr>
 			{/each}
 		</tbody>
-		<tfoot>
-			<tr>
-				<th colspan="3">Calculated Total Weight</th>
-				<td>{totalWeight}</td>
-			</tr>
-		</tfoot>
-	</table> -->
+	</table>
 </div>
 
 </div>

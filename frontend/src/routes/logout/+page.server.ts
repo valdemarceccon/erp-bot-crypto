@@ -6,6 +6,6 @@ export const actions = {
       path: "/"
     });
 
-    throw redirect(301, "/");
+    throw redirect(301, "/login");
   }
 }

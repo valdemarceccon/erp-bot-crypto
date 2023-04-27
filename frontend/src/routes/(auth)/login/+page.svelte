@@ -7,12 +7,6 @@
 	$: error_message = !form || form.ok ? "" : form.detail;
 	$: username = form?.values?.username ? form?.values?.username : "";
 	$: password = form?.values?.password ? form?.values?.password : "";
-	function clearServerError() {
-		if (form) {
-			form.ok = true;
-			form.detail = "";
-		}
-	}
 
 	$: {
 		if (error_message) {

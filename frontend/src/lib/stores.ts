@@ -5,7 +5,8 @@ export type UserToken = {
   token?: string,
   username?: string,
   name?: string,
-  email?: string
+  email?: string,
+  permissions?: { name: string }[]
 }
 
 export const userTokenStore: Writable<UserToken> = localStorageStore('user', {});

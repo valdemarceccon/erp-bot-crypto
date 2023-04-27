@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import trash_icon from '../../../assets/delete_icon.svg';
-	import edit_icon from '../../../assets/edit_icon.svg';
-	import type { ApiListResp } from './+page.server';
-	export let data;
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 	let hashMap = new Map<number, string>();
 	hashMap.set(0, 'Inactive');
 	hashMap.set(1, 'Waiting activation');
@@ -15,7 +14,6 @@
 {#if data.api_list}
 	<div class="table-container flex flex-col items-center">
 		<h2 class="my-5">Your apis</h2>
-		<!-- Native Table Element -->
 		<table class="table table-hover w-6/12">
 			<thead>
 				<tr>
@@ -33,8 +31,8 @@
 							<a class="btn btn-sm variant-filled-warning" href="/">edit</a> -->
 							{row.name}
 						</td>
-						<td class="table-cell-fit">{row.exchange}</td>
-						<td class="table-cell-fit text-center ali">
+						<td class="w-32">{row.exchange}</td>
+						<td class="text-center w-40">
 							<form method="POST" action="?/toggleStatus" use:enhance>
 								<input type="hidden" name="id" value={row.id}/>
 								<button type="submit"

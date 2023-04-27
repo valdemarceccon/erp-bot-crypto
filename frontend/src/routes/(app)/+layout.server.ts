@@ -18,14 +18,24 @@ export async function load({ cookies, fetch }) {
             throw error(user_data.status, error_resp.message);
         }
 
-        let user_json = await user_data.json();
+        let user_json: {
+            success: boolean,
+            access_token: string,
+            email: string,
+            name: string,
+            username: string,
+            permissions: {
+                name: string
+            }[]
+        } = { ...await user_data.json(), access_token: access_token, success: true };
 
         return {
             success: true,
             access_token: access_token,
             email: user_json.email,
             name: user_json.name,
-            username: user_json.username
+            username: user_json.username,
+            permissions: user_json.permissions
         }
     } catch (e: any) {
         return {
