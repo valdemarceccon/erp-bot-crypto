@@ -240,13 +240,13 @@ def admin_api_key_toggle(
     client_id: int,
     db: Annotated[Session, Depends(get_db)],
 ) -> Any:
-    current_api_key = user_repo.get_api_key(db, user_id=user_id, api_key_id=api_key_id)
-    if not current_api_key:
+    client_ip = user_repo.get_api_key(db, user_id=client_id, api_key_id=api_key_id)
+    if not client_ip:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Api key with id {api_key_id} not found",
         )
-    old_status = current_api_key.status
+    old_status = client_ip.status
     new_status = get_toggle_status_admin(old_status)
 
     if new_status is None:

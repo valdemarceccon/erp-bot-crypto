@@ -41,7 +41,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost/api/users
+GET http://localhost/api/users/
 accept: application/json
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
