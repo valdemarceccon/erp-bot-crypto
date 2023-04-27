@@ -1,1 +1,1 @@
-0 5 * * * cd /app && /usr/local/bin/python src/daemon.py >"$(date +%Y-%m-%d_%H-%M-%S.txt)" 2>&1
+30 */2 * * * cd /app && /venv/bin/python src/daemon.py > /app/daemon/daemon.log 2>&1
