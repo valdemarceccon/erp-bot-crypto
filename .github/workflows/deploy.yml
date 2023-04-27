@@ -80,6 +80,9 @@ jobs:
         tags: ghcr.io/${{ github.repository_owner }}/daemon:latest
 
   update_production:
+    runs-on: ubuntu-latest
+    needs: build_and_deploy
+    steps:
     - name: SSH and deploy
       uses: appleboy/ssh-action@v0.1.10
       with:
@@ -94,6 +97,9 @@ jobs:
           docker compose up -d
 
   cleanup:
+    runs-on: ubuntu-latest
+    needs: [build_and_deploy, update_production]
+    steps:
     - name: revoke runner ip address
       if: ${{ always() }}
       run: |
