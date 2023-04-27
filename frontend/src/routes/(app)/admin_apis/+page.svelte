@@ -15,7 +15,7 @@
 {#if data.api_list}
 	<div class="table-container flex flex-col items-center">
 		<h2 class="my-5">All apis</h2>
-		<table class="table table-hover w-full lg:w-6/12 md:w-10/12 ">
+		<table class="table table-hover w-full">
 			<thead>
 				<tr>
 					<th>Name</th>
