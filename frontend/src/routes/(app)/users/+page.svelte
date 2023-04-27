@@ -15,14 +15,14 @@
 <div>
 
 
-<div class="table-container">
-	<h2>Users</h2>
+<div class="table-container flex flex-col items-center">
+	<h2 class="my-5">Users</h2>
 	<table class="table table-hover">
 		<thead>
 			<tr>
-				<th>Name</th>
-				<th>Username</th>
-				<th>Email</th>
+				<th class="text-center">Name</th>
+				<th class="text-center">Username</th>
+				<th class="text-center">Email</th>
 			</tr>
 		</thead>
 		<tbody>

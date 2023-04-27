@@ -18,11 +18,11 @@
 		<table class="table table-hover w-full">
 			<thead>
 				<tr>
-					<th>Name</th>
-					<th>Exchange</th>
-					<th>Username</th>
-					<th class="w-52">Api Key</th>
-					<th class="w-full">Api Secret</th>
+					<th class="text-center">Name</th>
+					<th class="text-center">Exchange</th>
+					<th class="text-center">Username</th>
+					<th class="w-52 text-center">Api Key</th>
+					<th class="w-full text-center">Api Secret</th>
 					<th class="text-center">Status</th>
 					<!-- <th class="text-center "> <span> Actions </span> </th> -->
 				</tr>

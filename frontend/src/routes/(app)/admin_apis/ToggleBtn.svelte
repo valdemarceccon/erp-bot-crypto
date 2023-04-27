@@ -8,7 +8,7 @@
 
 
 	{#if showContent}
-  <button on:click={toggle} class="btn btn-sm variant-ghost-primary mr-10">Hide</button><slot />
+  <button on:click={toggle} class="btn btn-sm variant-ghost-primary mr-3">Hide</button><slot />
 	{:else}
   <button class="btn btn-sm variant-ghost-primary w-full"
 	on:click={toggle}
