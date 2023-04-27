@@ -56,7 +56,7 @@ jobs:
         tags: ghcr.io/${{ github.repository_owner }}/proxy:latest
 
     - name: Build and push frontend
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         context: "{{defaultContext}}:frontend"
         file: ./Dockerfile.prod
@@ -64,7 +64,7 @@ jobs:
         tags: ghcr.io/${{ github.repository_owner }}/frontend:latest
 
     - name: Build and push backend
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         context: "{{defaultContext}}:backend"
         file: ./Dockerfile.api
@@ -72,7 +72,7 @@ jobs:
         tags: ghcr.io/${{ github.repository_owner }}/backend:latest
 
     - name: Build and push daemon
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
       with:
         context: "{{defaultContext}}:backend"
         file: ./Dockerfile.daemon
