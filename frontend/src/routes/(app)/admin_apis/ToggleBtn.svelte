@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let showContent: boolean = true;
-	export let hiddenMessage: string = 'hidden';
+	export let hiddenMessage: string = 'Hidden';
   const toggle = () => {
 		showContent = !showContent;
 	};
