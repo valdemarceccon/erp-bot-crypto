@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 export type ApiListResp = {
   id: number,
@@ -8,7 +8,50 @@ export type ApiListResp = {
   status: number
 };
 
-export async function load({cookies, fetch}) {
+export const actions = {
+  toggleStatus: async ({ cookies, fetch, url, request }) => {
+    const token = cookies.get("access_token");
+
+    if (!token) {
+      redirect(301, "/");
+    }
+    let fd = await request.formData();
+    let id = fd.get("id")?.toString();
+
+    if (!id) {
+      fail(403, {
+        success: false,
+        message: "invalid request"
+      })
+    }
+    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_key/client-toggle/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!api_keys_resp.ok) {
+      let a = await api_keys_resp.json();
+      if (api_keys_resp.status < 500) {
+        return {
+          success: false,
+          message: a.detail
+        }
+      }
+    }
+
+    let res_api_list: ApiListResp[] = await api_keys_resp.json();
+
+    return {
+      success: true,
+      api_list: res_api_list
+    }
+  }
+}
+
+export async function load({ cookies, fetch }) {
   const token = cookies.get("access_token");
 
   if (!token) {
@@ -19,7 +62,7 @@ export async function load({cookies, fetch}) {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${token}`,
-  }
+    }
   });
 
   if (!api_keys_resp.ok) {

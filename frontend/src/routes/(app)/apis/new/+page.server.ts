@@ -1,5 +1,16 @@
-import { error, redirect } from '@sveltejs/kit';
+import { error, redirect, type Cookies } from '@sveltejs/kit';
 import { OK, ZodError, z } from 'zod';
+
+async function callApi(url: string, access_token: string, body?: string) {
+  return await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${access_token}`,
+    },
+    body: body
+  });
+}
 
 async function callSaveApiEndpoint(validatedForm: {
   name?: string,
@@ -7,14 +18,7 @@ async function callSaveApiEndpoint(validatedForm: {
   api_secret?: string,
   exchange?: string,
 }, access_token: string) {
-  let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_key`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${access_token}`,
-    },
-    body: JSON.stringify(validatedForm)
-  });
+  let resp = await callApi(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_key`, access_token, JSON.stringify(validatedForm));
   if (!resp.ok) {
     let data = await resp.json();
     if (resp.status >= 400 && resp.status < 500) {
@@ -34,6 +38,7 @@ async function callSaveApiEndpoint(validatedForm: {
 export const actions = {
   default: async ({ cookies, request, fetch }) => {
     const access_token = cookies.get("access_token",);
+
     if (!access_token) {
       throw redirect(301, "/login")
     }

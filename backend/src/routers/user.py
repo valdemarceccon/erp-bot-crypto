@@ -10,6 +10,7 @@ from fastapi import status
 from sqlalchemy.orm import Session
 from src.dependencies.database import get_db
 from src.models.roles import PermissionEnum
+from src.models.user import ApiKeyStatusEnum
 from src.models.user import Permission
 from src.models.user import User
 from src.repository import user as user_repo
@@ -149,6 +150,56 @@ def delete_api_key(
     db: Annotated[Session, Depends(get_db)],
 ) -> Any:
     user_repo.delete_api_key(db, user_id, api_key_id)
+    return {"message": "ok"}
+
+
+def get_toggle_status_client(status: int) -> ApiKeyStatusEnum | None:
+    if status == ApiKeyStatusEnum.ACTIVE:
+        return ApiKeyStatusEnum.WAITING_INATIVE
+
+    if status == ApiKeyStatusEnum.INACTIVE:
+        return ApiKeyStatusEnum.WAITING_ACTIVE
+
+    if status == ApiKeyStatusEnum.WAITING_ACTIVE:
+        return ApiKeyStatusEnum.INACTIVE
+
+    if status == ApiKeyStatusEnum.WAITING_INATIVE:
+        return ApiKeyStatusEnum.ACTIVE
+
+    return None
+
+
+@router.patch(
+    "/api_key/client-toggle/{api_key_id}", status_code=status.HTTP_202_ACCEPTED
+)
+def client_api_key_toggle(
+    api_key_id: int,
+    user_id: Annotated[int, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> Any:
+    current_api_key = user_repo.get_api_key(db, user_id=user_id, api_key_id=api_key_id)
+    if not current_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Api key with id {api_key_id} not found",
+        )
+    old_status = current_api_key.status
+    new_status = get_toggle_status_client(old_status)
+
+    if new_status is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid status {old_status}",
+        )
+
+    user_repo.update_api_key(
+        db=db,
+        user_id=user_id,
+        api_key_id=api_key_id,
+        api_key=ApiKeyRequestUpdate(
+            status=new_status, api_key=None, api_secret=None, exchange=None, name=None
+        ),
+    )
     return {"message": "ok"}
 
 

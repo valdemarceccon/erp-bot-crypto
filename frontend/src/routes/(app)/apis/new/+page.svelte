@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { enhance, type SubmitFunction } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { toastStore } from '@skeletonlabs/skeleton';
@@ -38,7 +38,7 @@
 		toastStore.trigger({ message: form.detail, background: 'variant-filled-error' });
 	}
 
-	function validateForm({form, data, action, cancel, submitter}) {
+	const validateForm: SubmitFunction = ({form, data, action, cancel, submitter}) => {
     console.log("chamou");
 		let validatedForm = formSchema.safeParse({
 			name: name,
@@ -48,11 +48,11 @@
 		});
 
 		if (!validatedForm.success) {
-      let valerrors = validatedForm.error.format();
-      errors.name = valerrors.name?._errors[0]
-      errors.api_key = valerrors.api_key?._errors[0]
-      errors.api_secret = valerrors.api_secret?._errors[0]
-      errors.exchange = valerrors.exchange?._errors[0]
+      let localErrors = validatedForm.error.format();
+      errors.name = localErrors.name?._errors[0];
+      errors.api_key = localErrors.api_key?._errors[0];
+      errors.api_secret = localErrors.api_secret?._errors[0];
+      errors.exchange = localErrors.exchange?._errors[0];
 			cancel();
 		}
 	}
@@ -60,14 +60,16 @@
 
 <form method="POST" use:enhance={validateForm}>
 	<div class="flex flex-col gap-2">
-		<div class="flex gap-2">
-			<label class="w-6/12">
-				Key Name
+		<div class="flex flex-row gap-2">
+			<label class="label flex-1">
+				<span class="my-5">
+          Key Name
 				{#if errors?.name}
-					<span class="badge variant-filled-error">
+					<span class="text-error-500 ml-5">
 						{errors?.name}
 					</span>
 				{/if}
+      </span>
 				<input
 					bind:value={name}
 					name="name"
@@ -77,10 +79,10 @@
 					class:input-error={errors?.name}
 				/>
 			</label>
-			<label class="w-6/12">
-				Exchange
+			<label class="label flex-1">
+				<span>Exchange</span>
 				{#if errors?.exchange}
-					<span class="badge variant-filled-error">
+        <span class="text-error-500 ml-5">
 						{errors?.exchange}
 					</span>
 				{/if}
@@ -94,10 +96,10 @@
 				/>
 			</label>
 		</div>
-		<label>
-			API Key
+		<label class="label">
+			<span>API Key</span>
 			{#if errors?.api_key}
-				<span class="badge variant-filled-error">
+      <span class="text-error-500 ml-5">
 					{errors?.api_key}
 				</span>
 			{/if}
@@ -110,10 +112,10 @@
 				class:input-error={errors?.api_key}
 			/>
 		</label>
-		<label>
-			Secret Key
+		<label class="label">
+			<span>Secret Key</span>
 			{#if errors?.api_secret}
-				<span class="badge variant-filled-error">
+      <span class="text-error-500 ml-5">
 					{errors?.api_secret}
 				</span>
 			{/if}

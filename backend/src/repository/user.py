@@ -123,7 +123,7 @@ def add_api_key(session: Session, user_id: int, api_key: ApiKeyRequestIn) -> Api
 
 
 def get_user_api_keys(db: Session, user_id: int) -> List[ApiKey]:
-    return db.query(ApiKey).filter(ApiKey.user_id == user_id).all()
+    return db.query(ApiKey).filter(ApiKey.user_id == user_id).order_by(ApiKey.id).all()
 
 
 def get_api_key(db: Session, user_id: int, api_key_id: int) -> ApiKey | None:
@@ -160,10 +160,18 @@ def update_api_key(
     if not db_api_key:
         return None
 
-    db_api_key.name = api_key.name if api_key.name else db_api_key.name
-    db_api_key.status = api_key.status.value if api_key.status else db_api_key.status
-    db_api_key.exchange = api_key.exchange if api_key.exchange else db_api_key.exchange
-    db_api_key.api_key = api_key.api_key if api_key.api_key else db_api_key.api_key
-    db_api_key.secret = api_key.api_secret if api_key.api_secret else db_api_key.secret
+    db_api_key.name = api_key.name if api_key.name is not None else db_api_key.name
+    db_api_key.status = (
+        api_key.status.value if api_key.status is not None else db_api_key.status
+    )
+    db_api_key.exchange = (
+        api_key.exchange if api_key.exchange is not None else db_api_key.exchange
+    )
+    db_api_key.api_key = (
+        api_key.api_key if api_key.api_key is not None else db_api_key.api_key
+    )
+    db_api_key.secret = (
+        api_key.api_secret if api_key.api_secret is not None else db_api_key.secret
+    )
     db.commit()
     return db_api_key
