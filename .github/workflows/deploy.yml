@@ -92,9 +92,9 @@ jobs:
         script: |
           cd /home/ubuntu/erp-bot-crypto
           git pull
-          docker compose pull
-          docker compose down
-          docker compose up -d
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml down
+          docker compose -f docker-compose.prod.yml up -d
 
   cleanup:
     runs-on: ubuntu-latest
