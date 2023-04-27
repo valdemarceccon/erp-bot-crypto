@@ -11,12 +11,12 @@
 		drawerStore,
 		toastStore
 	} from '@skeletonlabs/skeleton';
-	import Navigation, { type NavigationItem } from '$lib/components/Navigation.svelte';
+	import type { NavigationItem } from '$lib/components/Navigation.svelte';
 
 	import type { PageData } from './$types';
 	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
 	import { createSessionStore, type UserToken } from './sessionStore';
+	import SidebarMenu from './SidebarMenu.svelte';
 
 	export let data: PageData;
 
@@ -80,9 +80,7 @@
 </script>
 
 <Drawer>
-	<Navigation items={noSpecialPermitionRequired} />
-	<hr class="!border-t-2" />
-	<Navigation items={specialPermitionRequired} />
+	<SidebarMenu />
 </Drawer>
 
 <AppShell slotSidebarLeft="w-0 md:w-52 bg-surface-500/10">
@@ -111,11 +109,7 @@
 		</AppBar>
 	</svelte:fragment>
 	<svelte:fragment slot="sidebarLeft">
-		<Navigation items={noSpecialPermitionRequired} title="Menu" />
-		{#if specialPermitionRequired.length > 0}
-			<hr class="!border-t-2" />
-			<Navigation items={specialPermitionRequired} title="Administration"/>
-		{/if}
+		<SidebarMenu {noSpecialPermitionRequired} {specialPermitionRequired} />
 	</svelte:fragment>
 	<div class="container md:p-10 mx-auto">
 		<slot />
