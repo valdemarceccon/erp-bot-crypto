@@ -236,7 +236,7 @@ def client_api_key_toggle(
 )
 def admin_api_key_toggle(
     api_key_id: int,
-    user_id: Annotated[int, Depends(has_permission(PermissionEnum.WRITE_ALL_API_KEYS))],
+    _: Annotated[int, Depends(has_permission(PermissionEnum.WRITE_ALL_API_KEYS))],
     client_id: int,
     db: Annotated[Session, Depends(get_db)],
 ) -> Any:
@@ -257,7 +257,7 @@ def admin_api_key_toggle(
 
     user_repo.update_api_key(
         db=db,
-        user_id=user_id,
+        user_id=client_id,
         api_key_id=api_key_id,
         api_key=ApiKeyRequestUpdate(
             status=new_status, api_key=None, api_secret=None, exchange=None, name=None
