@@ -98,10 +98,10 @@ jobs:
 
   cleanup:
     runs-on: ubuntu-latest
+    if: ${{ always() }}
     needs: [build_and_deploy, update_production]
     steps:
     - name: revoke runner ip address
-      if: ${{ always() }}
       run: |
         aws ec2 revoke-security-group-ingress \
           --group-id $AWS_INSTANCE_SG_ID \
