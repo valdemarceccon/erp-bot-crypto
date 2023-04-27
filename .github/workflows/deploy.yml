@@ -60,7 +60,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: nginx-conf
-        file: Dockerfile
+        file: ./Dockerfile
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/proxy:latest
 
@@ -68,7 +68,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: frontend
-        file: Dockerfile.prod
+        file: ./Dockerfile.prod
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/frontend:latest
 
@@ -76,7 +76,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: backend
-        file: Dockerfile.api
+        file: ./Dockerfile.api
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/backend:latest
 
@@ -84,7 +84,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: backend
-        file: Dockerfile.daemon
+        file: ./Dockerfile.daemon
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/daemon:latest
 
