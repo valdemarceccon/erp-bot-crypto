@@ -71,7 +71,7 @@ jobs:
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/backend:latest
 
-    - name: Build and push backend
+    - name: Build and push daemon
       uses: docker/build-push-action@v2
       with:
         context: "{{defaultContext}}:backend"
@@ -79,6 +79,7 @@ jobs:
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/daemon:latest
 
+  update_production:
     - name: SSH and deploy
       uses: appleboy/ssh-action@v0.1.10
       with:
@@ -88,12 +89,13 @@ jobs:
         script: |
           cd /home/ubuntu/erp-bot-crypto
           git pull
-          export COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          sed -i "s/:latest/:$COMMIT_SHA/g" docker-compose.prod.yml
           docker compose pull
           docker compose down
           docker compose up -d
+
+  cleanup:
     - name: revoke runner ip address
+      if: ${{ always() }}
       run: |
         aws ec2 revoke-security-group-ingress \
           --group-id $AWS_INSTANCE_SG_ID \
