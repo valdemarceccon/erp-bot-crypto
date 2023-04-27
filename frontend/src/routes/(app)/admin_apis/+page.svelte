@@ -38,7 +38,7 @@
 						<td class="w-32">{row.exchange}</td>
 						<td class="w-32">{row.user.username}</td>
 						<td class="w-32">{row.api_key}</td>
-						<td class="w-32">
+						<td class="w-full">
 							<ToggleBtn showContent={false}>
 								{row.secret}
 							</ToggleBtn>
