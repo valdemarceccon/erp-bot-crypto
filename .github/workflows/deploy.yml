@@ -80,7 +80,7 @@ jobs:
         tags: ghcr.io/${{ github.repository_owner }}/daemon:latest
 
     - name: SSH and deploy
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
@@ -90,9 +90,9 @@ jobs:
           git pull
           export COMMIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
           sed -i "s/:latest/:$COMMIT_SHA/g" docker-compose.prod.yml
-          docker-compose pull
-          docker-compose down
-          docker-compose up -d
+          docker compose pull
+          docker compose down
+          docker compose up -d
     - name: revoke runner ip address
       run: |
         aws ec2 revoke-security-group-ingress \
