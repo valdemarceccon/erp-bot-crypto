@@ -22,6 +22,7 @@ from src.schemas.user import ApiKeyRequestUpdate
 from src.schemas.user import PermissionResp
 from src.schemas.user import UserDetail
 from src.schemas.user import UserInfo
+from src.schemas.user import UserInfoMe
 from src.schemas.user import UserUpdateRequest
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -32,7 +33,7 @@ def update_user(
     user: UserUpdateRequest,
     db: Annotated[Session, Depends(get_db)],
     user_id: Annotated[int, Depends(get_current_user)],
-):
+) -> Any:
     db_user = user_repo.update_user(db, user_id, user)
     if db_user is None:
         raise HTTPException(
@@ -41,7 +42,7 @@ def update_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    return UserInfo(email=db_user.email, name=db_user.name, username=db_user.username)
+    return user
 
 
 @router.get("/", response_model=List[UserInfo])
@@ -52,11 +53,11 @@ def list_user(
     return user_repo.get_all(db)
 
 
-@router.get("/me", response_model=UserInfo)
+@router.get("/me", response_model=UserInfoMe)
 def me(
     user_id: Annotated[int, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
-) -> UserInfo:
+) -> Any:
     user: User | None = user_repo.get_user(db, user_id)
     if not user:
         raise HTTPException(
@@ -64,7 +65,13 @@ def me(
             detail="Invalid token. Please login again.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return UserInfo(email=user.email, name=user.name, username=user.username)
+    user_permissions: List[Permission] | None = user_repo.list_user_permissions(
+        db, user_id=user.id
+    )
+    permission_resp = []
+    if user_permissions is not None:
+        permission_resp = [PermissionResp(name=p.name) for p in user_permissions]
+    return UserInfoMe(**user.__dict__, permissions=permission_resp)
 
 
 @router.get("/permissions", response_model=List[PermissionResp])
@@ -89,11 +96,14 @@ def get_user_detail(
     db: Annotated[Session, Depends(get_db)],
 ):
     user_detail: User | None = user_repo.get_user(db, user_id=user_id)
+
     if not user_detail:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-
+    user_permissions: List[Permission] | None = user_repo.list_user_permissions(
+        db, user_id=user_detail.id
+    )
     return user_detail
 
 

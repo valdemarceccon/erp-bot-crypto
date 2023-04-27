@@ -19,10 +19,28 @@ class UserUpdateRequest(BaseModel):
     name: str
 
 
+class PermissionResp(BaseModel):
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 class UserInfo(BaseModel):
     email: str
     name: str
     username: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserInfoMe(BaseModel):
+    email: str
+    name: str
+    username: str
+
+    permissions: List[PermissionResp]
 
     class Config:
         orm_mode = True
@@ -48,13 +66,6 @@ class ApiKeyRequestOut(ApiKeyRequestBase):
 
 class UserDetail(UserInfo):
     api_keys: List[ApiKeyRequestOut]
-
-
-class PermissionResp(BaseModel):
-    name: str
-
-    class Config:
-        orm_mode = True
 
 
 class UserLogin(BaseModel):

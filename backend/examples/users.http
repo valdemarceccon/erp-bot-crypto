@@ -26,7 +26,7 @@ Content-Type: application/json
 GET http://localhost/api/users/me
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0YW1wIjoiMjAyMy0wNC0yNFQxNzo0MTo0MC4xMDcwMzAifQ.xpc_whlwRe8C6eFVhNc-lZnTSFbdzncsF3Z4YXt9hhA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 
 ###
@@ -44,18 +44,18 @@ Content-Type: application/json
 GET http://localhost/api/users
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 ###
 GET http://localhost/api/users/1
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 ###
 PATCH http://localhost/api/users/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 {
   "email": "valdemar.ceccon@gmail.com",
@@ -68,14 +68,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
 GET http://localhost/api/users/permissions
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 
 ###
 POST http://localhost/api/users/api_key
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0YW1wIjoiMjAyMy0wNC0yNVQyMTo0OTowNy4wMzc0NjgifQ.B-8QUmdeVH2DZTkIQhIPZFCc4jAe1wp1WRQPVyO2Ueg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 {
   "name": "teste",
@@ -88,14 +88,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0Y
 GET http://localhost/api/users/api_keys/all
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yNlQwMToxMzo0OC4xMTA2MjEifQ.9CqzTNvfBW7QVrbZYNq_98CvWKpRlYitP1l6pV8RN_Y
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 
 ###
 GET http://localhost/api/users/api_keys/
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0YW1wIjoiMjAyMy0wNC0yNVQyMTo0OTowNy4wMzc0NjgifQ.B-8QUmdeVH2DZTkIQhIPZFCc4jAe1wp1WRQPVyO2Ueg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 
 
@@ -103,19 +103,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidGltZXN0Y
 GET http://localhost/api/users/api_key/34
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 ###
 DELETE http://localhost/api/users/api_key/6
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 ###
 PATCH http://localhost/api/users/api_key/11
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
 
 {
   "status": 2
@@ -125,4 +125,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0Y
 PATCH http://localhost/api/users/api_key/client-toggle/34
 accept: application/json
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yM1QyMzozNTowMS4wMzQ1MjQifQ.uA0i03BaG95VRUEGtJvTeE0ojVr0EwzfKg0-X6YU6SM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidGltZXN0YW1wIjoiMjAyMy0wNC0yN1QxMTo1ODozMS40NjQwMzYifQ.zwLMbgnn7-s_XOo_eERIEexQxLjahHl2gSFb-nLYESk
