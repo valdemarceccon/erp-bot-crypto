@@ -9,23 +9,23 @@ group "default" {
 target "proxy" {
   context = "nginx-conf"
   dockerfile = "Dockerfile"
-  tags = ["ghcr.io/valdemarceccon/proxy:${VERSION}", "latest"]
+  tags = ["ghcr.io/valdemarceccon/proxy:${VERSION}", "ghcr.io/valdemarceccon/frontend:latest"]
 }
 
 target "frontend" {
   context = "frontend"
   dockerfile = "Dockerfile.prod"
-  tags = ["ghcr.io/valdemarceccon/frontend:${VERSION}", "latest"]
+  tags = ["ghcr.io/valdemarceccon/frontend:${VERSION}", "ghcr.io/valdemarceccon/frontend:latest"]
 }
 
 target "backend" {
   context = "backend"
   dockerfile = "Dockerfile.api"
-  tags = ["ghcr.io/valdemarceccon/backend:${VERSION}", "latest"]
+  tags = ["ghcr.io/valdemarceccon/backend:${VERSION}", "ghcr.io/valdemarceccon/frontend:latest"]
 }
 
 target "daemon" {
   context = "backend"
   dockerfile = "Dockerfile.daemon"
-  tags = ["ghcr.io/valdemarceccon/daemon:${VERSION}", "latest"]
+  tags = ["ghcr.io/valdemarceccon/daemon:${VERSION}", "ghcr.io/valdemarceccon/frontend:latest"]
 }
