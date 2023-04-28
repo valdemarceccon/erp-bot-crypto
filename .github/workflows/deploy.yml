@@ -13,7 +13,7 @@ jobs:
 
     env:
       AWS_INSTANCE_SG_ID: ${{ secrets.AWS_SG_INSTANCE }}
-      VERSION: $(echo $GITHUB_SHA | cut -c1-7)
+      VERSION: ${{ github.sha }}
       APP_HOME: /home/ubuntu/app
     steps:
     - name: configure aws credentials
