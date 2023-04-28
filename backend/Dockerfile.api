@@ -1,4 +1,4 @@
-# backend/Dockerfile
+# backend/Dockerfile.api
 
 FROM python:3.10
 
