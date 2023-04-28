@@ -46,7 +46,6 @@ jobs:
       run: |
         # You can customize this part to bump the versions as needed
         # Here's a simple example that updates the image tag to the commit SHA
-        # export COMMIT_SHA=$(echo ${{ GITHUB_SHA }} | cut -c1-7)
         sed -i "s/:latest/:$VERSION/g" docker-compose.yml
 
     - name: Login to GitHub Container Registry
