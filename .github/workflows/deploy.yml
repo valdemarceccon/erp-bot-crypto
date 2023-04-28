@@ -67,7 +67,7 @@ jobs:
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         source: "docker-compose.prod.yml"
-        target: $APP_HOME
+        target: ${{ env.VERSION }}
 
     - name: SSH and deploy
       uses: appleboy/ssh-action@v0.1.10
@@ -76,7 +76,7 @@ jobs:
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         script: |
-          cd $APP_HOME
+          cd ${{ env.VERSION }}
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml down
           docker compose -f docker-compose.prod.yml up -d
