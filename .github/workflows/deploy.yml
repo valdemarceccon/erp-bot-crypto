@@ -46,7 +46,7 @@ jobs:
       run: |
         # You can customize this part to bump the versions as needed
         # Here's a simple example that updates the image tag to the commit SHA
-        sed -i "s/:latest/:$VERSION/g" docker-compose.yml
+        sed -i "s/:latest/:$VERSION/g" docker-compose.prod.yml
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v2
@@ -67,7 +67,7 @@ jobs:
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         source: "docker-compose.prod.yml"
-        target: ${{ env.VERSION }}
+        target: ${{ env.APP_HOME }}
 
     - name: SSH and deploy
       uses: appleboy/ssh-action@v0.1.10
@@ -76,7 +76,7 @@ jobs:
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         script: |
-          cd ${{ env.VERSION }}
+          cd ${{ env.APP_HOME }}
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml down
           docker compose -f docker-compose.prod.yml up -d
