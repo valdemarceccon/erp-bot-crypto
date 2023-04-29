@@ -1,1 +1,0 @@
-0 1 * * * cd /app && /venv/bin/python -m src.daemon > /app/daemon/daemon.log 2>&1
