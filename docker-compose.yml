@@ -49,6 +49,7 @@ services:
       JWT_ALGORITHM: HS256
       BASE_PATH: /api
       PORT: 8000
+      ENABLE_MIGRATIONS: true
 
     ports:
       - 8000:8000

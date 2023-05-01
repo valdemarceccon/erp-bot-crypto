@@ -4,21 +4,41 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v3"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/repository/migrations"
 )
 
 func notImplemented(c *fiber.Ctx) error {
 	return fiber.ErrNotImplemented
 }
 
+func runMigrations(db *sql.DB) {
+	goose.SetBaseFS(migrations.EmbedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := goose.Up(db, "."); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := goose.Down(db, "."); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	port := os.Getenv("PORT")
 	jwtSecret := os.Getenv("JWT_SECRET_KEY")
+	shouldMigrate := os.Getenv("ENABLE_MIGRATIONS")
 
 	dbConfig := repository.PostgresConfigFromEnv()
 
@@ -26,6 +46,14 @@ func main() {
 
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
+	if strings.ToLower(shouldMigrate) == "true" {
+		runMigrations(db)
 	}
 
 	if port == "" {
