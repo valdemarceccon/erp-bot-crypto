@@ -3,13 +3,11 @@ package controller
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
 )
 
 type UserController interface {
 	ListUsers(c *fiber.Ctx) error
-	GetUserById(uint32) (*model.User, error)
 }
 
 type UserControllerImpl struct {
@@ -35,8 +33,4 @@ func (uc *UserControllerImpl) ListUsers(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(ret)
-}
-
-func (uc *UserControllerImpl) GetUserById(id uint32) (*model.User, error) {
-	return uc.userRepository.Get(id)
 }

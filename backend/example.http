@@ -1,21 +1,32 @@
 @host=http://localhost/api
-@username=valdemar
-@password=123456
+@user=valdemar
+@email=valdemar.ceccon@gmail.com
+@fullname=Valdemar Ceccon
+
+@pass=123456
+@superuser=superuser
+@superpass=superpass
+
+### register
+# @name registerUser
+@usertoken = {{registerUser.response.body.token}}
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{"username": "{{user}}",	"email": "{{email}}",	"password": "{{pass}}",	"fullname": "{{fullname}}"}
 
 ### login
 # @name loginRequest
+@usertoken = {{loginRequest.response.body.token}}
 POST {{host}}/auth/login
 Content-Type: application/json
-Accept:
 
-{"username": "{{username}}", "password": "{{password}}"}
+{"username": "{{user}}", "password": "{{pass}}"}
 
 ### protected endpoint
-@token = {{loginRequest.response.body.token}}
 GET {{host}}/protected-hello
-Authorization: Bearer {{token}}
+Authorization: Bearer {{usertoken}}
 
 ### protected endpoint
-@token = {{loginRequest.response.body.token}}
 GET {{host}}/user
-Authorization: Bearer {{token}}
+Authorization: Bearer {{usertoken}}

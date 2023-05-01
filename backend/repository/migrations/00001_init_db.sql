@@ -1,39 +1,40 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE permissions (
+CREATE TABLE permission (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL
+    permission_name VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    UNIQUE (name)
+    role_name VARCHAR(255) NOT NULL,
+    UNIQUE (role_name)
 );
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
+    telegram varchar(255) NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    fullname VARCHAR(255) NOT NULL,
     hashed_password VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE api_key (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
-    name VARCHAR(255) NOT NULL,
+    api_key_name VARCHAR(255) NOT NULL,
     exchange VARCHAR(255) NOT NULL,
     api_key VARCHAR(255) NOT NULL,
-    secret VARCHAR(255) NOT NULL,
+    api_secret VARCHAR(255) NOT NULL,
     status INTEGER NOT NULL
 );
 
 CREATE INDEX ix_api_key_user_id ON api_key(user_id);
 
-CREATE TABLE role_permissions (
+CREATE TABLE role_permission (
     role_id INTEGER NOT NULL REFERENCES roles(id),
-    permission_id INTEGER NOT NULL REFERENCES permissions(id),
+    permission_id INTEGER NOT NULL REFERENCES permission(id),
     PRIMARY KEY (role_id, permission_id)
 );
 
@@ -74,9 +75,9 @@ CREATE INDEX ix_closed_pnl_user_id ON closed_pnl(user_id);
 -- +goose StatementBegin
 DROP TABLE IF EXISTS closed_pnl;
 DROP TABLE IF EXISTS user_roles;
-DROP TABLE IF EXISTS role_permissions;
+DROP TABLE IF EXISTS role_permission;
 DROP TABLE IF EXISTS api_key;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS roles;
-DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS permission;
 -- +goose StatementEnd

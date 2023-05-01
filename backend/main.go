@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -27,10 +28,6 @@ func runMigrations(db *sql.DB) {
 	}
 
 	if err := goose.Up(db, "."); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := goose.Down(db, "."); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -73,6 +70,7 @@ func main() {
 
 	authGroup := app.Group("/auth")
 	authGroup.Post("/login", authControler.LoginHandler)
+	authGroup.Post("/register", authControler.RegisterHandler)
 	authGroup.Get("/logout", notImplemented)
 	authGroup.Get("/refresh", notImplemented)
 
@@ -86,6 +84,10 @@ func main() {
 
 	userGroup := app.Group("/user")
 	userGroup.Use(jwtMiddleware)
+	userGroup.Use(func(c *fiber.Ctx) error {
+		fmt.Println("oi")
+		return nil
+	})
 
 	userGroup.Get("/", userController.ListUsers)
 
