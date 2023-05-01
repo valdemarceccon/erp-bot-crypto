@@ -5,23 +5,15 @@ package model
 // 	Name string
 // }
 
-type Transaction string
+type Permission string
 
 const (
-	ListUsers   Transaction = "ListUsers"
-	ListApiKeys Transaction = "ListApiKeys"
+	ListUsersPermission   Permission = "ListUsers"
+	ListApiKeysPermission Permission = "ListApiKeys"
 )
 
 type Role struct {
 	Id           uint32
 	Name         string
-	Transactions []Transaction
-}
-
-func NewAdminRole() *Role {
-	return &Role{
-		Id:           0,
-		Name:         "Admin",
-		Transactions: []Transaction{ListApiKeys, ListUsers},
-	}
+	Transactions []Permission
 }

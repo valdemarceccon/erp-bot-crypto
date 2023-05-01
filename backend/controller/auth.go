@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
@@ -18,7 +18,7 @@ type AuthController interface {
 }
 
 type JwtAuthController struct {
-	UserRepository repository.UserRepository
+	UserRepository repository.User
 	JwtSecret      string
 }
 
@@ -30,7 +30,7 @@ func WithHS256Secret(secret string) JwtAuthControllerOptions {
 	}
 }
 
-func NewJwtAuthController(ur repository.UserRepository, options ...JwtAuthControllerOptions) AuthController {
+func NewJwtAuthController(ur repository.User, options ...JwtAuthControllerOptions) AuthController {
 	var controller JwtAuthController
 
 	for _, opt := range options {
@@ -57,7 +57,7 @@ func (jac *JwtAuthController) RegisterHandler(c *fiber.Ctx) error {
 	}
 
 	newUser := &model.User{
-		Name:     registerRequest.Fullname,
+		Fullname: registerRequest.Fullname,
 		Username: registerRequest.Username,
 		Password: string(hashedPassword),
 		Email:    registerRequest.Email,
@@ -117,11 +117,19 @@ func (jac *JwtAuthController) validateUser(username, password string) (*model.Us
 	return dbUser, nil
 }
 
+type UserClaim struct {
+	jwt.RegisteredClaims
+	Username string
+	UserId   uint32
+}
+
 func generateUserToken(secret string, user *model.User) (string, error) {
-	claims := jwt.MapClaims{
-		"username": user.Username,
-		"sub":      user.Id,
-		"exp":      time.Now().Add(time.Hour * 12).Unix(),
+	claims := UserClaim{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
+		},
+		Username: user.Username,
+		UserId:   user.Id,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -1,30 +1,31 @@
 package controller
 
 import (
+	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
 )
 
-type UserController interface {
-	ListUsers(c *fiber.Ctx) error
+type UserController struct {
+	userRepository repository.User
+	roleRepository repository.Role
 }
 
-type UserControllerImpl struct {
-	userRepository repository.UserRepository
-}
-
-func NewUserController(ur repository.UserRepository) UserController {
-	return &UserControllerImpl{
+func NewUserController(ur repository.User, role repository.Role) *UserController {
+	return &UserController{
 		userRepository: ur,
+		roleRepository: role,
 	}
 }
 
-func (uc *UserControllerImpl) ListUsers(c *fiber.Ctx) error {
+func (uc *UserController) ListUsers(c *fiber.Ctx) error {
 
 	users, err := uc.userRepository.GetAll()
 
 	if err != nil {
+		log.Println("user: ", err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	ret := make([]*schema.UserResponse, 0)

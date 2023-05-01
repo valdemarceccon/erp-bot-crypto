@@ -46,3 +46,7 @@ Authorization: Bearer {{usertoken}}
 ### protected endpoint
 GET {{host}}/user
 Authorization: Bearer {{usertoken}}
+
+### protected endpoint super
+GET {{host}}/user
+Authorization: Bearer {{superUsertoken}}

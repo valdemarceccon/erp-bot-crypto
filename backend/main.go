@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -12,8 +11,10 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/migrations"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository/migrations"
 )
 
 func notImplemented(c *fiber.Ctx) error {
@@ -61,10 +62,13 @@ func main() {
 		jwtSecret = "some-secret"
 	}
 
-	userRepo := repository.NewUserRepositoryPsql(db)
+	userRepo := repository.NewUserPsql(db)
+	roleRepo := repository.NewRolePsql(db)
 
 	authControler := controller.NewJwtAuthController(userRepo, controller.WithHS256Secret(jwtSecret))
-	userController := controller.NewUserController(userRepo)
+	userController := controller.NewUserController(userRepo, roleRepo)
+
+	authMiddleware := middleware.NewAuthMiddleware(userRepo, roleRepo, jwtSecret)
 
 	app := fiber.New()
 
@@ -84,12 +88,9 @@ func main() {
 
 	userGroup := app.Group("/user")
 	userGroup.Use(jwtMiddleware)
-	userGroup.Use(func(c *fiber.Ctx) error {
-		fmt.Println("oi")
-		return nil
-	})
+	userGroup.Use(authMiddleware.UserExists)
 
-	userGroup.Get("/", userController.ListUsers)
+	userGroup.Get("/", controller.WithPermission(roleRepo, model.ListUsersPermission, userController.ListUsers))
 
 	app.Listen(":" + port)
 }

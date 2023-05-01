@@ -11,7 +11,7 @@ type UserRepositoryPsql struct {
 	db *sql.DB
 }
 
-func NewUserRepositoryPsql(db *sql.DB) UserRepository {
+func NewUserPsql(db *sql.DB) User {
 	return &UserRepositoryPsql{
 		db: db,
 	}
@@ -22,14 +22,42 @@ var (
 )
 
 func (ur *UserRepositoryPsql) Create(user *model.User) error {
-	row := ur.db.QueryRow("INSERT INTO users(email,telegram,username,fullname,hashed_password,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,now(),now()) RETURNING id;", user.Email, user.Telegram, user.Username, user.Name, user.Password)
+	row := ur.db.QueryRow("INSERT INTO users(email,telegram,username,fullname,hashed_password,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,now(),now()) RETURNING id;", user.Email, user.Telegram, user.Username, user.Fullname, user.Password)
 
 	return row.Scan(&user.Id)
 }
 
 func (ur *UserRepositoryPsql) Get(id uint32) (*model.User, error) {
 
-	return nil, ErrNotImplemented
+	row := ur.db.QueryRow(`
+	SELECT 	id,
+					email,
+					username,
+					fullname,
+					hashed_password
+	FROM users
+	WHERE id = $1
+		AND deleted_at is null;`, id)
+
+	var ret model.User
+
+	err := row.Scan(
+		&ret.Id,
+		&ret.Email,
+		&ret.Username,
+		&ret.Fullname,
+		&ret.Password,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, ErrUserNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &ret, nil
 }
 
 func (ur *UserRepositoryPsql) GetAll() ([]model.User, error) {
@@ -38,10 +66,12 @@ func (ur *UserRepositoryPsql) GetAll() ([]model.User, error) {
 			id,
 			email,
 			username,
-			name,
+			fullname,
 			hashed_password
 		FROM
-			users`)
+			users
+		WHERE
+			deleted_at is null;`)
 
 	if err != nil {
 		return nil, err
@@ -53,7 +83,7 @@ func (ur *UserRepositoryPsql) GetAll() ([]model.User, error) {
 	for rows.Next() {
 		var user model.User
 
-		err := rows.Scan(&user.Id, &user.Email, &user.Username, &user.Name, &user.Password)
+		err := rows.Scan(&user.Id, &user.Email, &user.Username, &user.Fullname, &user.Password)
 
 		if err != nil {
 			return nil, err
@@ -62,7 +92,7 @@ func (ur *UserRepositoryPsql) GetAll() ([]model.User, error) {
 		ret = append(ret, user)
 	}
 
-	return ret, err
+	return ret, nil
 }
 
 func (ur *UserRepositoryPsql) Update(user *model.User) error {
@@ -88,7 +118,7 @@ func (ur *UserRepositoryPsql) SearchByUsername(username string) (*model.User, er
 		where username = $1
 			and deleted_at is null`, username)
 	resp := &model.User{}
-	err := row.Scan(&resp.Id, &resp.Email, &resp.Telegram, &resp.Username, &resp.Name, &resp.Password)
+	err := row.Scan(&resp.Id, &resp.Email, &resp.Telegram, &resp.Username, &resp.Fullname, &resp.Password)
 	if err != nil {
 		return nil, err
 	}

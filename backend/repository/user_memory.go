@@ -2,20 +2,19 @@ package repository
 
 import (
 	"errors"
-	"time"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepositoryInMemory struct {
-	data   map[uint32]*User
+	data   map[uint32]*model.User
 	nextId uint32
 }
 
-func NewUserRepositoryInMemory() UserRepository {
+func NewUserRepositoryInMemory() User {
 	return &UserRepositoryInMemory{
-		data:   make(map[uint32]*User),
+		data:   make(map[uint32]*model.User),
 		nextId: 1,
 	}
 }
@@ -30,12 +29,8 @@ func (repo *UserRepositoryInMemory) Create(user *model.User) error {
 
 	user.Id = nextId
 
-	now := time.Now()
-	newUser := toDBModel(user)
-	newUser.CreatedAt = &now
-	newUser.UpdatedAt = &now
-	newUser.Password = string(hashedPassword)
-	repo.data[nextId] = newUser
+	user.Password = string(hashedPassword)
+	repo.data[nextId] = user
 
 	repo.nextId += 1
 	return nil
@@ -43,7 +38,7 @@ func (repo *UserRepositoryInMemory) Create(user *model.User) error {
 
 func (repo *UserRepositoryInMemory) Get(id uint32) (*model.User, error) {
 	if user, ok := repo.data[id]; ok {
-		return toDomainUser(user), nil
+		return user, nil
 	}
 	return nil, ErrUserNotFound
 }
@@ -53,7 +48,7 @@ func (repo *UserRepositoryInMemory) GetAll() ([]model.User, error) {
 	for _, user := range repo.data {
 		allUsers = append(allUsers, model.User{
 			Id:       user.Id,
-			Name:     user.Name,
+			Fullname: user.Fullname,
 			Username: user.Username,
 			Password: user.Password,
 			Email:    user.Email,
@@ -66,7 +61,7 @@ func (repo *UserRepositoryInMemory) GetAll() ([]model.User, error) {
 func (repo *UserRepositoryInMemory) SearchByUsername(username string) (*model.User, error) {
 	for _, v := range repo.data {
 		if v.Username == username {
-			return toDomainUser(v), nil
+			return v, nil
 		}
 	}
 	return nil, ErrUserNotFound

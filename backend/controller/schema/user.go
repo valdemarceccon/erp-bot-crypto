@@ -12,7 +12,7 @@ type UserResponse struct {
 func FromUserModel(user *model.User) *UserResponse {
 	return &UserResponse{
 		Id:       user.Id,
-		Name:     user.Name,
+		Name:     user.Fullname,
 		Username: user.Username,
 		Email:    user.Email,
 	}
