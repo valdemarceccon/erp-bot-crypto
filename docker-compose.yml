@@ -39,7 +39,6 @@ services:
       context: backend
       dockerfile: Dockerfile.api
     image: backend:latest
-    command: ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_123456
@@ -49,45 +48,46 @@ services:
       JWT_SECRET_KEY: your-secret-key
       JWT_ALGORITHM: HS256
       BASE_PATH: /api
-    user: "1000:1000"
+      PORT: 8000
+
     ports:
       - 8000:8000
 
     volumes:
       - ./backend:/app
 
-  daemon:
-    build:
-      context: backend
-      dockerfile: Dockerfile.daemon
-    image: daemon:latest
-    environment:
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: dev_123456
-      POSTGRES_HOST: db
-      POSTGRES_DB: dev
-      POSTGRES_URL: postgresql://dev:dev_123456@db/dev
-      JWT_SECRET_KEY: your-secret-key
-      JWT_ALGORITHM: HS256
-    volumes:
-      - ./backend/daemon:/app/daemon
+  # daemon:
+  #   build:
+  #     context: backend
+  #     dockerfile: Dockerfile.daemon
+  #   image: daemon:latest
+  #   environment:
+  #     POSTGRES_USER: dev
+  #     POSTGRES_PASSWORD: dev_123456
+  #     POSTGRES_HOST: db
+  #     POSTGRES_DB: dev
+  #     POSTGRES_URL: postgresql://dev:dev_123456@db/dev
+  #     JWT_SECRET_KEY: your-secret-key
+  #     JWT_ALGORITHM: HS256
+  #   volumes:
+  #     - ./backend/daemon:/app/daemon
 
-  migrate:
-    build:
-      context: backend
-      dockerfile: Dockerfile.api
-    image: backend:latest
-    command: ["bash", "-c", "sleep 10 && alembic upgrade head"]
-    depends_on:
-      - db
-    environment:
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: dev_123456
-      POSTGRES_HOST: db
-      POSTGRES_DB: dev
-      POSTGRES_URL: postgresql://dev:dev_123456@db/dev
-    volumes:
-      - ./backend:/app
+  # migrate:
+  #   build:
+  #     context: backend
+  #     dockerfile: Dockerfile.api
+  #   image: backend:latest
+  #   command: ["bash", "-c", "sleep 10 && alembic upgrade head"]
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     POSTGRES_USER: dev
+  #     POSTGRES_PASSWORD: dev_123456
+  #     POSTGRES_HOST: db
+  #     POSTGRES_DB: dev
+  #     POSTGRES_URL: postgresql://dev:dev_123456@db/dev
+  #   volumes:
+  #     - ./backend:/app
 
 volumes:
   db_data: {}

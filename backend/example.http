@@ -1,4 +1,21 @@
-POST http://localhost:8000/login
-Content-Type: "application/json"
+@host=http://localhost/api
+@username=valdemar
+@password=123456
 
-{"username": "valdemar", "password": "123456"}
+### login
+# @name loginRequest
+POST {{host}}/auth/login
+Content-Type: application/json
+Accept:
+
+{"username": "{{username}}", "password": "{{password}}"}
+
+### protected endpoint
+@token = {{loginRequest.response.body.token}}
+GET {{host}}/protected-hello
+Authorization: Bearer {{token}}
+
+### protected endpoint
+@token = {{loginRequest.response.body.token}}
+GET {{host}}/user
+Authorization: Bearer {{token}}
