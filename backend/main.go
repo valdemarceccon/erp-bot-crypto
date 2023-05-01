@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -18,15 +17,12 @@ func notImplemented(c *fiber.Ctx) error {
 }
 
 func main() {
-	dbConn := os.Getenv("POSTGRES_URL")
 	port := os.Getenv("PORT")
 	jwtSecret := os.Getenv("JWT_SECRET_KEY")
 
-	if dbConn == "" {
-		log.Fatal("No database configuration set")
-	}
+	dbConfig := repository.PostgresConfigFromEnv()
 
-	db, err := sql.Open("pgx", dbConn)
+	db, err := sql.Open("pgx", dbConfig.ToString())
 
 	if err != nil {
 		log.Fatal(err)
@@ -41,16 +37,6 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepositoryPsql(db)
-
-	allUsers, err := userRepo.GetAll()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, v := range allUsers {
-		fmt.Println(v)
-	}
 
 	authControler := controller.NewJwtAuthController(userRepo, controller.WithHS256Secret(jwtSecret))
 	userController := controller.NewUserController(userRepo)

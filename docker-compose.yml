@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data_go:/var/lib/postgresql/data
 
   proxy:
     build:
@@ -45,7 +45,7 @@ services:
       POSTGRES_HOST: db
       POSTGRES_DB: dev
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
-      JWT_SECRET_KEY: your-secret-key
+      JWT_SECRET_KEY: hP7#NzLJ35fMVLRrzX93m&rnWXMjVE&vgh49SqesX%C^hi@HKMMbHki$mNpZ
       JWT_ALGORITHM: HS256
       BASE_PATH: /api
       PORT: 8000
@@ -91,4 +91,5 @@ services:
 
 volumes:
   db_data: {}
+  db_data_go: {}
   # db_test: {}
