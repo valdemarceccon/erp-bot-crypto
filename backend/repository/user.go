@@ -11,12 +11,7 @@ var (
 )
 
 type User struct {
-	Id             uint32
-	Name           string
-	Username       string
-	HashedPassword string
-	Email          string
-	Telegram       string
+	model.User
 	Timestamps
 }
 
@@ -25,7 +20,7 @@ func toDomainUser(dbUser *User) *model.User {
 		Id:       dbUser.Id,
 		Name:     dbUser.Name,
 		Username: dbUser.Username,
-		Password: dbUser.HashedPassword,
+		Password: dbUser.Password,
 		Email:    dbUser.Email,
 		Telegram: dbUser.Telegram,
 	}
@@ -33,12 +28,14 @@ func toDomainUser(dbUser *User) *model.User {
 
 func toDBModel(user *model.User) *User {
 	return &User{
-		Id:             user.Id,
-		Name:           user.Name,
-		Username:       user.Username,
-		HashedPassword: user.Password,
-		Email:          user.Email,
-		Telegram:       user.Telegram,
+		User: model.User{
+			Id:       user.Id,
+			Name:     user.Name,
+			Username: user.Username,
+			Password: user.Password,
+			Email:    user.Email,
+			Telegram: user.Telegram,
+		},
 	}
 
 }
@@ -50,5 +47,4 @@ type UserRepository interface {
 	Update(user *model.User) error
 	Delete(id uint32) error
 	SearchByUsername(string) (*model.User, error)
-	ValidateUser(username, password string) (*model.User, error)
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepositoryPsql struct {
@@ -23,7 +22,7 @@ var (
 )
 
 func (ur *UserRepositoryPsql) Create(user *model.User) error {
-	row := ur.db.QueryRow("INSERT INTO users(email,telegram,username,fullname,hashed_password) VALUES ($1,$2,$3,$4,$5) RETURNING id;", user.Email, user.Telegram, user.Username, user.Name, user.Password)
+	row := ur.db.QueryRow("INSERT INTO users(email,telegram,username,fullname,hashed_password,created_at,updated_at) VALUES ($1,$2,$3,$4,$5,now(),now()) RETURNING id;", user.Email, user.Telegram, user.Username, user.Name, user.Password)
 
 	return row.Scan(&user.Id)
 }
@@ -77,24 +76,21 @@ func (ur *UserRepositoryPsql) Delete(id uint32) error {
 }
 
 func (ur *UserRepositoryPsql) SearchByUsername(username string) (*model.User, error) {
-	row := ur.db.QueryRow("select id,	email,	telegram,	username,	fullname,	hashed_password from users where username = $1", username)
+	row := ur.db.QueryRow(`
+		select
+			id,
+			email,
+			telegram,
+			username,
+			fullname,
+			hashed_password
+		from users
+		where username = $1
+			and deleted_at is null`, username)
 	resp := &model.User{}
 	err := row.Scan(&resp.Id, &resp.Email, &resp.Telegram, &resp.Username, &resp.Name, &resp.Password)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
-}
-
-func (ur *UserRepositoryPsql) ValidateUser(username, password string) (*model.User, error) {
-	dbUser, err := ur.SearchByUsername(username)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(password)); err != nil {
-		return nil, err
-	}
-	return dbUser, nil
 }

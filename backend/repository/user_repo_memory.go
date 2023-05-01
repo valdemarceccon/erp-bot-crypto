@@ -34,7 +34,7 @@ func (repo *UserRepositoryInMemory) Create(user *model.User) error {
 	newUser := toDBModel(user)
 	newUser.CreatedAt = &now
 	newUser.UpdatedAt = &now
-	newUser.HashedPassword = string(hashedPassword)
+	newUser.Password = string(hashedPassword)
 	repo.data[nextId] = newUser
 
 	repo.nextId += 1
@@ -55,7 +55,7 @@ func (repo *UserRepositoryInMemory) GetAll() ([]model.User, error) {
 			Id:       user.Id,
 			Name:     user.Name,
 			Username: user.Username,
-			Password: user.HashedPassword,
+			Password: user.Password,
 			Email:    user.Email,
 			Telegram: user.Telegram,
 		})

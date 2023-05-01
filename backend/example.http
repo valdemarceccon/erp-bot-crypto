@@ -1,27 +1,43 @@
 @host=http://localhost/api
-@user=valdemar
-@email=valdemar.ceccon@gmail.com
+@user=valdemar 1
+@email=valdemar.ceccon1@gmail.com
 @fullname=Valdemar Ceccon
-
 @pass=123456
 @superuser=superuser
 @superpass=superpass
+@superemail=super@gmail.com
+@superfullname=Super
+@usertoken = {{loginRequest.response.body.token}}
+@superUsertoken = {{loginSuperRequest.response.body.token}}
 
-### register
+### register user
 # @name registerUser
-@usertoken = {{registerUser.response.body.token}}
 POST {{host}}/auth/register
 Content-Type: application/json
 
 {"username": "{{user}}",	"email": "{{email}}",	"password": "{{pass}}",	"fullname": "{{fullname}}"}
 
+### register superuser
+# @name superUegisterUser
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{"username": "{{superuser}}",	"email": "{{superemail}}",	"password": "{{superpass}}",	"fullname": "{{superfullname}}"}
+
 ### login
 # @name loginRequest
-@usertoken = {{loginRequest.response.body.token}}
+
 POST {{host}}/auth/login
 Content-Type: application/json
 
 {"username": "{{user}}", "password": "{{pass}}"}
+
+### loginSuper
+# @name loginSuperRequest
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{"username": "{{superuser}}", "password": "{{superpass}}"}
 
 ### protected endpoint
 GET {{host}}/protected-hello

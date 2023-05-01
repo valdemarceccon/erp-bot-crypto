@@ -71,7 +71,9 @@ func (jac *JwtAuthController) RegisterHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	return nil
+	return c.JSON(schema.RegisterReponse{
+		Message: "ok",
+	})
 }
 
 func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
@@ -79,24 +81,40 @@ func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
 	err := c.BodyParser(&loginVal)
 
 	if err != nil {
+		log.Println(err)
 		return fiber.ErrUnauthorized
 	}
 
-	user, err := jac.UserRepository.ValidateUser(loginVal.Username, loginVal.Password)
+	user, err := jac.validateUser(loginVal.Username, loginVal.Password)
 
 	if err != nil {
+		log.Println(err)
 		return fiber.ErrForbidden
 	}
 
 	signedToken, err := generateUserToken(jac.JwtSecret, user)
 
 	if err != nil {
+		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	return c.JSON(schema.LoginResponse{
 		Token: signedToken,
 	})
+}
+
+func (jac *JwtAuthController) validateUser(username, password string) (*model.User, error) {
+	dbUser, err := jac.UserRepository.SearchByUsername(username)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(password)); err != nil {
+		return nil, err
+	}
+	return dbUser, nil
 }
 
 func generateUserToken(secret string, user *model.User) (string, error) {
