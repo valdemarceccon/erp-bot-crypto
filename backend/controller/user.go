@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/go-playground/validator/v10"
@@ -95,4 +96,49 @@ func (uc *UserController) AddApiKey(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusCreated)
+}
+
+func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
+	apiKeyId, err := c.ParamsInt("apiKeyId")
+	userId := getCurrentUserFromContext(c)
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrBadRequest
+	}
+
+	apiKey, err := uc.userRepository.GetApiKey(uint32(apiKeyId), userId.Id)
+
+	if err != nil {
+		log.Println(err)
+		if err == repository.ErrApiKeyNotFound {
+			return fiber.ErrNotFound
+		}
+
+		return fiber.ErrInternalServerError
+	}
+
+	switch apiKey.Status {
+	case model.ApiKeyStatusActive:
+		apiKey.Status = model.ApiKeyStatusWaitingDeactivation
+	case model.ApiKeyStatusInactive:
+		apiKey.Status = model.ApiKeyStatusWaitingActivation
+	case model.ApiKeyStatusWaitingActivation:
+		apiKey.Status = model.ApiKeyStatusInactive
+	case model.ApiKeyStatusWaitingDeactivation:
+		apiKey.Status = model.ApiKeyStatusActive
+	}
+
+	err = uc.userRepository.SaveApiKey(apiKey)
+
+	if err != nil {
+		fmt.Println(err)
+		if err == repository.ErrApiKeyNotFound {
+			return fiber.ErrNotFound
+		}
+
+		return fiber.ErrInternalServerError
+	}
+
+	return c.JSON(schema.FromApiKeyModel(apiKey))
 }

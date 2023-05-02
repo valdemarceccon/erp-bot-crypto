@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"os"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/migrations"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -70,7 +72,30 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, roleRepo, jwtSecret)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			// Status code defaults to 500
+			code := fiber.StatusInternalServerError
+
+			// Retrieve the custom status code if it's a *fiber.Error
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			// Send custom error page
+			err = ctx.Status(code).JSON(schema.ErrorResponse{
+				Message: e.Message,
+			})
+			if err != nil {
+				// In case the SendFile fails
+				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+			}
+
+			// Return from handler
+			return nil
+		},
+	})
 
 	authGroup := app.Group("/auth")
 	authGroup.Post("/login", authControler.LoginHandler)
@@ -93,6 +118,7 @@ func main() {
 	userGroup.Get("/", controller.WithPermission(roleRepo, model.ListUsersPermission, userController.ListUsers))
 	userGroup.Get("/api_keys", userController.ListApiKeys)
 	userGroup.Post("/api_keys", userController.AddApiKey)
+	userGroup.Patch("/api_keys/client-toggle/:apiKeyId", userController.ClientToggleApiKey)
 	userGroup.Get("/me", userController.Me)
 
 	app.Listen(":" + port)

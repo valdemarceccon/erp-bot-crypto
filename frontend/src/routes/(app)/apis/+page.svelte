@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { toastStore } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
+	export let form;
+
+	$: if (form && form.message) {
+		toastStore.trigger({ message: form.message, background: 'variant-filled-error' });
+	}
 
 	export let data: PageData;
 	let hashMap = new Map<number, string>();

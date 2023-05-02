@@ -101,3 +101,11 @@ func (r *UserRepositoryInMemory) ListApiKeys() ([]model.ApiKey, error) {
 func (r *UserRepositoryInMemory) AddApiKey(*model.ApiKey) error {
 	return ErrNotImplemented
 }
+
+func (r *UserRepositoryInMemory) GetApiKey(id, userId uint32) (*model.ApiKey, error) {
+	return nil, ErrNotImplemented
+}
+
+func (r *UserRepositoryInMemory) SaveApiKey(apiKey *model.ApiKey) error {
+	return ErrNotImplemented
+}

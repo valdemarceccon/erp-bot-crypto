@@ -24,7 +24,7 @@ export const actions = {
         message: "invalid request"
       })
     }
-    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_key/client-toggle/${id}`, {
+    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_keys/client-toggle/${id}`, {
       method: "PATCH",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -34,11 +34,9 @@ export const actions = {
 
     if (!api_keys_resp.ok) {
       let a = await api_keys_resp.json();
-      if (api_keys_resp.status < 500) {
-        return {
-          success: false,
-          message: a.detail
-        }
+      return {
+        success: false,
+        message: a.message
       }
     }
 

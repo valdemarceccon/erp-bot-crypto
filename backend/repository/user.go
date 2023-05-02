@@ -9,6 +9,10 @@ import (
 var (
 	ErrUserNotFound     = errors.New("user: User not found")
 	ErrUserOrEmailInUse = errors.New("user: Username or Email taken")
+
+	ErrApiKeyNotFound                = errors.New("user: Api key not found")
+	ErrCouldNotUpdateApikey          = errors.New("could not update api_key")
+	ErrCouldNoteRetrieveAffectedRows = errors.New("could not retrieve rows affected")
 )
 
 type User interface {
@@ -20,4 +24,6 @@ type User interface {
 	SearchByUsername(string) (*model.User, error)
 	ListApiKeys() ([]model.ApiKey, error)
 	AddApiKey(*model.ApiKey) error
+	GetApiKey(id, userId uint32) (*model.ApiKey, error)
+	SaveApiKey(apiKey *model.ApiKey) error
 }

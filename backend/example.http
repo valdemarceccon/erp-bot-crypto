@@ -70,3 +70,6 @@ Content-Type: application/json
   "api_secret": "testesecret",
   "exchange": "bybit"
 }
+
+### toggle api key from user
+PATCH {{host}}/user/api_key/client-toggle/1

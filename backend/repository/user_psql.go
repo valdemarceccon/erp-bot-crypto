@@ -85,7 +85,9 @@ func (ur *UserPsql) GetAll() ([]model.User, error) {
 		FROM
 			users
 		WHERE
-			deleted_at is null;`)
+			deleted_at is null
+		order by
+			id;`)
 
 	if err != nil {
 		log.Println(err)
@@ -153,7 +155,8 @@ func (ur *UserPsql) ListApiKeys() ([]model.ApiKey, error) {
 			api_secret,
 			status
 		from api_key
-		where deleted_at is null`)
+		where deleted_at is null
+		order by id, user_id;`)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -189,4 +192,59 @@ func (ur *UserPsql) AddApiKey(apiKey *model.ApiKey) error {
 	) VALUES ($1,$2,$3,$4,$5,$6,now(),now(),null) RETURNING id`, apiKey.UserId, apiKey.ApiKeyName, apiKey.Exchange, apiKey.ApiKey, apiKey.ApiSecret, apiKey.Status)
 
 	return row.Scan(&apiKey.Id)
+}
+
+func (ur *UserPsql) GetApiKey(id, userId uint32) (*model.ApiKey, error) {
+	row := ur.db.QueryRow(`
+	SELECT
+		id,
+		user_id,
+		api_key_name,
+		exchange,
+		api_key,
+		api_secret,
+		status
+	FROM
+		api_key
+	WHERE
+		id = $1
+		AND user_id = $2
+	order by
+		id;`, id, userId)
+	var apiKey model.ApiKey
+	err := row.Scan(&apiKey.Id, &apiKey.UserId, &apiKey.ApiKeyName, &apiKey.Exchange, &apiKey.ApiKey, &apiKey.ApiSecret, &apiKey.Status)
+	if err == sql.ErrNoRows {
+		return nil, ErrApiKeyNotFound
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &apiKey, nil
+}
+
+func (ur *UserPsql) SaveApiKey(apiKey *model.ApiKey) error {
+	query := `UPDATE api_key
+		SET api_key_name = $1, exchange = $2, api_key = $3, api_secret = $4, status = $5
+		WHERE id = $6`
+
+	res, err := ur.db.Exec(query, apiKey.ApiKeyName, apiKey.Exchange, apiKey.ApiKey, apiKey.ApiSecret, apiKey.Status, apiKey.Id)
+	if err != nil {
+		log.Println(err)
+		return ErrCouldNotUpdateApikey
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Printf("could not retrieve rows affected: %v", err)
+		return ErrCouldNoteRetrieveAffectedRows
+	}
+
+	if rowsAffected == 0 {
+		log.Printf("api_key with id %d not found", apiKey.Id)
+		return ErrApiKeyNotFound
+	}
+
+	return nil
 }
