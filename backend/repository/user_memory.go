@@ -97,3 +97,7 @@ func (repo *UserRepositoryInMemory) Delete(id uint32) error {
 func (r *UserRepositoryInMemory) ListApiKeys() ([]model.ApiKey, error) {
 	return nil, ErrNotImplemented
 }
+
+func (r *UserRepositoryInMemory) AddApiKey(*model.ApiKey) error {
+	return ErrNotImplemented
+}

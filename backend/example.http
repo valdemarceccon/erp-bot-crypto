@@ -58,3 +58,15 @@ Authorization: Bearer {{usertoken}}
 ### list user api keys
 GET {{host}}/user/api_keys
 Authorization: Bearer {{usertoken}}
+
+### insert a new api key to the user
+POST {{host}}/user/api_keys
+Authorization: Bearer {{usertoken}}
+Content-Type: application/json
+
+{
+  "api_key_name": "teste",
+  "api_key": "testeapikey",
+  "api_secret": "testesecret",
+  "exchange": "bybit"
+}

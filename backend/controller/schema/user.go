@@ -10,12 +10,20 @@ type UserResponse struct {
 }
 
 type ApiKeyResponse struct {
-	Id         uint32             `json:"Id"`
+	Id         uint32             `json:"id"`
 	UserId     uint32             `json:"user_id"`
 	ApiKeyName string             `json:"api_key_name"`
 	Exchange   string             `json:"exchange"`
 	ApiKey     string             `json:"api_key"`
 	Status     model.ApiKeyStatus `json:"status"`
+}
+
+type ApiKeyRequest struct {
+	ApiKeyName   string             `json:"api_key_name"`
+	Exchange     string             `json:"exchange"`
+	ApiKey       string             `json:"api_key"`
+	ApiKeySecret string             `json:"api_secret"`
+	Status       model.ApiKeyStatus `json:"status"`
 }
 
 func FromUserModel(user *model.User) *UserResponse {

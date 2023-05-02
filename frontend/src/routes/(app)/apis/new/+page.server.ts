@@ -13,7 +13,7 @@ async function callApi(url: string, access_token: string, body?: string) {
 }
 
 async function callSaveApiEndpoint(validatedForm: {
-  name?: string,
+  api_key_name?: string,
   api_key?: string,
   api_secret?: string,
   exchange?: string,
@@ -46,7 +46,7 @@ export const actions = {
     let exchange = fd.get("exchange")?.toString();
 
     return await callSaveApiEndpoint({
-      name: name,
+      api_key_name: name,
       api_key: api_key,
       api_secret: api_secret,
       exchange: exchange,

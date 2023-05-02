@@ -92,6 +92,7 @@ func main() {
 
 	userGroup.Get("/", controller.WithPermission(roleRepo, model.ListUsersPermission, userController.ListUsers))
 	userGroup.Get("/api_keys", userController.ListApiKeys)
+	userGroup.Post("/api_keys", userController.AddApiKey)
 	userGroup.Get("/me", userController.Me)
 
 	app.Listen(":" + port)

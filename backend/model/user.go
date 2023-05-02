@@ -12,10 +12,10 @@ type User struct {
 type ApiKeyStatus uint8
 
 const (
-	Inactive ApiKeyStatus = iota
-	WaitingActivation
-	Active
-	WaitingDeactivation
+	ApiKeyStatusInactive ApiKeyStatus = iota
+	ApiKeyStatusWaitingActivation
+	ApiKeyStatusActive
+	ApiKeyStatusWaitingDeactivation
 )
 
 type ApiKey struct {

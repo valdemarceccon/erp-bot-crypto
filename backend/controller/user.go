@@ -3,6 +3,7 @@ package controller
 import (
 	"log"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
@@ -13,12 +14,18 @@ import (
 type UserController struct {
 	userRepository repository.User
 	roleRepository repository.Role
+	validate       *validator.Validate
+}
+
+func getCurrentUserFromContext(c *fiber.Ctx) *model.User {
+	return c.Locals(constants.ContextKeyCurrentUser).(*model.User)
 }
 
 func NewUserController(ur repository.User, role repository.Role) *UserController {
 	return &UserController{
 		userRepository: ur,
 		roleRepository: role,
+		validate:       validator.New(),
 	}
 }
 
@@ -59,4 +66,33 @@ func (uc *UserController) ListApiKeys(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(result)
+}
+
+func (uc *UserController) AddApiKey(c *fiber.Ctx) error {
+	user := getCurrentUserFromContext(c)
+	var requestBody schema.ApiKeyRequest
+	err := c.BodyParser(&requestBody)
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrBadRequest
+	}
+
+	// TODO: validate request body
+
+	err = uc.userRepository.AddApiKey(&model.ApiKey{
+		UserId:     user.Id,
+		ApiKeyName: requestBody.ApiKeyName,
+		Exchange:   requestBody.Exchange,
+		ApiKey:     requestBody.ApiKey,
+		ApiSecret:  requestBody.ApiKeySecret,
+		Status:     model.ApiKeyStatusInactive,
+	})
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrInternalServerError
+	}
+
+	return c.SendStatus(fiber.StatusCreated)
 }

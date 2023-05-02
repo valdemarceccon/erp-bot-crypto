@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 
 export type ApiListResp = {
   id: number,
-  name: string,
+  api_key_name: string,
   api_key: string,
   exchange: string,
   status: number

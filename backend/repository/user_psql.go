@@ -174,3 +174,19 @@ func (ur *UserPsql) ListApiKeys() ([]model.ApiKey, error) {
 
 	return resp, nil
 }
+
+func (ur *UserPsql) AddApiKey(apiKey *model.ApiKey) error {
+	row := ur.db.QueryRow(`INSERT INTO api_key (
+		user_id,
+		api_key_name,
+		exchange,
+		api_key,
+		api_secret,
+		status,
+		created_at,
+		updated_at,
+		deleted_at
+	) VALUES ($1,$2,$3,$4,$5,$6,now(),now(),null) RETURNING id`, apiKey.UserId, apiKey.ApiKeyName, apiKey.Exchange, apiKey.ApiKey, apiKey.ApiSecret, apiKey.Status)
+
+	return row.Scan(&apiKey.Id)
+}
