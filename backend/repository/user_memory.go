@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"log"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +25,7 @@ func (repo *UserRepositoryInMemory) Create(user *model.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -71,12 +73,14 @@ func (repo *UserRepositoryInMemory) ValidateUser(username, password string) (*mo
 	user, err := repo.SearchByUsername(username)
 
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -88,4 +92,8 @@ func (repo *UserRepositoryInMemory) Update(user *model.User) error {
 }
 func (repo *UserRepositoryInMemory) Delete(id uint32) error {
 	return errors.New("not implemented")
+}
+
+func (r *UserRepositoryInMemory) ListApiKeys() ([]model.ApiKey, error) {
+	return nil, ErrNotImplemented
 }

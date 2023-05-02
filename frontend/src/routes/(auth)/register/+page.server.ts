@@ -30,7 +30,7 @@ export const actions: Actions = {
       }
     }
 
-    let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/auth/signup`, {
+    let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -39,16 +39,15 @@ export const actions: Actions = {
         "username": username!.toString(),
         "password": password!.toString(),
         "email": email!.toString(),
-        "name": name!.toString(),
+        "fullname": name!.toString(),
       })
     });
-
 
     if (!resp.ok) {
       let data = await resp.json();
       if (resp.status >= 400 && resp.status < 500) {
         return {
-          detail: data.detail,
+          detail: data.message,
           ok: false,
           values: {
             username: username,
@@ -59,6 +58,7 @@ export const actions: Actions = {
           }
         };
       }
+      console.log(resp)
       throw error(resp.status, data.message)
     }
 

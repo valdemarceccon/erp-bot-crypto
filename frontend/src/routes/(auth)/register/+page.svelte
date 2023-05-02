@@ -58,14 +58,14 @@
 		{/if}
 		<label class="label">
 			<span>Password</span>
-			<input bind:value={password} required name="password" class="input" type="password" placeholder="Password" />
+			<input required name="password" class="input" type="password" placeholder="Password" />
 		</label>
 		{#if validation_errors?.password}
 			<p class="text-error-800">{validation_errors.password}</p>
 		{/if}
 		<label class="label">
 			<span>Confirm Password</span>
-			<input bind:value={password_confirm} required name="password_confirm" class="input" class:input-error={!password_match} type="password" placeholder="Password" />
+			<input required name="password_confirm" class="input" class:input-error={!password_match} type="password" placeholder="Password" />
 		</label>
 		{#if !password_match}
 			<p>Password should match</p>

@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
 )
 
@@ -34,4 +36,27 @@ func (uc *UserController) ListUsers(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(ret)
+}
+
+func (uc *UserController) Me(c *fiber.Ctx) error {
+	user := c.Locals(constants.ContextKeyCurrentUser).(*model.User)
+
+	return c.JSON(schema.FromUserModel(user))
+}
+
+func (uc *UserController) ListApiKeys(c *fiber.Ctx) error {
+	resp, err := uc.userRepository.ListApiKeys()
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrInternalServerError
+	}
+
+	result := make([]schema.ApiKeyResponse, 0)
+
+	for _, v := range resp {
+		result = append(result, *schema.FromApiKeyModel(&v))
+	}
+
+	return c.JSON(result)
 }

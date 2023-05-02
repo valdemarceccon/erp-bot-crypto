@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
 )
 
@@ -51,7 +52,7 @@ func (a *Auth) UserExists(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	c.Locals("user_obj", user)
+	c.Locals(constants.ContextKeyCurrentUser, user)
 
 	return c.Next()
 }

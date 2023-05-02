@@ -18,17 +18,14 @@ async function callSaveApiEndpoint(validatedForm: {
   api_secret?: string,
   exchange?: string,
 }, access_token: string) {
-  let resp = await callApi(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_key`, access_token, JSON.stringify(validatedForm));
+  let resp = await callApi(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_keys`, access_token, JSON.stringify(validatedForm));
   if (!resp.ok) {
     let data = await resp.json();
-    if (resp.status >= 400 && resp.status < 500) {
       return {
-        detail: data.detail,
+        detail: data.message,
         ok: false,
         values: validatedForm
       };
-    }
-    throw error(resp.status, data.message)
   }
   return {
     ok: true,

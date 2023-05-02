@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 )
@@ -68,6 +69,7 @@ func (r *RolePsql) UserPermissions(userId uint32) ([]model.Permission, error) {
 	`, userId)
 
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	defer rows.Close()

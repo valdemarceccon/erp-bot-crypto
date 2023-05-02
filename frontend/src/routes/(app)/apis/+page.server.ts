@@ -24,7 +24,7 @@ export const actions = {
         message: "invalid request"
       })
     }
-    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_key/client-toggle/${id}`, {
+    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_key/client-toggle/${id}`, {
       method: "PATCH",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -58,7 +58,7 @@ export async function load({ cookies, fetch }) {
     redirect(301, "/");
   }
 
-  let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_keys/`, {
+  let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_keys/`, {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${token}`,

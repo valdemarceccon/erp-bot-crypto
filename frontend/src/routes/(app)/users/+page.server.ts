@@ -12,7 +12,7 @@ export async function load({ cookies, fetch }) {
     throw redirect(301, "/login");
   }
 
-  const userList = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/users/`, {
+  const userList = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${accessToken}`,

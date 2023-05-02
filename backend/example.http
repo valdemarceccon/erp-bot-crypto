@@ -50,3 +50,11 @@ Authorization: Bearer {{usertoken}}
 ### protected endpoint super
 GET {{host}}/user
 Authorization: Bearer {{superUsertoken}}
+
+### info current user
+GET {{host}}/user/me
+Authorization: Bearer {{usertoken}}
+
+### list user api keys
+GET {{host}}/user/api_keys
+Authorization: Bearer {{usertoken}}

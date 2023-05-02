@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrUserNotFound = errors.New("user: User not found")
+	ErrUserNotFound     = errors.New("user: User not found")
+	ErrUserOrEmailInUse = errors.New("user: Username or Email taken")
 )
 
 type User interface {
@@ -17,4 +18,5 @@ type User interface {
 	Update(user *model.User) error
 	Delete(id uint32) error
 	SearchByUsername(string) (*model.User, error)
+	ListApiKeys() ([]model.ApiKey, error)
 }

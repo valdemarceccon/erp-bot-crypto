@@ -47,12 +47,14 @@ func (jac *JwtAuthController) RegisterHandler(c *fiber.Ctx) error {
 	err := c.BodyParser(&registerRequest)
 
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerRequest.Password), bcrypt.DefaultCost)
 
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -68,6 +70,13 @@ func (jac *JwtAuthController) RegisterHandler(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println(err)
+		if err == repository.ErrUserOrEmailInUse {
+
+			return c.Status(fiber.StatusForbidden).JSON(schema.RegisterReponse{
+				Message: "Username or email already in use",
+			})
+		}
+
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
@@ -82,21 +91,27 @@ func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println(err)
-		return fiber.ErrUnauthorized
+		return c.Status(fiber.StatusUnauthorized).JSON(schema.ErrorResponse{
+			Message: "invalid username or password",
+		})
 	}
 
 	user, err := jac.validateUser(loginVal.Username, loginVal.Password)
 
 	if err != nil {
 		log.Println(err)
-		return fiber.ErrForbidden
+		return c.Status(fiber.StatusForbidden).JSON(schema.ErrorResponse{
+			Message: "invalid username or password",
+		})
 	}
 
 	signedToken, err := generateUserToken(jac.JwtSecret, user)
 
 	if err != nil {
 		log.Println(err)
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).JSON(schema.ErrorResponse{
+			Message: "internal server error",
+		})
 	}
 
 	return c.JSON(schema.LoginResponse{
@@ -108,10 +123,12 @@ func (jac *JwtAuthController) validateUser(username, password string) (*model.Us
 	dbUser, err := jac.UserRepository.SearchByUsername(username)
 
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(password)); err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	return dbUser, nil
