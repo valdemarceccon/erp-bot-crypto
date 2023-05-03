@@ -42,7 +42,7 @@ func main() {
 
 	dbConfig := repository.PostgresConfigFromEnv()
 
-	db, err := sql.Open("pgx", dbConfig.ToString())
+	db, err := sql.Open("pgx", dbConfig.String())
 
 	if err != nil {
 		log.Fatal(err)

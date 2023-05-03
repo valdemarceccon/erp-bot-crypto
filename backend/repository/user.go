@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 
+	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 )
 
@@ -24,9 +25,12 @@ type User interface {
 	SearchByUsername(string) (*model.User, error)
 	ListApiKeys() ([]model.ApiKey, error)
 	ListUserApiKeys(uint32) ([]model.ApiKey, error)
+	ListActiveApiKeys(uint32) ([]model.ApiKey, error)
 
 	AddApiKey(*model.ApiKey) error
 	GetApiKey(id, userId uint32) (*model.ApiKey, error)
 	SaveApiKey(apiKey *model.ApiKey) error
 	ListUsersPermission(userId uint32) ([]model.Permission, error)
+
+	SaveClosedPnL(userId, apiKeyId uint32, pnlResult []bybit.V5GetClosedPnLItem) error
 }

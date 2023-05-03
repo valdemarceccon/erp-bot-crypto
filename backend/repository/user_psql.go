@@ -3,8 +3,10 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 
+	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 )
 
@@ -321,4 +323,97 @@ func (ur *UserPsql) ListUsersPermission(userId uint32) ([]model.Permission, erro
 	}
 
 	return permissions, nil
+}
+
+// ListActiveApiKeys pass user id = 0 to select all
+func (r *UserPsql) ListActiveApiKeys(userId uint32) ([]model.ApiKey, error) {
+	query := `
+		SELECT
+			a.id,
+			a.user_id,
+			a.api_key_name,
+			a.exchange,
+			a.api_key,
+			a.api_secret,
+			a.status
+		FROM
+			users u
+			inner join api_key a on
+						u.id = a.user_id
+				and a.deleted_at is null
+				and u.deleted_at is null
+		WHERE
+					(u.id = $1 OR $1 = 0)
+			and a.status in ($2,$3);`
+
+	rows, err := r.db.Query(query,
+		userId, model.ApiKeyStatusActive,
+		model.ApiKeyStatusWaitingDeactivation)
+	if err != nil {
+		return nil, err
+	}
+
+	ret := make([]model.ApiKey, 0)
+
+	for rows.Next() {
+		var apiKey model.ApiKey
+
+		rows.Scan(
+			&apiKey.Id,
+			&apiKey.UserId,
+			&apiKey.ApiKeyName,
+			&apiKey.Exchange,
+			&apiKey.ApiKey,
+			&apiKey.ApiSecret,
+			&apiKey.Status,
+		)
+
+		ret = append(ret, apiKey)
+	}
+
+	return ret, nil
+}
+
+func (r *UserPsql) SaveClosedPnL(userId, apiKeyId uint32, data []bybit.V5GetClosedPnLItem) error {
+
+	query := `
+	INSERT INTO closed_pnl (
+		user_id, api_key_id, symbol, orderId, side, qty, orderPrice,
+		orderType, execType, closedSize, cumEntryValue, avgEntryPrice,
+		cumExitValue, avgExitPrice, closedPnl, fillCount, leverage,
+		createdTime, updatedTime, created_at, updated_at
+	) VALUES (
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+		$13, $14, $15, $16, $17, $18, $19, now(), now()
+	);`
+	tx, err := r.db.Begin()
+
+	if err != nil {
+		return fmt.Errorf("failed to insert closed pnl data: %w", err)
+	}
+
+	stmt, err := tx.Prepare(query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+
+	for _, val := range data {
+		_, err := stmt.Exec(
+			userId, apiKeyId, val.Symbol, val.OrderID, val.Side, val.Qty, val.OrderPrice,
+			val.OrderType, val.ExecType, val.ClosedSize, val.CumEntryValue, val.AvgEntryPrice,
+			val.CumExitValue, val.AvgExitPrice, val.ClosedPnl, val.FillCount, val.Leverage,
+			val.CreatedTime, val.UpdatedTime,
+		)
+
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed to insert closed pnl data: %w", err)
+		}
+	}
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit closed pnl data: %w", err)
+	}
+
+	return nil
 }

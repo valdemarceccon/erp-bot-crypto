@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -116,4 +117,12 @@ func (r *UserRepositoryInMemory) ListUserApiKeys(userId uint32) ([]model.ApiKey,
 
 func (r *UserRepositoryInMemory) ListUsersPermission(userId uint32) ([]model.Permission, error) {
 	return nil, ErrNotImplemented
+}
+
+func (r *UserRepositoryInMemory) ListActiveApiKeys(uint32) ([]model.ApiKey, error) {
+	return nil, ErrNotImplemented
+}
+
+func (r *UserRepositoryInMemory) SaveClosedPnL(userId, apiKeyId uint32, pnlResult []bybit.V5GetClosedPnLItem) error {
+	return ErrNotImplemented
 }
