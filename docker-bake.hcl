@@ -20,12 +20,12 @@ target "frontend" {
 
 target "backend" {
   context = "backend"
-  dockerfile = "Dockerfile.api"
+  dockerfile = "docker/Dockerfile.api.prod"
   tags = ["ghcr.io/valdemarceccon/backend:${VERSION}", "ghcr.io/valdemarceccon/frontend:latest"]
 }
 
 target "daemon" {
   context = "backend"
-  dockerfile = "Dockerfile.daemon"
+  dockerfile = "docker/Dockerfile.daemon"
   tags = ["ghcr.io/valdemarceccon/daemon:${VERSION}", "ghcr.io/valdemarceccon/frontend:latest"]
 }
