@@ -72,17 +72,20 @@ func (jac *JwtAuthController) RegisterHandler(c *fiber.Ctx) error {
 		log.Println(err)
 		if err == repository.ErrUserOrEmailInUse {
 
-			return c.Status(fiber.StatusForbidden).JSON(schema.RegisterReponse{
-				Message: "Username or email already in use",
-			})
+			return fiber.NewError(fiber.StatusForbidden, "Username or email already in use")
 		}
 
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return fiber.ErrInternalServerError
 	}
 
-	return c.JSON(schema.RegisterReponse{
-		Message: "ok",
-	})
+	token, err := generateUserToken(jac.JwtSecret, newUser)
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrInternalServerError
+	}
+
+	return c.JSON(schema.LoginResponse{Token: token})
 }
 
 func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
@@ -109,9 +112,7 @@ func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println(err)
-		return c.Status(fiber.StatusInternalServerError).JSON(schema.ErrorResponse{
-			Message: "internal server error",
-		})
+		return fiber.ErrInternalServerError
 	}
 
 	return c.JSON(schema.LoginResponse{

@@ -1,5 +1,5 @@
 import { type Actions, error, json, redirect } from "@sveltejs/kit";
-export function load({cookies}) {
+export function load({ cookies }) {
   let c = cookies.get("access_token");
   if (c) {
     throw redirect(301, "/");
@@ -16,7 +16,7 @@ export const actions: Actions = {
     let email = fd.get("email");
     let password_confirm = fd.get("password_confirm");
 
-    let validation: {username?: string, password?: string, name?:string, email?: string} = {}
+    let validation: { username?: string, password?: string, name?: string, email?: string } = {}
 
     if (!username) validation.username = "username is required";
     if (!password) validation.password = "password is required";
@@ -44,10 +44,10 @@ export const actions: Actions = {
     });
 
     if (!resp.ok) {
-      let data = await resp.json();
+      let data = await resp.text();
       if (resp.status >= 400 && resp.status < 500) {
         return {
-          detail: data.message,
+          message: data,
           ok: false,
           values: {
             username: username,
@@ -59,14 +59,13 @@ export const actions: Actions = {
         };
       }
       console.log(resp)
-      throw error(resp.status, data.message)
+      throw error(resp.status, data)
     }
-
     let token_resp = await resp.json();
-    cookies.set("access_token", token_resp.access_token, {
+    cookies.set("access_token", token_resp.token, {
       path: "/"
     })
 
-    throw redirect(301, "/");
+    throw redirect(301, "/login");
   }
 }
