@@ -9,13 +9,24 @@ type UserResponse struct {
 	Email    string `json:"email"`
 }
 
+type PermissionResponse struct {
+	Name string `json:"name"`
+}
+
+type UserMeReponse struct {
+	UserResponse
+	Permissions []PermissionResponse `json:"permissions"`
+}
+
 type ApiKeyResponse struct {
-	Id         uint32             `json:"id"`
-	UserId     uint32             `json:"user_id"`
-	ApiKeyName string             `json:"api_key_name"`
-	Exchange   string             `json:"exchange"`
-	ApiKey     string             `json:"api_key"`
-	Status     model.ApiKeyStatus `json:"status"`
+	Id           uint32             `json:"id"`
+	UserId       uint32             `json:"user_id"`
+	Username     string             `json:"username"`
+	ApiKeyName   string             `json:"api_key_name"`
+	Exchange     string             `json:"exchange"`
+	ApiKeySecret string             `json:"api_secret"`
+	ApiKey       string             `json:"api_key"`
+	Status       model.ApiKeyStatus `json:"status"`
 }
 
 type ApiKeyRequest struct {
@@ -37,11 +48,13 @@ func FromUserModel(user *model.User) *UserResponse {
 
 func FromApiKeyModel(apiKey *model.ApiKey) *ApiKeyResponse {
 	return &ApiKeyResponse{
-		Id:         apiKey.Id,
-		UserId:     apiKey.UserId,
-		ApiKeyName: apiKey.ApiKeyName,
-		ApiKey:     apiKey.ApiKey,
-		Exchange:   apiKey.Exchange,
-		Status:     apiKey.Status,
+		Id:           apiKey.Id,
+		UserId:       apiKey.UserId,
+		Username:     apiKey.Username,
+		ApiKeyName:   apiKey.ApiKeyName,
+		ApiKeySecret: apiKey.ApiSecret,
+		ApiKey:       apiKey.ApiKey,
+		Exchange:     apiKey.Exchange,
+		Status:       apiKey.Status,
 	}
 }

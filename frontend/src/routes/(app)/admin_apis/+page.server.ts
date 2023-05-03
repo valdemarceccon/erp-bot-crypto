@@ -1,20 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
 
-export type User = {
-  email: string;
-  name: string;
-  username: string;
-  id: number;
-};
-
 export type ApiListAdminResp = {
   name: string;
   api_key: string;
+  user_id: number;
   exchange: string;
   status: number;
   id: number;
-  user: User;
-  secret: string;
+  username: string;
+  api_secret: string;
 };
 
 export const actions = {
@@ -34,7 +28,7 @@ export const actions = {
         message: "invalid request"
       })
     }
-    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_key/admin-toggle/${client_id}/${id}`, {
+    let api_keys_resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_keys/admin-toggle/${client_id}/${id}`, {
       method: "PATCH",
       headers: {
         "Authorization": `Bearer ${token}`,

@@ -53,12 +53,14 @@ Authorization: Bearer {{superUsertoken}}
 
 ### info current user
 GET {{host}}/user/me
-Authorization: Bearer {{usertoken}}
+Authorization: Bearer {{superUsertoken}}
 
 ### list user api keys
 GET {{host}}/user/api_keys
 Authorization: Bearer {{usertoken}}
-
+### list user api keys
+GET {{host}}/user/api_keys/all
+Authorization: Bearer {{superUsertoken}}
 ### insert a new api key to the user
 POST {{host}}/user/api_keys
 Authorization: Bearer {{usertoken}}
@@ -71,5 +73,12 @@ Content-Type: application/json
   "exchange": "bybit"
 }
 
-### toggle api key from user
-PATCH {{host}}/user/api_key/client-toggle/1
+### toggle api key from user view
+PATCH {{host}}/user/api_keys/client-toggle/5
+Authorization: Bearer {{usertoken}}
+Content-Type: application/json
+
+### toggle api key from admin view
+PATCH {{host}}/user/api_keys/admin-toggle/1/5
+Authorization: Bearer {{superUsertoken}}
+Content-Type: application/json

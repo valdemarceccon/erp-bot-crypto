@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 
 export type UserBasicInfo = {
   email: string
-  name: string
+  fullname: string
   username: string
 }
 
@@ -30,5 +30,5 @@ export async function load({ cookies, fetch }) {
   }
 
   let reponseData: UserBasicInfo[] = await userList.json()
-  return {user_list: reponseData};
+  return { user_list: reponseData };
 }

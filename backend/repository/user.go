@@ -23,7 +23,10 @@ type User interface {
 	Delete(id uint32) error
 	SearchByUsername(string) (*model.User, error)
 	ListApiKeys() ([]model.ApiKey, error)
+	ListUserApiKeys(uint32) ([]model.ApiKey, error)
+
 	AddApiKey(*model.ApiKey) error
 	GetApiKey(id, userId uint32) (*model.ApiKey, error)
 	SaveApiKey(apiKey *model.ApiKey) error
+	ListUsersPermission(userId uint32) ([]model.Permission, error)
 }

@@ -9,7 +9,6 @@
 	hashMap.set(1, 'Waiting activation');
 	hashMap.set(2, 'Active');
 	hashMap.set(3, 'Waiting inactivation');
-
 </script>
 
 {#if data.api_list}
@@ -36,17 +35,17 @@
 							{row.name}
 						</td>
 						<td class="w-32">{row.exchange}</td>
-						<td class="w-32">{row.user.username}</td>
+						<td class="w-32">{row.username}</td>
 						<td class="w-32">{row.api_key}</td>
 						<td class="w-full">
 							<ToggleBtn showContent={false}>
-								{row.secret}
+								{row.api_secret}
 							</ToggleBtn>
 						</td>
 						<td class="text-center w-40">
 							<form method="POST" action="?/toggleStatus" use:enhance>
 								<input type="hidden" name="id" value={row.id} />
-								<input type="hidden" name="client_id" value={row.user.id} />
+								<input type="hidden" name="client_id" value={row.user_id} />
 								<button
 									type="submit"
 									class="btn chip w-full variant-filled-primary"

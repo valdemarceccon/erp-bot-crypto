@@ -109,3 +109,11 @@ func (r *UserRepositoryInMemory) GetApiKey(id, userId uint32) (*model.ApiKey, er
 func (r *UserRepositoryInMemory) SaveApiKey(apiKey *model.ApiKey) error {
 	return ErrNotImplemented
 }
+
+func (r *UserRepositoryInMemory) ListUserApiKeys(userId uint32) ([]model.ApiKey, error) {
+	return nil, ErrNotImplemented
+}
+
+func (r *UserRepositoryInMemory) ListUsersPermission(userId uint32) ([]model.Permission, error) {
+	return nil, ErrNotImplemented
+}

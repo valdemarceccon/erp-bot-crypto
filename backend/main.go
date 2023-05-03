@@ -72,23 +72,21 @@ func main() {
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, roleRepo, jwtSecret)
 
+	guard := controller.NewGuards(roleRepo)
+
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
-			// Status code defaults to 500
 			code := fiber.StatusInternalServerError
 
-			// Retrieve the custom status code if it's a *fiber.Error
 			var e *fiber.Error
 			if errors.As(err, &e) {
 				code = e.Code
 			}
 
-			// Send custom error page
 			err = ctx.Status(code).JSON(schema.ErrorResponse{
 				Message: e.Message,
 			})
 			if err != nil {
-				// In case the SendFile fails
 				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 			}
 
@@ -115,10 +113,12 @@ func main() {
 	userGroup.Use(jwtMiddleware)
 	userGroup.Use(authMiddleware.UserExists)
 
-	userGroup.Get("/", controller.WithPermission(roleRepo, model.ListUsersPermission, userController.ListUsers))
+	userGroup.Get("/", guard.WithPermission(model.ListUsersPermission, userController.ListUsers))
 	userGroup.Get("/api_keys", userController.ListApiKeys)
+	userGroup.Get("/api_keys/all", guard.WithPermission(model.ListApiKeysPermission, userController.ListAllApiKeys))
 	userGroup.Post("/api_keys", userController.AddApiKey)
 	userGroup.Patch("/api_keys/client-toggle/:apiKeyId", userController.ClientToggleApiKey)
+	userGroup.Patch("/api_keys/admin-toggle/:userId/:apiKeyId", guard.WithPermission(model.WriteApiKeysPermission, userController.AdminToggleApiKey))
 	userGroup.Get("/me", userController.Me)
 
 	app.Listen(":" + port)

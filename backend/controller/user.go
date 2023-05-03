@@ -48,11 +48,44 @@ func (uc *UserController) ListUsers(c *fiber.Ctx) error {
 
 func (uc *UserController) Me(c *fiber.Ctx) error {
 	user := c.Locals(constants.ContextKeyCurrentUser).(*model.User)
+	permitions, err := uc.userRepository.ListUsersPermission(user.Id)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	respPermissions := make([]schema.PermissionResponse, len(permitions))
 
-	return c.JSON(schema.FromUserModel(user))
+	for i, v := range permitions {
+		respPermissions[i] = schema.PermissionResponse{
+			Name: string(v),
+		}
+	}
+
+	return c.JSON(schema.UserMeReponse{
+		UserResponse: *schema.FromUserModel(user),
+		Permissions:  respPermissions,
+	})
 }
 
 func (uc *UserController) ListApiKeys(c *fiber.Ctx) error {
+	user := getCurrentUserFromContext(c)
+
+	resp, err := uc.userRepository.ListUserApiKeys(user.Id)
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrInternalServerError
+	}
+
+	result := make([]schema.ApiKeyResponse, 0)
+
+	for _, v := range resp {
+		result = append(result, *schema.FromApiKeyModel(&v))
+	}
+
+	return c.JSON(result)
+}
+
+func (uc *UserController) ListAllApiKeys(c *fiber.Ctx) error {
 	resp, err := uc.userRepository.ListApiKeys()
 
 	if err != nil {
@@ -127,6 +160,57 @@ func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
 		apiKey.Status = model.ApiKeyStatusInactive
 	case model.ApiKeyStatusWaitingDeactivation:
 		apiKey.Status = model.ApiKeyStatusActive
+	}
+
+	err = uc.userRepository.SaveApiKey(apiKey)
+
+	if err != nil {
+		fmt.Println(err)
+		if err == repository.ErrApiKeyNotFound {
+			return fiber.ErrNotFound
+		}
+
+		return fiber.ErrInternalServerError
+	}
+
+	return c.JSON(schema.FromApiKeyModel(apiKey))
+}
+
+func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
+	apiKeyId, err := c.ParamsInt("apiKeyId")
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrBadRequest
+	}
+
+	userId, err := c.ParamsInt("userId")
+
+	if err != nil {
+		log.Println(err)
+		return fiber.ErrBadRequest
+	}
+
+	apiKey, err := uc.userRepository.GetApiKey(uint32(apiKeyId), uint32(userId))
+
+	if err != nil {
+		log.Println(err)
+		if err == repository.ErrApiKeyNotFound {
+			return fiber.ErrNotFound
+		}
+
+		return fiber.ErrInternalServerError
+	}
+
+	switch apiKey.Status {
+	case model.ApiKeyStatusActive:
+		apiKey.Status = model.ApiKeyStatusInactive
+	case model.ApiKeyStatusInactive:
+		apiKey.Status = model.ApiKeyStatusActive
+	case model.ApiKeyStatusWaitingActivation:
+		apiKey.Status = model.ApiKeyStatusActive
+	case model.ApiKeyStatusWaitingDeactivation:
+		apiKey.Status = model.ApiKeyStatusInactive
 	}
 
 	err = uc.userRepository.SaveApiKey(apiKey)

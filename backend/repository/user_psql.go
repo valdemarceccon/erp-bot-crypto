@@ -144,7 +144,7 @@ func (ur *UserPsql) SearchByUsername(username string) (*model.User, error) {
 	return resp, nil
 }
 
-func (ur *UserPsql) ListApiKeys() ([]model.ApiKey, error) {
+func (ur *UserPsql) ListUserApiKeys(userId uint32) ([]model.ApiKey, error) {
 	row, err := ur.db.Query(`
 		select
 			id,
@@ -156,7 +156,8 @@ func (ur *UserPsql) ListApiKeys() ([]model.ApiKey, error) {
 			status
 		from api_key
 		where deleted_at is null
-		order by id, user_id;`)
+		and user_id = $1
+		order by id, user_id;`, userId)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -167,6 +168,44 @@ func (ur *UserPsql) ListApiKeys() ([]model.ApiKey, error) {
 		var apiKey model.ApiKey
 
 		err = row.Scan(&apiKey.Id, &apiKey.UserId, &apiKey.ApiKeyName, &apiKey.Exchange, &apiKey.ApiKey, &apiKey.ApiSecret, &apiKey.Status)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		resp = append(resp, apiKey)
+	}
+
+	return resp, nil
+}
+
+func (ur *UserPsql) ListApiKeys() ([]model.ApiKey, error) {
+	row, err := ur.db.Query(`
+		select
+			ak.id,
+			user_id,
+			u.username,
+			api_key_name,
+			exchange,
+			api_key,
+			api_secret,
+			status
+		from api_key ak
+		inner join users u on
+		u.id = ak.user_id
+		where ak.deleted_at is null
+		and u.deleted_at is null
+		order by id, user_id;`)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer row.Close()
+	resp := make([]model.ApiKey, 0)
+	for row.Next() {
+		var apiKey model.ApiKey
+
+		err = row.Scan(&apiKey.Id, &apiKey.UserId, &apiKey.Username, &apiKey.ApiKeyName, &apiKey.Exchange, &apiKey.ApiKey, &apiKey.ApiSecret, &apiKey.Status)
 		if err != nil {
 			log.Println(err)
 			return nil, err
@@ -247,4 +286,39 @@ func (ur *UserPsql) SaveApiKey(apiKey *model.ApiKey) error {
 	}
 
 	return nil
+}
+
+func (ur *UserPsql) ListUsersPermission(userId uint32) ([]model.Permission, error) {
+	query := `
+	SELECT p.permission_name
+	FROM users AS u
+	JOIN user_roles AS ur ON u.id = ur.user_id
+	JOIN roles AS r ON ur.role_id = r.id
+	JOIN role_permission AS rp ON r.id = rp.role_id
+	JOIN permission AS p ON rp.permission_id = p.id
+	WHERE u.id = $1 AND u.deleted_at IS NULL AND r.deleted_at IS NULL
+	  AND rp.deleted_at IS NULL AND ur.deleted_at IS NULL;
+	`
+
+	rows, err := ur.db.Query(query, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var permissions []model.Permission
+	for rows.Next() {
+		var permissionName model.Permission
+		err := rows.Scan(&permissionName)
+		if err != nil {
+			return nil, err
+		}
+		permissions = append(permissions, permissionName)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return permissions, nil
 }

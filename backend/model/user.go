@@ -21,6 +21,7 @@ const (
 type ApiKey struct {
 	Id         uint32       `json:"id"`
 	UserId     uint32       `json:"user_id"`
+	Username   string       `json:"username"`
 	ApiKeyName string       `json:"api_key_name"`
 	Exchange   string       `json:"exchange"`
 	ApiKey     string       `json:"api_key"`
