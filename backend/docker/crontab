@@ -1,1 +1,1 @@
-0 1 * * * /app/output/daemon > /app/daemon/daemon.log 2>&1
+0 1 * * * /app/output/daemon >> /app/daemon/daemon.log 2>&1
