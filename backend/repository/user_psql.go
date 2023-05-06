@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -416,4 +417,60 @@ func (r *UserPsql) SaveClosedPnL(userId, apiKeyId uint32, data []bybit.V5GetClos
 	}
 
 	return nil
+}
+
+func (r *UserPsql) StartBot(apikey *model.ApiKey, balance *big.Float) error {
+	query := `
+		INSERT INTO bot_start(
+			api_key_id,
+			start_time,
+			wallet_balance
+		)
+		values (
+			$1, now(), $2
+		)
+	`
+	_, err := r.db.Exec(query, apikey.Id, balance)
+
+	return err
+}
+
+func (r *UserPsql) StopBot(apikey *model.ApiKey, balance *big.Float) error {
+
+	query := `
+	INSERT INTO bot_stop (
+		stop_time,
+		start_time_id,
+		wallet_balance
+	) SELECT
+		NOW(),
+		start.id,
+		$1
+	FROM
+		bot_start start
+	WHERE
+		start.api_key_id = $2
+		AND NOT EXISTS (
+			select * from bot_stop stop where stop.start_time_id = start.id
+		);
+`
+
+	res, err := r.db.Exec(query, balance, apikey.Id)
+
+	if err != nil {
+		return err
+	}
+
+	newRows, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if newRows != 1 {
+		return fmt.Errorf("stop bot: something went wrong, it should have inserted just a row, but %d was inserted", newRows)
+	}
+
+	return nil
+
 }

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"math/big"
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -33,4 +34,6 @@ type User interface {
 	ListUsersPermission(userId uint32) ([]model.Permission, error)
 
 	SaveClosedPnL(userId, apiKeyId uint32, pnlResult []bybit.V5GetClosedPnLItem) error
+	StartBot(apikey *model.ApiKey, balance *big.Float) error
+	StopBot(apikey *model.ApiKey, balance *big.Float) error
 }

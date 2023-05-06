@@ -79,6 +79,6 @@ Authorization: Bearer {{usertoken}}
 Content-Type: application/json
 
 ### toggle api key from admin view
-PATCH {{host}}/user/api_keys/admin-toggle/1/5
+PATCH {{host}}/user/api_keys/admin-toggle/2/10
 Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json

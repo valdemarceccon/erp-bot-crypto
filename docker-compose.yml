@@ -39,6 +39,8 @@ services:
       context: backend
       dockerfile: docker/Dockerfile.api.dev
     image: backend:latest
+    depends_on:
+      - db
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_123456
@@ -49,7 +51,7 @@ services:
       JWT_ALGORITHM: HS256
       BASE_PATH: /api
       PORT: 8000
-      ENABLE_MIGRATIONS: true
+      ENABLE_MIGRATIONS: false
 
     ports:
       - 8000:8000

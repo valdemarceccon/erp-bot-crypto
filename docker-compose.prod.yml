@@ -28,6 +28,8 @@ services:
 
   backend:
     image: ghcr.io/valdemarceccon/backend:latest
+    depends_on:
+      - db
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_123456

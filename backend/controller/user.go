@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"math/big"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -176,6 +179,36 @@ func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
 	return c.JSON(schema.FromApiKeyModel(apiKey))
 }
 
+func getWalletBalanceETH(apiKey *model.ApiKey) (*big.Float, error) {
+	balance, err := bybit.
+		NewClient().
+		WithAuth(apiKey.ApiKey, apiKey.ApiSecret).
+		V5().
+		Account().
+		GetWalletBalance(
+			bybit.AccountType(bybit.AccountTypeNormal), []bybit.Coin{bybit.CoinETH},
+		)
+
+	if err != nil {
+		return nil, err
+	}
+
+	balanceList := balance.Result.List
+
+	if len(balanceList) == 0 || len(balanceList[0].Coin) == 0 || balanceList[0].Coin[0].WalletBalance == "" {
+		return nil, errors.New("no balance info available")
+	}
+
+	for _, v := range balanceList {
+		for _, c := range v.Coin {
+			fmt.Println(c.WalletBalance)
+		}
+	}
+	balanceETH := balanceList[0].Coin[0].WalletBalance
+	parsedBalance, _, err := big.ParseFloat(balanceETH, 10, 30, big.ToNearestAway)
+	return parsedBalance, nil
+}
+
 func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 	apiKeyId, err := c.ParamsInt("apiKeyId")
 
@@ -202,16 +235,43 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
+	var newStatus model.ApiKeyStatus
 	switch apiKey.Status {
 	case model.ApiKeyStatusActive:
-		apiKey.Status = model.ApiKeyStatusInactive
+		newStatus = model.ApiKeyStatusInactive
 	case model.ApiKeyStatusInactive:
-		apiKey.Status = model.ApiKeyStatusActive
+		newStatus = model.ApiKeyStatusActive
 	case model.ApiKeyStatusWaitingActivation:
-		apiKey.Status = model.ApiKeyStatusActive
+		newStatus = model.ApiKeyStatusActive
 	case model.ApiKeyStatusWaitingDeactivation:
-		apiKey.Status = model.ApiKeyStatusInactive
+		newStatus = model.ApiKeyStatusInactive
 	}
+
+	balance, err := getWalletBalanceETH(apiKey)
+	if err != nil {
+		log.Println(err)
+		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to fetch wallet ballance. %v", err))
+	}
+
+	if newStatus == model.ApiKeyStatusActive {
+		err = uc.userRepository.StartBot(apiKey, balance)
+
+		if err != nil {
+			log.Println(err)
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot start. %v", err))
+
+		}
+	} else if newStatus == model.ApiKeyStatusInactive {
+		err = uc.userRepository.StopBot(apiKey, balance)
+
+		if err != nil {
+			log.Println(err)
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot stop. %v", err))
+
+		}
+	}
+
+	apiKey.Status = newStatus
 
 	err = uc.userRepository.SaveApiKey(apiKey)
 
