@@ -12,30 +12,32 @@ import (
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 )
 
 type UserController struct {
-	userRepository repository.User
-	roleRepository repository.Role
-	validate       *validator.Validate
+	userStore store.User
+	roleStore store.Role
+	apiStore  store.ApiKey
+	validate  *validator.Validate
 }
 
 func getCurrentUserFromContext(c *fiber.Ctx) *model.User {
 	return c.Locals(constants.ContextKeyCurrentUser).(*model.User)
 }
 
-func NewUserController(ur repository.User, role repository.Role) *UserController {
+func NewUserController(ur store.User, role store.Role, apiKey store.ApiKey) *UserController {
 	return &UserController{
-		userRepository: ur,
-		roleRepository: role,
-		validate:       validator.New(),
+		userStore: ur,
+		roleStore: role,
+		apiStore:  apiKey,
+		validate:  validator.New(),
 	}
 }
 
 func (uc *UserController) ListUsers(c *fiber.Ctx) error {
 
-	users, err := uc.userRepository.GetAll()
+	users, err := uc.userStore.List()
 
 	if err != nil {
 		log.Println("user: ", err)
@@ -51,7 +53,7 @@ func (uc *UserController) ListUsers(c *fiber.Ctx) error {
 
 func (uc *UserController) Me(c *fiber.Ctx) error {
 	user := c.Locals(constants.ContextKeyCurrentUser).(*model.User)
-	permitions, err := uc.userRepository.ListUsersPermission(user.Id)
+	permitions, err := uc.roleStore.FromUser(user.Id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
@@ -63,7 +65,7 @@ func (uc *UserController) Me(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(schema.UserMeReponse{
+	return c.JSON(schema.UserMeResponse{
 		UserResponse: *schema.FromUserModel(user),
 		Permissions:  respPermissions,
 	})
@@ -72,7 +74,7 @@ func (uc *UserController) Me(c *fiber.Ctx) error {
 func (uc *UserController) ListApiKeys(c *fiber.Ctx) error {
 	user := getCurrentUserFromContext(c)
 
-	resp, err := uc.userRepository.ListUserApiKeys(user.Id)
+	resp, err := uc.apiStore.FromUser(user.Id)
 
 	if err != nil {
 		log.Println(err)
@@ -89,7 +91,7 @@ func (uc *UserController) ListApiKeys(c *fiber.Ctx) error {
 }
 
 func (uc *UserController) ListAllApiKeys(c *fiber.Ctx) error {
-	resp, err := uc.userRepository.ListApiKeys()
+	resp, err := uc.apiStore.List()
 
 	if err != nil {
 		log.Println(err)
@@ -117,7 +119,7 @@ func (uc *UserController) AddApiKey(c *fiber.Ctx) error {
 
 	// TODO: validate request body
 
-	err = uc.userRepository.AddApiKey(&model.ApiKey{
+	err = uc.apiStore.New(&model.ApiKey{
 		UserId:     user.Id,
 		ApiKeyName: requestBody.ApiKeyName,
 		Exchange:   requestBody.Exchange,
@@ -143,11 +145,11 @@ func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	apiKey, err := uc.userRepository.GetApiKey(uint32(apiKeyId), userId.Id)
+	apiKey, err := uc.apiStore.Get(uint32(apiKeyId), userId.Id)
 
 	if err != nil {
 		log.Println(err)
-		if err == repository.ErrApiKeyNotFound {
+		if err == store.ErrApiKeyNotFound {
 			return fiber.ErrNotFound
 		}
 
@@ -165,11 +167,11 @@ func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
 		apiKey.Status = model.ApiKeyStatusActive
 	}
 
-	err = uc.userRepository.SaveApiKey(apiKey)
+	err = uc.apiStore.Save(apiKey)
 
 	if err != nil {
 		fmt.Println(err)
-		if err == repository.ErrApiKeyNotFound {
+		if err == store.ErrApiKeyNotFound {
 			return fiber.ErrNotFound
 		}
 
@@ -224,11 +226,11 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	apiKey, err := uc.userRepository.GetApiKey(uint32(apiKeyId), uint32(userId))
+	apiKey, err := uc.apiStore.Get(uint32(apiKeyId), uint32(userId))
 
 	if err != nil {
 		log.Println(err)
-		if err == repository.ErrApiKeyNotFound {
+		if err == store.ErrApiKeyNotFound {
 			return fiber.ErrNotFound
 		}
 
@@ -254,7 +256,7 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 	}
 
 	if newStatus == model.ApiKeyStatusActive {
-		err = uc.userRepository.StartBot(apiKey, balance)
+		err = uc.userStore.StartBot(apiKey, balance)
 
 		if err != nil {
 			log.Println(err)
@@ -262,7 +264,7 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 
 		}
 	} else if newStatus == model.ApiKeyStatusInactive {
-		err = uc.userRepository.StopBot(apiKey, balance)
+		err = uc.userStore.StopBot(apiKey, balance)
 
 		if err != nil {
 			log.Println(err)
@@ -273,11 +275,11 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 
 	apiKey.Status = newStatus
 
-	err = uc.userRepository.SaveApiKey(apiKey)
+	err = uc.apiStore.Save(apiKey)
 
 	if err != nil {
 		fmt.Println(err)
-		if err == repository.ErrApiKeyNotFound {
+		if err == store.ErrApiKeyNotFound {
 			return fiber.ErrNotFound
 		}
 

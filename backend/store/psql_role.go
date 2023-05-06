@@ -1,4 +1,4 @@
-package repository
+package store
 
 import (
 	"database/sql"
@@ -11,13 +11,21 @@ type RolePsql struct {
 	db *sql.DB
 }
 
+// New(user *model.Role) error
+// Get(id uint32) (*model.Role, error)
+// List() ([]model.Role, error)
+// Save(user *model.Role) error
+// Delete(id uint32) error
+// ByName(string) (*model.Role, error)
+// FromUser(userId uint32) ([]model.Permission, error)
+
 func NewRolePsql(db *sql.DB) Role {
 	return &RolePsql{
 		db: db,
 	}
 }
 
-func (r *RolePsql) Create(user *model.Role) error {
+func (r *RolePsql) New(user *model.Role) error {
 
 	return ErrNotImplemented
 }
@@ -27,12 +35,12 @@ func (r *RolePsql) Get(id uint32) (*model.Role, error) {
 	return nil, ErrNotImplemented
 }
 
-func (r *RolePsql) GetAll() ([]model.Role, error) {
+func (r *RolePsql) List() ([]model.Role, error) {
 
 	return nil, ErrNotImplemented
 }
 
-func (r *RolePsql) Update(user *model.Role) error {
+func (r *RolePsql) Save(user *model.Role) error {
 
 	return ErrNotImplemented
 }
@@ -40,20 +48,12 @@ func (r *RolePsql) Delete(id uint32) error {
 
 	return ErrNotImplemented
 }
-func (r *RolePsql) SearchByName(string) (*model.Role, error) {
+func (r *RolePsql) ByName(string) (*model.Role, error) {
 
 	return nil, ErrNotImplemented
 }
 
-func (r *RolePsql) UserPermissions(userId uint32) ([]model.Permission, error) {
-	// 	CREATE TABLE user_roles (
-	//     user_id INTEGER NOT NULL REFERENCES users(id),
-	//     role_id INTEGER NOT NULL REFERENCES roles(id),
-	//     PRIMARY KEY (user_id, role_id),
-	//     created_at timestamp not null,
-	//     updated_at timestamp not null,
-	//     deleted_at timestamp null
-	// );
+func (r *RolePsql) FromUser(userId uint32) ([]model.Permission, error) {
 	// TODO: deleted_at case
 	rows, err := r.db.Query(`
 		SELECT

@@ -7,20 +7,20 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 )
 
 type Auth struct {
-	userRepo repository.User
-	roleRepo repository.Role
-	jwtKey   string
+	userStore store.User
+	roleStore store.Role
+	jwtKey    string
 }
 
-func NewAuthMiddleware(userRepo repository.User, roleRepo repository.Role, jwtKey string) *Auth {
+func NewAuthMiddleware(userStore store.User, roleStore store.Role, jwtKey string) *Auth {
 	return &Auth{
-		userRepo: userRepo,
-		jwtKey:   jwtKey,
-		roleRepo: roleRepo,
+		userStore: userStore,
+		jwtKey:    jwtKey,
+		roleStore: roleStore,
 	}
 }
 
@@ -37,11 +37,11 @@ func (a *Auth) UserExists(c *fiber.Ctx) error {
 		return []byte(a.jwtKey), nil
 	})
 
-	user, err := a.userRepo.Get(claims.UserId)
+	user, err := a.userStore.Get(claims.UserId)
 
 	if err != nil {
 		log.Printf("auth: %s", err)
-		if err == repository.ErrUserNotFound {
+		if err == store.ErrUserNotFound {
 			return c.SendStatus(fiber.StatusUnauthorized)
 		}
 		return c.SendStatus(fiber.StatusInternalServerError)

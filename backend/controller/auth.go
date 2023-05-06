@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,8 +18,8 @@ type AuthController interface {
 }
 
 type JwtAuthController struct {
-	UserRepository repository.User
-	JwtSecret      string
+	UserStore store.User
+	JwtSecret string
 }
 
 type JwtAuthControllerOptions func(*JwtAuthController)
@@ -30,14 +30,14 @@ func WithHS256Secret(secret string) JwtAuthControllerOptions {
 	}
 }
 
-func NewJwtAuthController(ur repository.User, options ...JwtAuthControllerOptions) AuthController {
+func NewJwtAuthController(ur store.User, options ...JwtAuthControllerOptions) AuthController {
 	var controller JwtAuthController
 
 	for _, opt := range options {
 		opt(&controller)
 	}
 
-	controller.UserRepository = ur
+	controller.UserStore = ur
 
 	return &controller
 }
@@ -66,11 +66,11 @@ func (jac *JwtAuthController) RegisterHandler(c *fiber.Ctx) error {
 		Telegram: registerRequest.Telegram,
 	}
 
-	err = jac.UserRepository.Create(newUser)
+	err = jac.UserStore.New(newUser)
 
 	if err != nil {
 		log.Println(err)
-		if err == repository.ErrUserOrEmailInUse {
+		if err == store.ErrUserOrEmailInUse {
 
 			return fiber.NewError(fiber.StatusForbidden, "Username or email already in use")
 		}
@@ -121,7 +121,7 @@ func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
 }
 
 func (jac *JwtAuthController) validateUser(username, password string) (*model.User, error) {
-	dbUser, err := jac.UserRepository.SearchByUsername(username)
+	dbUser, err := jac.UserStore.ByUsername(username)
 
 	if err != nil {
 		log.Println(err)

@@ -8,6 +8,6 @@ type RegisterRequest struct {
 	Fullname string `validate:"required" json:"fullname"`
 }
 
-type RegisterReponse struct {
+type RegisterResponse struct {
 	Message string `json:"message"`
 }

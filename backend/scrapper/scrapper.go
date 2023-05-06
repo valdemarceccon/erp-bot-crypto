@@ -6,21 +6,23 @@ import (
 
 	"github.com/hirokisan/bybit/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 )
 
 type ByBitScrapper struct {
-	userRepo repository.User
+	userStore store.User
+	apiStore  store.ApiKey
 }
 
-func NewByBitScrapper(userRepo *repository.User) *ByBitScrapper {
+func NewByBitScrapper(userStore store.User, apiStore store.ApiKey) *ByBitScrapper {
 	return &ByBitScrapper{
-		userRepo: *userRepo,
+		userStore: userStore,
+		apiStore:  apiStore,
 	}
 }
 
 func (bb *ByBitScrapper) Run() error {
-	apiKeyList, err := bb.userRepo.ListActiveApiKeys(0)
+	apiKeyList, err := bb.apiStore.ListActive(0)
 
 	if err != nil {
 		log.Printf("ERROR: could not get active api keys: %v\n", err)
@@ -60,7 +62,7 @@ func (bb *ByBitScrapper) ScrapClonedPnL(apiKeyList []model.ApiKey) {
 			}
 			log.Printf("INFO: there is '%d' register for the key_id='%d' and user_id='%d'\n", len(resp.Result.List), apiKey.Id, apiKey.UserId)
 
-			err = bb.userRepo.SaveClosedPnL(apiKey.UserId, apiKey.Id, resp.Result.List)
+			err = bb.userStore.SaveClosedPnL(apiKey.UserId, apiKey.Id, resp.Result.List)
 			cursor = resp.Result.NextPageCursor
 
 			more = cursor != ""

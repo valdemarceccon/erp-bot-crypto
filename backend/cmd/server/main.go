@@ -16,7 +16,7 @@ import (
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/migrations"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 )
 
 func notImplemented(c *fiber.Ctx) error {
@@ -40,7 +40,7 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET_KEY")
 	shouldMigrate := os.Getenv("ENABLE_MIGRATIONS")
 
-	dbConfig := repository.PostgresConfigFromEnv()
+	dbConfig := store.PostgresConfigFromEnv()
 
 	db, err := sql.Open("pgx", dbConfig.String())
 
@@ -64,11 +64,12 @@ func main() {
 		jwtSecret = "some-secret"
 	}
 
-	userRepo := repository.NewUserPsql(db)
-	roleRepo := repository.NewRolePsql(db)
+	userRepo := store.NewUserPsql(db)
+	roleRepo := store.NewRolePsql(db)
+	apiRepo := store.NewApiKeyPsql(db)
 
 	authControler := controller.NewJwtAuthController(userRepo, controller.WithHS256Secret(jwtSecret))
-	userController := controller.NewUserController(userRepo, roleRepo)
+	userController := controller.NewUserController(userRepo, roleRepo, apiRepo)
 
 	authMiddleware := middleware.NewAuthMiddleware(userRepo, roleRepo, jwtSecret)
 
