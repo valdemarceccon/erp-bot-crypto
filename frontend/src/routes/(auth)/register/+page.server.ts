@@ -44,10 +44,10 @@ export const actions: Actions = {
     });
 
     if (!resp.ok) {
-      let data = await resp.text();
+      let data = await resp.json();
       if (resp.status >= 400 && resp.status < 500) {
         return {
-          message: data,
+          message: data.message,
           ok: false,
           values: {
             username: username,
@@ -58,7 +58,6 @@ export const actions: Actions = {
           }
         };
       }
-      console.log(resp)
       throw error(resp.status, data)
     }
     let token_resp = await resp.json();

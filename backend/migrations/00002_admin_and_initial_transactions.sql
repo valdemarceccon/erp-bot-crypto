@@ -7,7 +7,9 @@ INSERT INTO role_permission (role_id, permission_id, created_at, updated_at) SEL
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM role_permission WHERE role_id = (SELECT id FROM roles WHERE role_name = 'admin' and deleted_at is null);
+DELETE FROM role_permission WHERE role_id = (SELECT id FROM roles WHERE role_name = 'admin');
 DELETE FROM permission;
+DELETE FROM user_roles where exists (select * from roles where role_name = 'admin');
 DELETE FROM roles;
+
 -- +goose StatementEnd
