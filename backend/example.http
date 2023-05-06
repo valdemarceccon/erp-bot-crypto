@@ -1,0 +1,84 @@
+@host=http://localhost/api
+@user=valdemar 1
+@email=valdemar.ceccon1@gmail.com
+@fullname=Valdemar Ceccon
+@pass=123456
+@superuser=superuser
+@superpass=superpass
+@superemail=super@gmail.com
+@superfullname=Super
+@usertoken = {{loginRequest.response.body.token}}
+@superUsertoken = {{loginSuperRequest.response.body.token}}
+
+### register user
+# @name registerUser
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{"username": "{{user}}",	"email": "{{email}}",	"password": "{{pass}}",	"fullname": "{{fullname}}"}
+
+### register superuser
+# @name superUegisterUser
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{"username": "{{superuser}}",	"email": "{{superemail}}",	"password": "{{superpass}}",	"fullname": "{{superfullname}}"}
+
+### login
+# @name loginRequest
+
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{"username": "{{user}}", "password": "{{pass}}"}
+
+### loginSuper
+# @name loginSuperRequest
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{"username": "{{superuser}}", "password": "{{superpass}}"}
+
+### protected endpoint
+GET {{host}}/protected-hello
+Authorization: Bearer {{usertoken}}
+
+### protected endpoint
+GET {{host}}/user
+Authorization: Bearer {{usertoken}}
+
+### protected endpoint super
+GET {{host}}/user
+Authorization: Bearer {{superUsertoken}}
+
+### info current user
+GET {{host}}/user/me
+Authorization: Bearer {{superUsertoken}}
+
+### list user api keys
+GET {{host}}/user/api_keys
+Authorization: Bearer {{usertoken}}
+### list user api keys
+GET {{host}}/user/api_keys/all
+Authorization: Bearer {{superUsertoken}}
+### insert a new api key to the user
+POST {{host}}/user/api_keys
+Authorization: Bearer {{usertoken}}
+Content-Type: application/json
+
+{
+  "api_key_name": "teste",
+  "api_key": "testeapikey",
+  "api_secret": "testesecret",
+  "exchange": "bybit"
+}
+
+### toggle api key from user view
+PATCH {{host}}/user/api_keys/client-toggle/5
+Authorization: Bearer {{usertoken}}
+Content-Type: application/json
+
+### toggle api key from admin view
+PATCH {{host}}/user/api_keys/admin-toggle/2/10
+Authorization: Bearer {{superUsertoken}}
+Content-Type: application/json

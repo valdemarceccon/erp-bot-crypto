@@ -28,14 +28,15 @@ services:
 
   backend:
     image: ghcr.io/valdemarceccon/backend:latest
-    command: ["uvicorn", "src.server:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      - db
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev_123456
       POSTGRES_HOST: db
       POSTGRES_DB: dev
       POSTGRES_URL: postgresql://dev:dev_123456@db/dev
-      JWT_SECRET_KEY: your-secret-key
+      JWT_SECRET_KEY: sIWPbfVJsUocYUKxeqgDLUCkmiFYMdzoONHvUjVHerqHDESYRyuBMIfmunUooOTh
       JWT_ALGORITHM: HS256
       BASE_PATH: /api
     user: "1000:1000"
@@ -54,17 +55,3 @@ services:
       JWT_ALGORITHM: HS256
     volumes:
       - ./backend/daemon:/app/daemon
-
-  migrate:
-    image: ghcr.io/valdemarceccon/backend:latest
-    command: ["bash", "-c", "sleep 10 && alembic upgrade head"]
-    depends_on:
-      - db
-    environment:
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: dev_123456
-      POSTGRES_HOST: db
-      POSTGRES_DB: dev
-      POSTGRES_URL: postgresql://dev:dev_123456@db/dev
-    volumes:
-      - ./backend:/app

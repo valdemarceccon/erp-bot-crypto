@@ -13,22 +13,19 @@ async function callApi(url: string, access_token: string, body?: string) {
 }
 
 async function callSaveApiEndpoint(validatedForm: {
-  name?: string,
+  api_key_name?: string,
   api_key?: string,
   api_secret?: string,
   exchange?: string,
 }, access_token: string) {
-  let resp = await callApi(`http://${process.env.BACKEND_PRIVATE_HOST}/users/api_key`, access_token, JSON.stringify(validatedForm));
+  let resp = await callApi(`http://${process.env.BACKEND_PRIVATE_HOST}/user/api_keys`, access_token, JSON.stringify(validatedForm));
   if (!resp.ok) {
     let data = await resp.json();
-    if (resp.status >= 400 && resp.status < 500) {
       return {
-        detail: data.detail,
+        detail: data.message,
         ok: false,
         values: validatedForm
       };
-    }
-    throw error(resp.status, data.message)
   }
   return {
     ok: true,
@@ -49,7 +46,7 @@ export const actions = {
     let exchange = fd.get("exchange")?.toString();
 
     return await callSaveApiEndpoint({
-      name: name,
+      api_key_name: name,
       api_key: api_key,
       api_secret: api_secret,
       exchange: exchange,

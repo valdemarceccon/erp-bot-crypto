@@ -16,7 +16,7 @@ export const actions: Actions = {
       throw error(401, { message: "username and password is mandatory" });
     }
 
-    let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/auth/token`, {
+    let resp = await fetch(`http://${process.env.BACKEND_PRIVATE_HOST}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -27,24 +27,20 @@ export const actions: Actions = {
       })
     });
 
-
     if (!resp.ok) {
       let data = await resp.json();
-      if (resp.status == 401) {
-        return {
-          detail: data.detail,
-          ok: false,
-          values: {
-            username: username,
-            password: password
-          }
-        };
-      }
-      throw error(resp.status, data.message)
+      return {
+        message: data.message,
+        ok: false,
+        values: {
+          username: username,
+          password: password
+        }
+      };
     }
 
     let token_resp = await resp.json();
-    cookies.set("access_token", token_resp.access_token, {
+    cookies.set("access_token", token_resp.token, {
       path: "/"
     })
 

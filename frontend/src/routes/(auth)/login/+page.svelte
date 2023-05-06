@@ -4,7 +4,7 @@
 	import { toastStore } from '@skeletonlabs/skeleton';
 	import { fade } from 'svelte/transition';
 	export let form;
-	$: error_message = !form || form.ok ? "" : form.detail;
+	$: error_message = !form || form.ok ? "" : form.message;
 	$: username = form?.values?.username ? form?.values?.username : "";
 	$: password = form?.values?.password ? form?.values?.password : "";
 
