@@ -5,19 +5,12 @@ import (
 	"log"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store/query"
 )
 
 type RolePsql struct {
 	db *sql.DB
 }
-
-// New(user *model.Role) error
-// Get(id uint32) (*model.Role, error)
-// List() ([]model.Role, error)
-// Save(user *model.Role) error
-// Delete(id uint32) error
-// ByName(string) (*model.Role, error)
-// FromUser(userId uint32) ([]model.Permission, error)
 
 func NewRolePsql(db *sql.DB) Role {
 	return &RolePsql{
@@ -54,19 +47,7 @@ func (r *RolePsql) ByName(string) (*model.Role, error) {
 }
 
 func (r *RolePsql) FromUser(userId uint32) ([]model.Permission, error) {
-	// TODO: deleted_at case
-	rows, err := r.db.Query(`
-		SELECT
-			p.permission_name
-		FROM
-			user_roles ur
-			inner join role_permission rp on
-				ur.role_id = rp.role_id
-			inner join permission p on
-				rp.permission_id = p.id
-		WHERE
-			ur.user_id = $1
-	`, userId)
+	rows, err := r.db.Query(query.PermissionFromUser, userId)
 
 	if err != nil {
 		log.Println(err)
@@ -83,3 +64,38 @@ func (r *RolePsql) FromUser(userId uint32) ([]model.Permission, error) {
 
 	return ret, nil
 }
+
+// func (api *RolePsql) ListUsersPermission(userId uint32) ([]model.Permission, error) {
+// 	query := `
+// 	SELECT p.permission_name
+// 	FROM users AS u
+// 	JOIN user_roles AS ur ON u.id = ur.user_id
+// 	JOIN roles AS r ON ur.role_id = r.id
+// 	JOIN role_permission AS rp ON r.id = rp.role_id
+// 	JOIN permission AS p ON rp.permission_id = p.id
+// 	WHERE u.id = $1 AND u.deleted_at IS NULL AND r.deleted_at IS NULL
+// 	  AND rp.deleted_at IS NULL AND ur.deleted_at IS NULL;
+// 	`
+
+// 	rows, err := api.db.Query(query, userId)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+// 	var permissions []model.Permission
+// 	for rows.Next() {
+// 		var permissionName model.Permission
+// 		err := rows.Scan(&permissionName)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		permissions = append(permissions, permissionName)
+// 	}
+
+// 	if err := rows.Err(); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return permissions, nil
+// }

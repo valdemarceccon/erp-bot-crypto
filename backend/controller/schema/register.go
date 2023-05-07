@@ -7,7 +7,3 @@ type RegisterRequest struct {
 	Telegram string `json:"telegram"`
 	Fullname string `validate:"required" json:"fullname"`
 }
-
-type RegisterResponse struct {
-	Message string `json:"message"`
-}

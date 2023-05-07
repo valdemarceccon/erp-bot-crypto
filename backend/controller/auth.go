@@ -94,7 +94,7 @@ func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println(err)
-		return c.Status(fiber.StatusUnauthorized).JSON(schema.ErrorResponse{
+		return c.Status(fiber.StatusUnauthorized).JSON(schema.MessageResponse{
 			Message: "invalid username or password",
 		})
 	}
@@ -103,7 +103,7 @@ func (jac *JwtAuthController) LoginHandler(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println(err)
-		return c.Status(fiber.StatusForbidden).JSON(schema.ErrorResponse{
+		return c.Status(fiber.StatusForbidden).JSON(schema.MessageResponse{
 			Message: "invalid username or password",
 		})
 	}

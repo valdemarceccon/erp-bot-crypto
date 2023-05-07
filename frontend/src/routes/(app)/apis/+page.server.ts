@@ -64,13 +64,7 @@ export async function load({ cookies, fetch }) {
   });
 
   if (!api_keys_resp.ok) {
-    let a = await api_keys_resp.json();
-    if (api_keys_resp.status < 500) {
-      return {
-        success: false,
-        message: a.detail
-      }
-    }
+    return await api_keys_resp.json();
   }
 
   let res_api_list: ApiListResp[] = await api_keys_resp.json();

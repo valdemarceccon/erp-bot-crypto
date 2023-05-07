@@ -1,6 +1,6 @@
 import { type Actions, error, json, redirect } from "@sveltejs/kit";
 
-export function load({cookies}) {
+export function load({ cookies }) {
   let c = cookies.get("access_token");
   if (c) {
     throw redirect(301, "/");
@@ -28,15 +28,7 @@ export const actions: Actions = {
     });
 
     if (!resp.ok) {
-      let data = await resp.json();
-      return {
-        message: data.message,
-        ok: false,
-        values: {
-          username: username,
-          password: password
-        }
-      };
+      return await resp.json();
     }
 
     let token_resp = await resp.json();

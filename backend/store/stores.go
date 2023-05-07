@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	ErrUserNotFound     = errors.New("user: User not found")
-	ErrUserOrEmailInUse = errors.New("user: Username or Email taken")
+	ErrUserNotFound     = errors.New("user: user not found")
+	ErrUserOrEmailInUse = errors.New("user: username or Email taken")
 
-	ErrApiKeyNotFound                = errors.New("user: Api key not found")
+	ErrApiKeyNotFound                = errors.New("user: api key not found")
 	ErrCouldNotUpdateApikey          = errors.New("could not update api_key")
 	ErrCouldNoteRetrieveAffectedRows = errors.New("could not retrieve rows affected")
 
@@ -55,4 +55,5 @@ type Role interface {
 	Delete(id uint32) error
 	ByName(string) (*model.Role, error)
 	FromUser(userId uint32) ([]model.Permission, error)
+	// ListUsersPermission(userId uint32) ([]model.Permission, error)
 }

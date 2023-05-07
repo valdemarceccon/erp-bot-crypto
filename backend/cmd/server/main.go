@@ -64,19 +64,20 @@ func main() {
 		jwtSecret = "some-secret"
 	}
 
-	userRepo := store.NewUserPsql(db)
-	roleRepo := store.NewRolePsql(db)
-	apiRepo := store.NewApiKeyPsql(db)
+	userStore := store.NewUserPsql(db)
+	roleStore := store.NewRolePsql(db)
+	apiStore := store.NewApiKeyPsql(db)
 
-	authControler := controller.NewJwtAuthController(userRepo, controller.WithHS256Secret(jwtSecret))
-	userController := controller.NewUserController(userRepo, roleRepo, apiRepo)
+	authControler := controller.NewJwtAuthController(userStore, controller.WithHS256Secret(jwtSecret))
+	userController := controller.NewUserController(userStore, roleStore, apiStore)
 
-	authMiddleware := middleware.NewAuthMiddleware(userRepo, roleRepo, jwtSecret)
+	authMiddleware := middleware.NewAuthMiddleware(userStore, roleStore, jwtSecret)
 
-	guard := controller.NewGuards(roleRepo)
+	guard := controller.NewGuards(roleStore)
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			log.Println(err)
 			code := fiber.StatusInternalServerError
 
 			var e *fiber.Error
@@ -84,11 +85,12 @@ func main() {
 				code = e.Code
 			}
 
-			err = ctx.Status(code).JSON(schema.ErrorResponse{
+			err = ctx.Status(code).JSON(schema.MessageResponse{
 				Message: e.Message,
 			})
+
 			if err != nil {
-				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+				return ctx.Status(fiber.StatusInternalServerError).JSON(schema.MessageResponse{Message: "Internal Server Error"})
 			}
 
 			// Return from handler

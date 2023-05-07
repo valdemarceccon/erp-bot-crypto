@@ -133,7 +133,7 @@ func (uc *UserController) AddApiKey(c *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	return c.SendStatus(fiber.StatusCreated)
+	return c.Status(fiber.StatusCreated).JSON(nil)
 }
 
 func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
@@ -201,13 +201,12 @@ func getWalletBalanceETH(apiKey *model.ApiKey) (*big.Float, error) {
 		return nil, errors.New("no balance info available")
 	}
 
-	for _, v := range balanceList {
-		for _, c := range v.Coin {
-			fmt.Println(c.WalletBalance)
-		}
-	}
 	balanceETH := balanceList[0].Coin[0].WalletBalance
-	parsedBalance, _, err := big.ParseFloat(balanceETH, 10, 30, big.ToNearestAway)
+	f := new(big.Float)
+	parsedBalance, _, err := f.Parse(balanceETH, 10)
+	if err != nil {
+		return nil, err
+	}
 	return parsedBalance, nil
 }
 
@@ -251,15 +250,13 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 
 	balance, err := getWalletBalanceETH(apiKey)
 	if err != nil {
-		log.Println(err)
-		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to fetch wallet ballance. %v", err))
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("was not able to fetch wallet ballance. %v", err))
 	}
 
 	if newStatus == model.ApiKeyStatusActive {
 		err = uc.userStore.StartBot(apiKey, balance)
 
 		if err != nil {
-			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot start. %v", err))
 
 		}
@@ -267,9 +264,7 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 		err = uc.userStore.StopBot(apiKey, balance)
 
 		if err != nil {
-			log.Println(err)
 			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot stop. %v", err))
-
 		}
 	}
 

@@ -5,22 +5,21 @@
 	import { toastStore } from '@skeletonlabs/skeleton';
 	import { redirect } from '@sveltejs/kit';
 	import { z } from 'zod';
+	import Layout from '../../../+layout.svelte';
 
 	export let form;
-
-	let message: string;
 
 	let name: string = '';
 	let api_key: string = '';
 	let api_secret: string = '';
 	let exchange: string = '';
 
-  let errors: {
-    name?: string,
-    api_key?: string,
-    api_secret?: string,
-    exchange?: string,
-  } = {};
+	let errors: {
+		name?: string;
+		api_key?: string;
+		api_secret?: string;
+		exchange?: string;
+	} = {};
 
 	let formSchema = z.object({
 		name: z.string().trim().nonempty('Field is required.'),
@@ -29,17 +28,12 @@
 		exchange: z.string().trim().nonempty('Field is required.')
 	});
 
-	$: if (form?.ok) {
-		toastStore.trigger({ message: 'Saved with success', background: 'variant-filled-success' });
-		goto('/apis');
+	$: if (form && form.message) {
+		toastStore.trigger({ message: form.message, background: 'variant-filled-error' });
 	}
 
-	$: if (form && form.detail) {
-		toastStore.trigger({ message: form.detail, background: 'variant-filled-error' });
-	}
-
-	const validateForm: SubmitFunction = ({form, data, action, cancel, submitter}) => {
-    console.log("chamou");
+	const validateForm: SubmitFunction = ({ form, data, action, cancel, submitter }) => {
+		console.log('chamou');
 		let validatedForm = formSchema.safeParse({
 			name: name,
 			api_key: api_key,
@@ -48,14 +42,21 @@
 		});
 
 		if (!validatedForm.success) {
-      let localErrors = validatedForm.error.format();
-      errors.name = localErrors.name?._errors[0];
-      errors.api_key = localErrors.api_key?._errors[0];
-      errors.api_secret = localErrors.api_secret?._errors[0];
-      errors.exchange = localErrors.exchange?._errors[0];
+			let localErrors = validatedForm.error.format();
+			errors.name = localErrors.name?._errors[0];
+			errors.api_key = localErrors.api_key?._errors[0];
+			errors.api_secret = localErrors.api_secret?._errors[0];
+			errors.exchange = localErrors.exchange?._errors[0];
 			cancel();
 		}
-	}
+
+		return ({ result, update }) => {
+			if (result.type == 'redirect') {
+				toastStore.trigger({ message: 'Saved with success', background: 'variant-filled-success' });
+				update();
+			}
+		};
+	};
 </script>
 
 <form method="POST" use:enhance={validateForm}>
@@ -63,13 +64,13 @@
 		<div class="flex flex-row gap-2">
 			<label class="label flex-1">
 				<span class="my-5">
-          Key Name
-				{#if errors?.name}
-					<span class="text-error-500 ml-5">
-						{errors?.name}
-					</span>
-				{/if}
-      </span>
+					Key Name
+					{#if errors?.name}
+						<span class="text-error-500 ml-5">
+							{errors?.name}
+						</span>
+					{/if}
+				</span>
 				<input
 					bind:value={name}
 					name="name"
@@ -82,7 +83,7 @@
 			<label class="label flex-1">
 				<span>Exchange</span>
 				{#if errors?.exchange}
-        <span class="text-error-500 ml-5">
+					<span class="text-error-500 ml-5">
 						{errors?.exchange}
 					</span>
 				{/if}
@@ -99,7 +100,7 @@
 		<label class="label">
 			<span>API Key</span>
 			{#if errors?.api_key}
-      <span class="text-error-500 ml-5">
+				<span class="text-error-500 ml-5">
 					{errors?.api_key}
 				</span>
 			{/if}
@@ -115,7 +116,7 @@
 		<label class="label">
 			<span>Secret Key</span>
 			{#if errors?.api_secret}
-      <span class="text-error-500 ml-5">
+				<span class="text-error-500 ml-5">
 					{errors?.api_secret}
 				</span>
 			{/if}

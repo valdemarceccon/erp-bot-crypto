@@ -1,10 +1,17 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { toastStore } from '@skeletonlabs/skeleton';
 	import type { PageData } from './$types';
 	import ToggleBtn from './ToggleBtn.svelte';
 
 	export let data: PageData;
+	export let form;
 	let hashMap = new Map<number, string>();
+
+	$: if (form && form.message) {
+		toastStore.trigger({ message: form.message, background: 'variant-filled-error' });
+	}
+
 	hashMap.set(0, 'Inactive');
 	hashMap.set(1, 'Waiting activation');
 	hashMap.set(2, 'Active');
