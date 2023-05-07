@@ -34,6 +34,8 @@ var (
 	SaveApiKey string
 	//go:embed api_key/active.sql
 	ListActiveApiKey string
+	//go:embed api_key/active.sql
+	BotRunsApiKey string
 )
 
 var (
