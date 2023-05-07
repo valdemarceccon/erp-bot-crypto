@@ -210,19 +210,19 @@ func getWalletBalanceETH(apiKey *model.ApiKey) (*big.Float, error) {
 	return parsedBalance, nil
 }
 
-func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
+func (uc *UserController) getApiKeyForUser(c *fiber.Ctx) (*model.ApiKey, error) {
 	apiKeyId, err := c.ParamsInt("apiKeyId")
 
 	if err != nil {
 		log.Println(err)
-		return fiber.ErrBadRequest
+		return nil, fiber.NewError(fiber.StatusBadRequest, "missing api key id")
 	}
 
 	userId, err := c.ParamsInt("userId")
 
 	if err != nil {
 		log.Println(err)
-		return fiber.ErrBadRequest
+		return nil, fiber.NewError(fiber.StatusBadRequest, "missing user id")
 	}
 
 	apiKey, err := uc.apiStore.Get(uint32(apiKeyId), uint32(userId))
@@ -230,14 +230,63 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 	if err != nil {
 		log.Println(err)
 		if err == store.ErrApiKeyNotFound {
-			return fiber.ErrNotFound
+			return nil, fiber.NewError(fiber.StatusNotFound, "api key not found for the user")
 		}
 
+		return nil, fiber.ErrInternalServerError
+	}
+
+	return apiKey, nil
+}
+
+func (uc *UserController) updateBotStatus(apiKey *model.ApiKey, balance *big.Float, newStatus model.ApiKeyStatus) error {
+	if newStatus == model.ApiKeyStatusActive {
+		err := uc.userStore.StartBot(apiKey, balance)
+
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot start. %v", err))
+
+		}
+	} else if newStatus == model.ApiKeyStatusInactive {
+		err := uc.userStore.StopBot(apiKey, balance)
+
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot stop. %v", err))
+		}
+	}
+
+	apiKey.Status = newStatus
+
+	return uc.apiStore.Save(apiKey)
+}
+
+func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
+
+	apiKey, err := uc.getApiKeyForUser(c)
+
+	if err != nil {
+		return err
+	}
+
+	balance, err := getWalletBalanceETH(apiKey)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("was not able to fetch wallet ballance. %v", err))
+	}
+
+	newStatus := getNewApiKeyStatus(apiKey.Status)
+
+	err = uc.updateBotStatus(apiKey, balance, newStatus)
+
+	if err != nil {
 		return fiber.ErrInternalServerError
 	}
 
+	return c.JSON(schema.FromApiKeyModel(apiKey))
+}
+
+func getNewApiKeyStatus(status model.ApiKeyStatus) model.ApiKeyStatus {
 	var newStatus model.ApiKeyStatus
-	switch apiKey.Status {
+	switch status {
 	case model.ApiKeyStatusActive:
 		newStatus = model.ApiKeyStatusInactive
 	case model.ApiKeyStatusInactive:
@@ -248,38 +297,9 @@ func (uc *UserController) AdminToggleApiKey(c *fiber.Ctx) error {
 		newStatus = model.ApiKeyStatusInactive
 	}
 
-	balance, err := getWalletBalanceETH(apiKey)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("was not able to fetch wallet ballance. %v", err))
-	}
+	return newStatus
+}
 
-	if newStatus == model.ApiKeyStatusActive {
-		err = uc.userStore.StartBot(apiKey, balance)
-
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot start. %v", err))
-
-		}
-	} else if newStatus == model.ApiKeyStatusInactive {
-		err = uc.userStore.StopBot(apiKey, balance)
-
-		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("was not able to register the bot stop. %v", err))
-		}
-	}
-
-	apiKey.Status = newStatus
-
-	err = uc.apiStore.Save(apiKey)
-
-	if err != nil {
-		fmt.Println(err)
-		if err == store.ErrApiKeyNotFound {
-			return fiber.ErrNotFound
-		}
-
-		return fiber.ErrInternalServerError
-	}
-
-	return c.JSON(schema.FromApiKeyModel(apiKey))
+func (uc *UserController) CalculateComission(c fiber.Ctx) error {
+	return fiber.NewError(fiber.StatusInternalServerError, store.ErrNotImplemented.Error())
 }

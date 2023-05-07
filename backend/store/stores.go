@@ -12,11 +12,12 @@ var (
 	ErrUserNotFound     = errors.New("user: user not found")
 	ErrUserOrEmailInUse = errors.New("user: username or Email taken")
 
-	ErrApiKeyNotFound                = errors.New("user: api key not found")
-	ErrCouldNotUpdateApikey          = errors.New("could not update api_key")
-	ErrCouldNoteRetrieveAffectedRows = errors.New("could not retrieve rows affected")
+	ErrApiKeyNotFound = errors.New("user: api key not found")
 
-	ErrNotImplemented = errors.New("method not implemented")
+	ErrCouldNotUpdateApikey          = errors.New("api: could not update api_key")
+	ErrCouldNoteRetrieveAffectedRows = errors.New("api: could not retrieve rows affected")
+
+	ErrNotImplemented = errors.New("stores: method not implemented")
 )
 
 type Transactions string
