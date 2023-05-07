@@ -5,16 +5,16 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 )
 
 type Guards struct {
-	repo repository.Role
+	roleStore store.Role
 }
 
-func NewGuards(roleRepo repository.Role) *Guards {
+func NewGuards(roleStore store.Role) *Guards {
 	return &Guards{
-		repo: roleRepo,
+		roleStore: roleStore,
 	}
 }
 
@@ -27,7 +27,7 @@ func (g *Guards) WithPermission(permissonName model.Permission, handler func(c *
 			return fiber.ErrUnauthorized
 		}
 
-		permissions, err := g.repo.UserPermissions(user.Id)
+		permissions, err := g.roleStore.FromUser(user.Id)
 
 		if err != nil {
 			log.Println("controller: guard:", err)

@@ -22,6 +22,7 @@ export const actions: Actions = {
     if (!password) validation.password = "password is required";
     if (!name) validation.name = "name is required";
     if (!email) validation.email = "email is required";
+    if (password && password_confirm && password !== password_confirm) validation.password = "password confirmation must match"
 
     if (Object.keys(validation).length > 0) {
       return {
@@ -44,21 +45,7 @@ export const actions: Actions = {
     });
 
     if (!resp.ok) {
-      let data = await resp.json();
-      if (resp.status >= 400 && resp.status < 500) {
-        return {
-          message: data.message,
-          ok: false,
-          values: {
-            username: username,
-            password: password,
-            name: name,
-            email: email,
-            password_confirm: password_confirm,
-          }
-        };
-      }
-      throw error(resp.status, data)
+      return await resp.json();
     }
     let token_resp = await resp.json();
     cookies.set("access_token", token_resp.token, {

@@ -8,9 +8,10 @@ package model
 type Permission string
 
 const (
-	ListUsersPermission    Permission = "ListUsers"
-	ListApiKeysPermission  Permission = "ListApiKeys"
-	WriteApiKeysPermission Permission = "WriteApiKeys"
+	ListUsersPermission        Permission = "ListUsers"
+	ListApiKeysPermission      Permission = "ListApiKeys"
+	WriteApiKeysPermission     Permission = "WriteApiKeys"
+	RunDataCollectorPermission Permission = "RunDataCollector"
 )
 
 type Role struct {

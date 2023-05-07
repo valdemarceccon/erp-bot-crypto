@@ -13,7 +13,7 @@ type PermissionResponse struct {
 	Name string `json:"name"`
 }
 
-type UserMeReponse struct {
+type UserMeResponse struct {
 	UserResponse
 	Permissions []PermissionResponse `json:"permissions"`
 }

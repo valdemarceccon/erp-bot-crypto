@@ -16,7 +16,7 @@ import (
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/migrations"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
-	"github.com/valdemarceccon/crypto-bot-erp/backend/repository"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
 )
 
 func notImplemented(c *fiber.Ctx) error {
@@ -40,7 +40,7 @@ func main() {
 	jwtSecret := os.Getenv("JWT_SECRET_KEY")
 	shouldMigrate := os.Getenv("ENABLE_MIGRATIONS")
 
-	dbConfig := repository.PostgresConfigFromEnv()
+	dbConfig := store.PostgresConfigFromEnv()
 
 	db, err := sql.Open("pgx", dbConfig.String())
 
@@ -64,18 +64,21 @@ func main() {
 		jwtSecret = "some-secret"
 	}
 
-	userRepo := repository.NewUserPsql(db)
-	roleRepo := repository.NewRolePsql(db)
+	userStore := store.NewUserPsql(db)
+	roleStore := store.NewRolePsql(db)
+	apiStore := store.NewApiKeyPsql(db)
 
-	authControler := controller.NewJwtAuthController(userRepo, controller.WithHS256Secret(jwtSecret))
-	userController := controller.NewUserController(userRepo, roleRepo)
+	authControler := controller.NewJwtAuthController(userStore, controller.WithHS256Secret(jwtSecret))
+	userController := controller.NewUserController(userStore, roleStore, apiStore)
+	dataCollectorController := controller.NewDataCollector(userStore, apiStore)
 
-	authMiddleware := middleware.NewAuthMiddleware(userRepo, roleRepo, jwtSecret)
+	authMiddleware := middleware.NewAuthMiddleware(userStore, roleStore, jwtSecret)
 
-	guard := controller.NewGuards(roleRepo)
+	guard := controller.NewGuards(roleStore)
 
 	app := fiber.New(fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			log.Println(err)
 			code := fiber.StatusInternalServerError
 
 			var e *fiber.Error
@@ -83,11 +86,12 @@ func main() {
 				code = e.Code
 			}
 
-			err = ctx.Status(code).JSON(schema.ErrorResponse{
+			err = ctx.Status(code).JSON(schema.MessageResponse{
 				Message: e.Message,
 			})
+
 			if err != nil {
-				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+				return ctx.Status(fiber.StatusInternalServerError).JSON(schema.MessageResponse{Message: "Internal Server Error"})
 			}
 
 			// Return from handler
@@ -95,15 +99,15 @@ func main() {
 		},
 	})
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
+
 	authGroup := app.Group("/auth")
 	authGroup.Post("/login", authControler.LoginHandler)
 	authGroup.Post("/register", authControler.RegisterHandler)
 	authGroup.Get("/logout", notImplemented)
 	authGroup.Get("/refresh", notImplemented)
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
 
 	jwtMiddleware := jwtware.New(jwtware.Config{
 		SigningKey: []byte(jwtSecret),
@@ -120,6 +124,12 @@ func main() {
 	userGroup.Patch("/api_keys/client-toggle/:apiKeyId", userController.ClientToggleApiKey)
 	userGroup.Patch("/api_keys/admin-toggle/:userId/:apiKeyId", guard.WithPermission(model.WriteApiKeysPermission, userController.AdminToggleApiKey))
 	userGroup.Get("/me", userController.Me)
+
+	collectorGroup := app.Group("/collector")
+	collectorGroup.Use(jwtMiddleware)
+	collectorGroup.Use(authMiddleware.UserExists)
+	//{{host}}/collector/2023-05-06/2023-05-06
+	collectorGroup.Post("/:startDate/:endDate/:username?", guard.WithPermission(model.RunDataCollectorPermission, dataCollectorController.RunNow))
 
 	app.Listen(":" + port)
 }
