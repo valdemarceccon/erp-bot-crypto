@@ -21,24 +21,23 @@ func NewByBitScrapper(userStore store.User, apiStore store.ApiKey) *ByBitScrappe
 	}
 }
 
-func (bb *ByBitScrapper) Run() error {
-	apiKeyList, err := bb.apiStore.ListActive(0)
+func (bb *ByBitScrapper) Run(userId uint32, start, end time.Time) error {
+
+	apiKeyList, err := bb.apiStore.ListActive(userId)
 
 	if err != nil {
 		log.Printf("ERROR: could not get active api keys: %v\n", err)
 	}
 
 	log.Printf("INFO: found %d active keys\n", len(apiKeyList))
-	bb.ScrapClonedPnL(apiKeyList)
+	bb.ScrapClonedPnL(apiKeyList, start, end)
 
 	return nil
 }
 
-func (bb *ByBitScrapper) ScrapClonedPnL(apiKeyList []model.ApiKey) {
-	now := time.Now()
-	days := 10
-	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-days, 0, 0, 0, 0, time.UTC)
-	yesterdayEnd := time.Date(now.Year(), now.Month(), now.Day()-days, 23, 59, 59, 999999999, time.UTC)
+func (bb *ByBitScrapper) ScrapClonedPnL(apiKeyList []model.ApiKey, start, end time.Time) {
+	yesterdayStart := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, time.UTC)
+	yesterdayEnd := time.Date(end.Year(), end.Month(), end.Day(), 23, 59, 59, 999999999, time.UTC)
 
 	yesterdayStartMs := yesterdayStart.UnixNano() / int64(time.Millisecond)
 	yesterdayEndMs := yesterdayEnd.UnixNano() / int64(time.Millisecond)

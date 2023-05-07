@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"math/big"
@@ -107,6 +108,9 @@ func (ur *UserPsql) ByUsername(username string) (*model.User, error) {
 	resp := &model.User{}
 	err := row.Scan(&resp.Id, &resp.Email, &resp.Username, &resp.Fullname, &resp.Password)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrUserNotFound
+		}
 		return nil, fmt.Errorf("user: %w", err)
 	}
 	return resp, nil

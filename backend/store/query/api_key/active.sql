@@ -11,5 +11,5 @@ inner join api_key a on
     and a.deleted_at is null
     and u.deleted_at is null
 WHERE
-    (u.id = $1 OR $2 = 0)
-and a.status in ($3, $4);
+    (u.id = $1 OR $1 = 0)
+and a.status in ($2, $3);

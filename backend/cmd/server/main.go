@@ -70,6 +70,7 @@ func main() {
 
 	authControler := controller.NewJwtAuthController(userStore, controller.WithHS256Secret(jwtSecret))
 	userController := controller.NewUserController(userStore, roleStore, apiStore)
+	dataCollectorController := controller.NewDataCollector(userStore, apiStore)
 
 	authMiddleware := middleware.NewAuthMiddleware(userStore, roleStore, jwtSecret)
 
@@ -98,15 +99,15 @@ func main() {
 		},
 	})
 
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World!")
+	})
+
 	authGroup := app.Group("/auth")
 	authGroup.Post("/login", authControler.LoginHandler)
 	authGroup.Post("/register", authControler.RegisterHandler)
 	authGroup.Get("/logout", notImplemented)
 	authGroup.Get("/refresh", notImplemented)
-
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
 
 	jwtMiddleware := jwtware.New(jwtware.Config{
 		SigningKey: []byte(jwtSecret),
@@ -123,6 +124,12 @@ func main() {
 	userGroup.Patch("/api_keys/client-toggle/:apiKeyId", userController.ClientToggleApiKey)
 	userGroup.Patch("/api_keys/admin-toggle/:userId/:apiKeyId", guard.WithPermission(model.WriteApiKeysPermission, userController.AdminToggleApiKey))
 	userGroup.Get("/me", userController.Me)
+
+	collectorGroup := app.Group("/collector")
+	collectorGroup.Use(jwtMiddleware)
+	collectorGroup.Use(authMiddleware.UserExists)
+	//{{host}}/collector/2023-05-06/2023-05-06
+	collectorGroup.Post("/:startDate/:endDate/:username?", guard.WithPermission(model.RunDataCollectorPermission, dataCollectorController.RunNow))
 
 	app.Listen(":" + port)
 }

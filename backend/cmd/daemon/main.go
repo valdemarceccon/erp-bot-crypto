@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/scrapper"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/store"
@@ -24,7 +25,8 @@ func main() {
 	bbClient := scrapper.NewByBitScrapper(userStore, apiStore)
 
 	log.Println("Starting data fetching.")
-	err = bbClient.Run()
+	t := time.Now()
+	err = bbClient.Run(0, t, t)
 	if err != nil {
 		log.Fatal(err)
 	}

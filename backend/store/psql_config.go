@@ -73,8 +73,3 @@ func PostgresConfigFromEnv() PostgresConfig {
 func (pc PostgresConfig) String() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", pc.Host, pc.Port, pc.User, pc.Password, pc.DbName, pc.SslMode)
 }
-
-type All struct {
-	User User
-	Role Role
-}

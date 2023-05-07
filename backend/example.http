@@ -3,8 +3,8 @@
 @email=valdemar.ceccon1@gmail.com
 @fullname=Valdemar Ceccon
 @pass=123456
-@superuser=superuser
-@superpass=superpass
+@superuser=valdemar
+@superpass=1234
 @superemail=super@gmail.com
 @superfullname=Super
 @usertoken = {{loginRequest.response.body.token}}
@@ -80,5 +80,10 @@ Content-Type: application/json
 
 ### toggle api key from admin view
 PATCH {{host}}/user/api_keys/admin-toggle/2/10
+Authorization: Bearer {{superUsertoken}}
+Content-Type: application/json
+
+### run scrapper now
+POST {{host}}/collector/2023-04-05/2023-05-06/valdemar
 Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json
