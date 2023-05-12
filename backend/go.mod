@@ -10,6 +10,7 @@ require (
 	github.com/hirokisan/bybit/v2 v2.17.0
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/pressly/goose/v3 v3.10.0
+	github.com/shopspring/decimal v1.3.1
 	golang.org/x/crypto v0.8.0
 )
 

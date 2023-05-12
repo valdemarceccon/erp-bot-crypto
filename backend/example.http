@@ -79,11 +79,16 @@ Authorization: Bearer {{usertoken}}
 Content-Type: application/json
 
 ### toggle api key from admin view
-PATCH {{host}}/user/api_keys/admin-toggle/2/10
+PATCH {{host}}/user/api_keys/admin-toggle/1/16
 Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json
 
 ### run scrapper now
 POST {{host}}/collector/2023-04-05/2023-05-06/valdemar
+Authorization: Bearer {{superUsertoken}}
+Content-Type: application/json
+
+### comissions endpoint
+GET {{host}}/user/comission/1
 Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json

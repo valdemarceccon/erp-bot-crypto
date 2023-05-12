@@ -12,6 +12,7 @@ const (
 	ListApiKeysPermission      Permission = "ListApiKeys"
 	WriteApiKeysPermission     Permission = "WriteApiKeys"
 	RunDataCollectorPermission Permission = "RunDataCollector"
+	GetUserCommission          Permission = "GetUserComission"
 )
 
 type Role struct {

@@ -1,5 +1,11 @@
 package model
 
+import (
+	"time"
+
+	"github.com/shopspring/decimal"
+)
+
 type User struct {
 	Id       uint32 `json:"id"`
 	Fullname string `json:"name"`
@@ -27,4 +33,13 @@ type ApiKey struct {
 	ApiKey     string       `json:"api_key"`
 	ApiSecret  string       `json:"api_secret"`
 	Status     ApiKeyStatus `json:"status"`
+}
+
+type ApiKeyRun struct {
+	Id           uint32           `json:"id"`
+	ApiKeyId     uint32           `json:"apikeyid"`
+	StartTime    *time.Time       `json:"starttime"`
+	StopTime     *time.Time       `json:"stoptime"`
+	StartBalance *decimal.Decimal `json:"startbalance"`
+	StopBalanace *decimal.Decimal `json:"stopbalanace"`
 }

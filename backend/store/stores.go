@@ -46,6 +46,7 @@ type ApiKey interface {
 	Save(apiKey *model.ApiKey) error
 	FromUser(uint32) ([]model.ApiKey, error)
 	ListActive(uint32) ([]model.ApiKey, error)
+	GetBotRunsStartStop(userId uint32) ([]model.ApiKeyRun, error)
 }
 
 type Role interface {

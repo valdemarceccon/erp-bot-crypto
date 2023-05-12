@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/hirokisan/bybit/v2"
+	"github.com/shopspring/decimal"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -22,6 +24,7 @@ type UserController struct {
 	validate  *validator.Validate
 }
 
+// Should always return a user if used after the auth middlewares
 func getCurrentUserFromContext(c *fiber.Ctx) *model.User {
 	return c.Locals(constants.ContextKeyCurrentUser).(*model.User)
 }
@@ -300,6 +303,47 @@ func getNewApiKeyStatus(status model.ApiKeyStatus) model.ApiKeyStatus {
 	return newStatus
 }
 
-func (uc *UserController) CalculateComission(c fiber.Ctx) error {
-	return fiber.NewError(fiber.StatusInternalServerError, store.ErrNotImplemented.Error())
+type ComissionCalculator struct {
+	start           *time.Time
+	stop            *time.Time
+	currentBallance *decimal.Decimal
+	closedPnL       []bybit.V5GetClosedPnLItem
 }
+
+type CommissionReponse struct {
+	Date   *time.Time       `json:"date"`
+	Profit *decimal.Decimal `json:"profit"`
+	Fee    *decimal.Decimal `json:"fee"`
+}
+
+func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
+	user := getCurrentUserFromContext(c)
+
+	botRuns, err := uc.apiStore.GetBotRunsStartStop(user.Id)
+
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
+	}
+
+	return c.JSON(botRuns)
+}
+
+// func dates(values *model.ApiKeyRun) (*time.Time, *time.Time, error) {
+// 	fDate := values.StartTime
+// 	var eDate time.Time
+// 	if values.StopTime == nil {
+// 		eDate = time.Now()
+// 	} else {
+// 		eDate = *values.StopTime
+// 	}
+
+// 	var iniDay int
+// 	var endDay int
+
+// 	if fDate.Day() > 15 {
+// 		iniDay = 15
+// 	} else {
+// 		iniDay = 1
+// 	}
+
+// }

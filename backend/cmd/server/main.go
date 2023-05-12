@@ -123,6 +123,7 @@ func main() {
 	userGroup.Post("/api_keys", userController.AddApiKey)
 	userGroup.Patch("/api_keys/client-toggle/:apiKeyId", userController.ClientToggleApiKey)
 	userGroup.Patch("/api_keys/admin-toggle/:userId/:apiKeyId", guard.WithPermission(model.WriteApiKeysPermission, userController.AdminToggleApiKey))
+	userGroup.Get("/comission/:userId", guard.WithPermission(model.GetUserCommission, userController.CalculateComission))
 	userGroup.Get("/me", userController.Me)
 
 	collectorGroup := app.Group("/collector")
