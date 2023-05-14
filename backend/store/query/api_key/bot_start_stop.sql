@@ -7,9 +7,10 @@ SELECT
   ,s2.wallet_balance
 FROM
   bot_start s1
-INNER JOIN
-    bot_stop s2
-  ON s1.id = s2.start_time_id
 INNER JOIN api_key ak
   ON s1.api_key_id = ak.id
-  AND user_id = $1;
+LEFT JOIN
+    bot_stop s2
+  ON s1.id = s2.start_time_id
+WHERE
+  user_id = $1;
