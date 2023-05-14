@@ -1,7 +1,15 @@
 -- +goose Up
 -- +goose StatementBegin
 INSERT INTO roles (role_name, created_at, updated_at) VALUES ('admin', now(), now()) returning id;
-INSERT INTO permission (permission_name, created_at, updated_at) VALUES ('ListUsers', now(), now()), ('WriteApiKeys', now(), now()), ('ReadApiKeys', now(), now());
+INSERT INTO
+  permission (permission_name, created_at, updated_at)
+VALUES
+  ('ListUsers', now(), now()),
+  ('WriteApiKeys', now(), now()),
+  ('ReadApiKeys', now(), now()),
+  ('ListApiKeys', now(), now()),
+  ('RunDataCollector', now(), now()),
+  ('GetUserComission', now(), now());
 INSERT INTO role_permission (role_id, permission_id, created_at, updated_at) SELECT r.id, p.id, now(), now() FROM permission p, roles r WHERE role_name = 'admin';
 -- +goose StatementEnd
 

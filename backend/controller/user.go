@@ -397,23 +397,3 @@ func getLowerBound(t string) (*time.Time, error) {
 	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
 	return &ret, nil
 }
-
-// func dates(values *model.ApiKeyRun) (*time.Time, *time.Time, error) {
-// 	fDate := values.StartTime
-// 	var eDate time.Time
-// 	if values.StopTime == nil {
-// 		eDate = time.Now()
-// 	} else {
-// 		eDate = *values.StopTime
-// 	}
-
-// 	var iniDay int
-// 	var endDay int
-
-// 	if fDate.Day() > 15 {
-// 		iniDay = 15
-// 	} else {
-// 		iniDay = 1
-// 	}
-
-// }
