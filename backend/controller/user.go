@@ -176,7 +176,6 @@ func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
 	err = uc.apiStore.Save(apiKey)
 
 	if err != nil {
-		fmt.Println(err)
 		if err == store.ErrApiKeyNotFound {
 			return fiber.ErrNotFound
 		}
@@ -307,65 +306,119 @@ func getNewApiKeyStatus(status model.ApiKeyStatus) model.ApiKeyStatus {
 }
 
 type CommissionReponse struct {
-	Date   *time.Time      `json:"date"`
-	Profit decimal.Decimal `json:"profit"`
-	Fee    decimal.Decimal `json:"fee"`
+	Start       time.Time    `json:"start"`
+	Stop        *time.Time   `json:"stop"`
+	Commissions []Commission `json:"commissions"`
+}
+
+type Commission struct {
+	Date     time.Time       `json:"date"`
+	Profit   decimal.Decimal `json:"profit"`
+	Fee      decimal.Decimal `json:"fee"`
+	HighMark decimal.Decimal `json:"high_mark"`
+	Balance  decimal.Decimal `json:"balance"`
 }
 
 func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
 	user := getCurrentUserFromContext(c)
 
 	botRuns, err := uc.apiStore.GetBotRunsStartStop(user.Id)
-
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
 	}
 
 	calc := make([]CommissionReponse, 0)
-
 	for _, br := range botRuns {
-		var stopTime *time.Time
-		if br.StopTime == nil {
-			stopTime, _ = getUpperBound(strconv.FormatInt(time.Now().UnixMilli(), 10))
-		} else {
-			stopTime = br.StopTime
+		c := CommissionReponse{
+			Start:       *br.StartTime,
+			Stop:        br.StopTime,
+			Commissions: make([]Commission, 0),
 		}
-		cpnl, err := uc.userStore.GetClosedPnL(user.Id, br.ApiKeyId, br.StartTime.UnixMilli(), stopTime.UnixMilli())
+
+		comissions, err := uc.calcComissionForBotRun(user.Id, br.ApiKeyId, br.StartTime, br.StopTime, *br.StartBalance)
+
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
 		}
-		var currentCommissionDate *time.Time
-		var acc CommissionReponse
-		for _, cpnlItem := range cpnl {
-			commissionDate, err := getLowerBound(cpnlItem.CreatedTime)
-			if err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
-			}
-
-			acc.Profit = acc.Profit.Add(decimal.RequireFromString(cpnlItem.ClosedPnl))
-
-			if currentCommissionDate != nil && !currentCommissionDate.Equal(*commissionDate) {
-				acc.Date = currentCommissionDate
-				acc.Fee = uc.config.Commission.Mul(acc.Profit)
-				calc = append(calc, acc)
-				acc = CommissionReponse{}
-			}
-
-			currentCommissionDate = commissionDate
-		}
-
+		c.Commissions = append(c.Commissions, comissions...)
+		calc = append(calc, c)
 	}
 
 	return c.JSON(calc)
 }
 
+func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start, stop *time.Time, startBalance decimal.Decimal) ([]Commission, error) {
+	// TODO: refactor this abomination
+
+	calc := make([]Commission, 0)
+	var stopTime *time.Time
+	if stopTime == nil {
+		stopTime, _ = getUpperBound(strconv.FormatInt(time.Now().UnixMilli(), 10))
+	} else {
+		stopTime = stop
+	}
+	cpnl, err := uc.userStore.GetClosedPnL(userId, apiKeyId, start.UnixMilli(), stopTime.UnixMilli())
+
+	if err != nil {
+		return nil, fmt.Errorf("user controller: %w", err)
+	}
+
+	var currentCommissionDate *time.Time
+	var acc Commission
+	for _, cpnlItem := range cpnl {
+		commissionDate, err := getUpperBound(cpnlItem.CreatedTime)
+		if err != nil {
+			return nil, fmt.Errorf("user controller: %w", err)
+		}
+
+		acc.Profit = acc.Profit.Add(decimal.RequireFromString(cpnlItem.ClosedPnl))
+		if currentCommissionDate != nil && !(*currentCommissionDate).Equal(*commissionDate) {
+			acc.Date = *currentCommissionDate
+			acc.Fee = uc.config.Commission.Mul(acc.Profit)
+			if len(calc) == 0 {
+				acc.Balance = startBalance.Add(acc.Profit)
+				acc.HighMark = startBalance
+			} else {
+				acc.Balance = acc.Profit.Add(acc.Balance)
+				if acc.Balance.GreaterThan(calc[len(calc)-1].HighMark) {
+					acc.HighMark = acc.Balance
+				} else {
+					acc.HighMark = calc[len(calc)-1].HighMark
+				}
+			}
+			calc = append(calc, acc)
+
+			acc = Commission{}
+		}
+
+		currentCommissionDate = commissionDate
+	}
+	acc.Date = *currentCommissionDate
+
+	acc.Fee = uc.config.Commission.Mul(acc.Profit)
+	if len(calc) == 0 {
+		acc.Balance = startBalance.Add(acc.Profit)
+		acc.HighMark = startBalance
+	} else {
+		acc.Balance = acc.Profit.Add(acc.Balance)
+		if acc.Balance.GreaterThan(calc[len(calc)-1].HighMark) {
+			acc.HighMark = acc.Balance
+		} else {
+			acc.HighMark = calc[len(calc)-1].HighMark
+		}
+	}
+	calc = append(calc, acc)
+
+	return calc, nil
+}
+
 func getUpperBound(t string) (*time.Time, error) {
-	a, err := strconv.Atoi(t)
+	a, err := strconv.ParseInt(t, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("user controller: invalid date for commission: %w", err)
 	}
 
-	createTime := time.Unix(0, int64(a*int(time.Millisecond)))
+	createTime := time.Unix(0, a*int64(time.Millisecond))
 	var ini int
 
 	if createTime.Day() < 15 {
@@ -379,13 +432,13 @@ func getUpperBound(t string) (*time.Time, error) {
 	return &ret, nil
 }
 
-func getLowerBound(t string) (*time.Time, error) {
-	a, err := strconv.Atoi(t)
+func getLowerBound(t string) (time.Time, error) {
+	a, err := strconv.ParseInt(t, 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("user controller: invalid date for commission: %w", err)
+		return time.Time{}, fmt.Errorf("user controller: invalid date for commission: %w", err)
 	}
 
-	createTime := time.Unix(0, int64(a*int(time.Millisecond)))
+	createTime := time.Unix(0, a*int64(time.Millisecond))
 	var ini int
 
 	if createTime.Day() < 15 {
@@ -395,5 +448,5 @@ func getLowerBound(t string) (*time.Time, error) {
 	}
 
 	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
-	return &ret, nil
+	return ret, nil
 }
