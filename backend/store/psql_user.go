@@ -164,6 +164,44 @@ func (r *UserPsql) SaveClosedPnL(userId, apiKeyId uint32, data []bybit.V5GetClos
 	return nil
 }
 
+func (r *UserPsql) GetClosedPnL(userId, apiKeyId uint32, startTime, endTime int64) ([]bybit.V5GetClosedPnLItem, error) {
+	rows, err := r.db.Query(query.GetClosedPnLUser, userId, apiKeyId, startTime, endTime)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	ret := make([]bybit.V5GetClosedPnLItem, 0)
+	for rows.Next() {
+		var val bybit.V5GetClosedPnLItem
+		err = rows.Scan(
+			&val.Symbol,
+			&val.OrderID,
+			&val.Side,
+			&val.Qty,
+			&val.OrderPrice,
+			&val.OrderType,
+			&val.ExecType,
+			&val.ClosedSize,
+			&val.CumEntryValue,
+			&val.AvgEntryPrice,
+			&val.CumExitValue,
+			&val.AvgExitPrice,
+			&val.ClosedPnl,
+			&val.FillCount,
+			&val.Leverage,
+			&val.CreatedTime,
+			&val.UpdatedTime,
+		)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, val)
+	}
+
+	return ret, nil
+}
+
 func (r *UserPsql) StartBot(apikey *model.ApiKey, balance *big.Float) error {
 	_, err := r.db.Exec(query.StarBotUser,
 		apikey.Id,

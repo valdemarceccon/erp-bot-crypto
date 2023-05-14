@@ -37,9 +37,9 @@ type ApiKey struct {
 
 type ApiKeyRun struct {
 	Id           uint32           `json:"id"`
-	ApiKeyId     uint32           `json:"apikeyid"`
-	StartTime    *time.Time       `json:"starttime"`
-	StopTime     *time.Time       `json:"stoptime"`
-	StartBalance *decimal.Decimal `json:"startbalance"`
-	StopBalanace *decimal.Decimal `json:"stopbalanace"`
+	ApiKeyId     uint32           `json:"api_key_id"`
+	StartTime    *time.Time       `json:"start_time"`
+	StopTime     *time.Time       `json:"stop_time"`
+	StartBalance *decimal.Decimal `json:"start_balance"`
+	StopBalanace *decimal.Decimal `json:"stop_balanace"`
 }

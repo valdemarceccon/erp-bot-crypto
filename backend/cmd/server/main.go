@@ -11,6 +11,7 @@ import (
 	jwtware "github.com/gofiber/jwt/v3"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+	"github.com/shopspring/decimal"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware"
@@ -64,12 +65,16 @@ func main() {
 		jwtSecret = "some-secret"
 	}
 
+	config := &model.AppConfig{
+		Commission: decimal.RequireFromString("0.4"),
+	}
+
 	userStore := store.NewUserPsql(db)
 	roleStore := store.NewRolePsql(db)
 	apiStore := store.NewApiKeyPsql(db)
 
 	authControler := controller.NewJwtAuthController(userStore, controller.WithHS256Secret(jwtSecret))
-	userController := controller.NewUserController(userStore, roleStore, apiStore)
+	userController := controller.NewUserController(userStore, roleStore, apiStore, config)
 	dataCollectorController := controller.NewDataCollector(userStore, apiStore)
 
 	authMiddleware := middleware.NewAuthMiddleware(userStore, roleStore, jwtSecret)

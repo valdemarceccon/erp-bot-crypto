@@ -84,7 +84,7 @@ Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json
 
 ### run scrapper now
-POST {{host}}/collector/2023-04-05/2023-05-06/valdemar
+POST {{host}}/collector/2023-03-05/2023-05-06/valdemar
 Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json
 

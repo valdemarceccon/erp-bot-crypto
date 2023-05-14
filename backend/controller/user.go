@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -22,6 +23,7 @@ type UserController struct {
 	roleStore store.Role
 	apiStore  store.ApiKey
 	validate  *validator.Validate
+	config    *model.AppConfig
 }
 
 // Should always return a user if used after the auth middlewares
@@ -29,12 +31,13 @@ func getCurrentUserFromContext(c *fiber.Ctx) *model.User {
 	return c.Locals(constants.ContextKeyCurrentUser).(*model.User)
 }
 
-func NewUserController(ur store.User, role store.Role, apiKey store.ApiKey) *UserController {
+func NewUserController(ur store.User, role store.Role, apiKey store.ApiKey, appConfig *model.AppConfig) *UserController {
 	return &UserController{
 		userStore: ur,
 		roleStore: role,
 		apiStore:  apiKey,
 		validate:  validator.New(),
+		config:    appConfig,
 	}
 }
 
@@ -303,17 +306,10 @@ func getNewApiKeyStatus(status model.ApiKeyStatus) model.ApiKeyStatus {
 	return newStatus
 }
 
-type ComissionCalculator struct {
-	start           *time.Time
-	stop            *time.Time
-	currentBallance *decimal.Decimal
-	closedPnL       []bybit.V5GetClosedPnLItem
-}
-
 type CommissionReponse struct {
-	Date   *time.Time       `json:"date"`
-	Profit *decimal.Decimal `json:"profit"`
-	Fee    *decimal.Decimal `json:"fee"`
+	Date   *time.Time      `json:"date"`
+	Profit decimal.Decimal `json:"profit"`
+	Fee    decimal.Decimal `json:"fee"`
 }
 
 func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
@@ -325,7 +321,81 @@ func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
 	}
 
-	return c.JSON(botRuns)
+	calc := make([]CommissionReponse, 0)
+
+	for _, br := range botRuns {
+		var stopTime *time.Time
+		if br.StopTime == nil {
+			stopTime, _ = getUpperBound(strconv.FormatInt(time.Now().UnixMilli(), 10))
+		} else {
+			stopTime = br.StopTime
+		}
+		cpnl, err := uc.userStore.GetClosedPnL(user.Id, br.ApiKeyId, br.StartTime.UnixMilli(), stopTime.UnixMilli())
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
+		}
+		var currentCommissionDate *time.Time
+		var acc CommissionReponse
+		for _, cpnlItem := range cpnl {
+			commissionDate, err := getLowerBound(cpnlItem.CreatedTime)
+			if err != nil {
+				return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
+			}
+
+			acc.Profit = acc.Profit.Add(decimal.RequireFromString(cpnlItem.ClosedPnl))
+
+			if currentCommissionDate != nil && !currentCommissionDate.Equal(*commissionDate) {
+				acc.Date = currentCommissionDate
+				acc.Fee = uc.config.Commission.Mul(acc.Profit)
+				calc = append(calc, acc)
+				acc = CommissionReponse{}
+			}
+
+			currentCommissionDate = commissionDate
+		}
+
+	}
+
+	return c.JSON(calc)
+}
+
+func getUpperBound(t string) (*time.Time, error) {
+	a, err := strconv.Atoi(t)
+	if err != nil {
+		return nil, fmt.Errorf("user controller: invalid date for commission: %w", err)
+	}
+
+	createTime := time.Unix(0, int64(a*int(time.Millisecond)))
+	var ini int
+
+	if createTime.Day() < 15 {
+		ini = 15
+	} else {
+		a := time.Date(createTime.Year(), createTime.Month(), 1, 0, 0, 0, 0, createTime.Location())
+		ini = a.AddDate(0, 1, -1).Day()
+	}
+
+	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
+	return &ret, nil
+}
+
+func getLowerBound(t string) (*time.Time, error) {
+	a, err := strconv.Atoi(t)
+	if err != nil {
+		return nil, fmt.Errorf("user controller: invalid date for commission: %w", err)
+	}
+
+	createTime := time.Unix(0, int64(a*int(time.Millisecond)))
+	var ini int
+
+	if createTime.Day() < 15 {
+		ini = 1
+	} else {
+		ini = 15
+	}
+
+	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
+	return &ret, nil
 }
 
 // func dates(values *model.ApiKeyRun) (*time.Time, *time.Time, error) {
