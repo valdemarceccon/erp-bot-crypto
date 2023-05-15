@@ -104,8 +104,10 @@ func main() {
 		},
 	})
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(schema.MessageResponse{
+			Message: "ok",
+		})
 	})
 
 	authGroup := app.Group("/auth")

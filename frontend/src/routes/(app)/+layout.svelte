@@ -26,7 +26,8 @@
 		{ label: 'APIs', href: '/apis' },
 		{ label: 'Comissions', href: '/comissions', permission: 'None' },
 		{ label: 'Referal link', href: '/referal', permission: 'None' },
-		{ label: 'APIs', href: '/admin_apis', permission: 'WriteApiKeys' }
+		{ label: 'APIs', href: '/admin_apis', permission: 'WriteApiKeys' },
+		{ label: 'Commissions', href: '/commissions', permission: 'GetUserComission' }
 	];
 
 	function openDrawer() {

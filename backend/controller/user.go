@@ -397,7 +397,6 @@ func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start,
 				commission.Profit = decimal.Zero
 			} else {
 				commission.Balance = commission.Balance.Add(acc)
-				fmt.Printf("commission.Balance: %v\n", commission.Balance)
 
 				lastHighMark := allCommissions[len(allCommissions)-1].HighMark
 				if commission.Balance.GreaterThan(lastHighMark) {
@@ -412,7 +411,6 @@ func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start,
 			allCommissions = append(allCommissions, commission)
 
 			commission = Commission{}
-			fmt.Println(acc)
 			acc = decimal.Zero
 		}
 
@@ -428,7 +426,6 @@ func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start,
 		commission.Profit = decimal.Zero
 	} else {
 		commission.Balance = commission.Balance.Add(acc)
-		fmt.Printf("commission.Balance: %v\n", commission.Balance)
 
 		lastHighMark := allCommissions[len(allCommissions)-1].HighMark
 		if commission.Balance.GreaterThan(lastHighMark) {
