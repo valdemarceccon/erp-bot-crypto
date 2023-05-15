@@ -168,6 +168,8 @@ func (api *apiKeyPsql) GetBotRunsStartStop(userId uint32) ([]model.ApiKeyRun, er
 
 		err = row.Scan(
 			&run.Id,
+			&run.UserId,
+			&run.Username,
 			&run.ApiKeyId,
 			&run.StartTime,
 			&run.StartBalance,

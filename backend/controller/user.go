@@ -309,6 +309,7 @@ type CommissionReponse struct {
 	Start       time.Time    `json:"start"`
 	Stop        *time.Time   `json:"stop"`
 	Commissions []Commission `json:"commissions"`
+	Username    string       `json:"username"`
 }
 
 type Commission struct {
@@ -320,9 +321,22 @@ type Commission struct {
 }
 
 func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
-	user := getCurrentUserFromContext(c)
+	username := c.Params("username")
+	var userId uint32 = 0
 
-	botRuns, err := uc.apiStore.GetBotRunsStartStop(user.Id)
+	if username != "" {
+		user, err := uc.userStore.ByUsername(username)
+
+		if err != nil {
+			if errors.Is(err, store.ErrUserNotFound) {
+				return fiber.NewError(fiber.StatusNotFound, fmt.Errorf("user controller: invalid user: %w", err).Error())
+			}
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller:%w", err).Error())
+		}
+		userId = user.Id
+	}
+
+	botRuns, err := uc.apiStore.GetBotRunsStartStop(userId)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
 	}
@@ -333,9 +347,10 @@ func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
 			Start:       *br.StartTime,
 			Stop:        br.StopTime,
 			Commissions: make([]Commission, 0),
+			Username:    br.Username,
 		}
 
-		comissions, err := uc.calcComissionForBotRun(user.Id, br.ApiKeyId, br.StartTime, br.StopTime, *br.StartBalance)
+		comissions, err := uc.calcComissionForBotRun(br.UserId, br.ApiKeyId, br.StartTime, br.StopTime, *br.StartBalance)
 
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
@@ -349,7 +364,6 @@ func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
 
 func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start, stop *time.Time, startBalance decimal.Decimal) ([]Commission, error) {
 	// TODO: refactor this abomination
-
 	calc := make([]Commission, 0)
 	var stopTime *time.Time
 	if stopTime == nil {
@@ -393,9 +407,10 @@ func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start,
 
 		currentCommissionDate = commissionDate
 	}
-	acc.Date = *currentCommissionDate
 
+	acc.Date = *currentCommissionDate
 	acc.Fee = uc.config.Commission.Mul(acc.Profit)
+
 	if len(calc) == 0 {
 		acc.Balance = startBalance.Add(acc.Profit)
 		acc.HighMark = startBalance
@@ -430,23 +445,4 @@ func getUpperBound(t string) (*time.Time, error) {
 
 	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
 	return &ret, nil
-}
-
-func getLowerBound(t string) (time.Time, error) {
-	a, err := strconv.ParseInt(t, 10, 64)
-	if err != nil {
-		return time.Time{}, fmt.Errorf("user controller: invalid date for commission: %w", err)
-	}
-
-	createTime := time.Unix(0, a*int64(time.Millisecond))
-	var ini int
-
-	if createTime.Day() < 15 {
-		ini = 1
-	} else {
-		ini = 15
-	}
-
-	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
-	return ret, nil
 }

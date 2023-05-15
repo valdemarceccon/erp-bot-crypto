@@ -37,6 +37,8 @@ type ApiKey struct {
 
 type ApiKeyRun struct {
 	Id           uint32           `json:"id"`
+	UserId       uint32           `json:"user_id"`
+	Username     string           `json:"username"`
 	ApiKeyId     uint32           `json:"api_key_id"`
 	StartTime    *time.Time       `json:"start_time"`
 	StopTime     *time.Time       `json:"stop_time"`
