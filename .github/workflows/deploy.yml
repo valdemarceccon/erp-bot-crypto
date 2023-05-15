@@ -16,9 +16,22 @@ jobs:
       VERSION: ${{ github.sha }}
       APP_HOME: /home/ubuntu/app
     steps:
-    - uses: twingate/github-action@v1
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
       with:
-        service-key: ${{ secrets.TWINGATE_GITHUB_KEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: get runner ip address
+      id: ip
+      uses: haythem/public-ip@v1.3
+    - name: whitelist runner ip address
+      run: |
+        aws ec2 authorize-security-group-ingress \
+          --group-id $AWS_INSTANCE_SG_ID \
+          --protocol tcp \
+          --port 22 \
+          --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -50,7 +63,7 @@ jobs:
     - name: copy file via ssh key
       uses: appleboy/scp-action@v0.1.4
       with:
-        host: ${{ secrets.REMOTE_HOST_PRIVATE_IP }}
+        host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         source: "docker-compose.prod.yml"
@@ -59,7 +72,7 @@ jobs:
     - name: SSH and deploy
       uses: appleboy/ssh-action@v0.1.10
       with:
-        host: ${{ secrets.REMOTE_HOST_PRIVATE_IP }}
+        host: ${{ secrets.REMOTE_HOST }}
         username: ${{ secrets.REMOTE_USER }}
         key: ${{ secrets.REMOTE_SSH_KEY }}
         script: |
@@ -67,3 +80,12 @@ jobs:
           docker compose -f docker-compose.prod.yml pull
           docker compose -f docker-compose.prod.yml down
           docker compose -f docker-compose.prod.yml up -d
+
+    - name: revoke runner ip address
+      if: ${{ always() }}
+      run: |
+        aws ec2 revoke-security-group-ingress \
+          --group-id $AWS_INSTANCE_SG_ID \
+          --protocol tcp \
+          --port 22 \
+          --cidr ${{ steps.ip.outputs.ipv4 }}/32
