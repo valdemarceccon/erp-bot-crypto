@@ -364,7 +364,7 @@ func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
 
 func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start, stop *time.Time, startBalance decimal.Decimal) ([]Commission, error) {
 	// TODO: refactor this abomination
-	calc := make([]Commission, 0)
+	allCommissions := make([]Commission, 0)
 	var stopTime *time.Time
 	if stopTime == nil {
 		stopTime, _ = getUpperBound(strconv.FormatInt(time.Now().UnixMilli(), 10))
@@ -378,53 +378,71 @@ func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start,
 	}
 
 	var currentCommissionDate *time.Time
-	var acc Commission
+	var commission Commission
+	var acc decimal.Decimal = decimal.Zero
+
 	for _, cpnlItem := range cpnl {
 		commissionDate, err := getUpperBound(cpnlItem.CreatedTime)
 		if err != nil {
 			return nil, fmt.Errorf("user controller: %w", err)
 		}
 
-		acc.Profit = acc.Profit.Add(decimal.RequireFromString(cpnlItem.ClosedPnl))
+		acc = acc.Add(decimal.RequireFromString(cpnlItem.ClosedPnl))
 		if currentCommissionDate != nil && !(*currentCommissionDate).Equal(*commissionDate) {
-			acc.Date = *currentCommissionDate
-			acc.Fee = uc.config.Commission.Mul(acc.Profit)
-			if len(calc) == 0 {
-				acc.Balance = startBalance.Add(acc.Profit)
-				acc.HighMark = startBalance
-			} else {
-				acc.Balance = acc.Profit.Add(acc.Balance)
-				if acc.Balance.GreaterThan(calc[len(calc)-1].HighMark) {
-					acc.HighMark = acc.Balance
-				} else {
-					acc.HighMark = calc[len(calc)-1].HighMark
-				}
-			}
-			calc = append(calc, acc)
+			commission.Date = *currentCommissionDate
 
-			acc = Commission{}
+			if len(allCommissions) == 0 {
+				commission.Balance = startBalance.Add(acc)
+				commission.HighMark = commission.Balance
+				commission.Profit = decimal.Zero
+			} else {
+				commission.Balance = commission.Balance.Add(acc)
+				fmt.Printf("commission.Balance: %v\n", commission.Balance)
+
+				lastHighMark := allCommissions[len(allCommissions)-1].HighMark
+				if commission.Balance.GreaterThan(lastHighMark) {
+					commission.HighMark = commission.Balance
+				} else {
+					commission.HighMark = lastHighMark
+				}
+
+				commission.Profit = commission.HighMark.Sub(lastHighMark)
+			}
+			commission.Fee = uc.config.Commission.Mul(commission.Profit)
+			allCommissions = append(allCommissions, commission)
+
+			commission = Commission{}
+			fmt.Println(acc)
+			acc = decimal.Zero
 		}
 
 		currentCommissionDate = commissionDate
 	}
 
-	acc.Date = *currentCommissionDate
-	acc.Fee = uc.config.Commission.Mul(acc.Profit)
+	commission.Date = *currentCommissionDate
+	commission.Fee = uc.config.Commission.Mul(commission.Profit)
 
-	if len(calc) == 0 {
-		acc.Balance = startBalance.Add(acc.Profit)
-		acc.HighMark = startBalance
+	if len(allCommissions) == 0 {
+		commission.Balance = startBalance.Add(acc)
+		commission.HighMark = commission.Balance
+		commission.Profit = decimal.Zero
 	} else {
-		acc.Balance = acc.Profit.Add(acc.Balance)
-		if acc.Balance.GreaterThan(calc[len(calc)-1].HighMark) {
-			acc.HighMark = acc.Balance
-		} else {
-			acc.HighMark = calc[len(calc)-1].HighMark
-		}
-	}
-	calc = append(calc, acc)
+		commission.Balance = commission.Balance.Add(acc)
+		fmt.Printf("commission.Balance: %v\n", commission.Balance)
 
-	return calc, nil
+		lastHighMark := allCommissions[len(allCommissions)-1].HighMark
+		if commission.Balance.GreaterThan(lastHighMark) {
+			commission.HighMark = commission.Balance
+		} else {
+			commission.HighMark = lastHighMark
+		}
+
+		commission.Profit = commission.HighMark.Sub(lastHighMark)
+	}
+	commission.Fee = uc.config.Commission.Mul(commission.Profit)
+	allCommissions = append(allCommissions, commission)
+
+	return allCommissions, nil
 }
 
 func getUpperBound(t string) (*time.Time, error) {
