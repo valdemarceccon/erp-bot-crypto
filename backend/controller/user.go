@@ -377,6 +377,10 @@ func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start,
 		return nil, fmt.Errorf("user controller: %w", err)
 	}
 
+	if len(cpnl) == 0 {
+		return allCommissions, nil
+	}
+
 	var currentCommissionDate *time.Time
 	var commission Commission
 	var acc decimal.Decimal = decimal.Zero
