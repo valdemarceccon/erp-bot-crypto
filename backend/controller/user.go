@@ -450,14 +450,16 @@ func getUpperBound(t string) (*time.Time, error) {
 
 	createTime := time.Unix(0, a*int64(time.Millisecond))
 	var ini int
-
+	var iniMonth time.Month
 	if createTime.Day() < 15 {
 		ini = 15
+		iniMonth = createTime.Month()
 	} else {
-		a := time.Date(createTime.Year(), createTime.Month(), 1, 0, 0, 0, 0, createTime.Location())
-		ini = a.AddDate(0, 1, -1).Day()
+		a := time.Date(createTime.Year(), createTime.Month(), 1, 0, 0, 0, 0, createTime.Location()).AddDate(0, 1, -1)
+		ini = a.Day()
+		iniMonth = a.Month()
 	}
 
-	ret := time.Date(createTime.Year(), createTime.Month(), ini, 0, 0, 0, 0, createTime.Location())
+	ret := time.Date(createTime.Year(), iniMonth, ini, 0, 0, 0, 0, createTime.Location())
 	return &ret, nil
 }

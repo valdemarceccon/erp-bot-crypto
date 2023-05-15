@@ -89,6 +89,6 @@ Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json
 
 ### comissions endpoint
-GET {{host}}/user/comission/valdemar
+GET {{host}}/user/comission/
 Authorization: Bearer {{superUsertoken}}
 Content-Type: application/json

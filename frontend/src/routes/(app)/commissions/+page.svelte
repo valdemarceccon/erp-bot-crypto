@@ -32,7 +32,7 @@
 				<tbody>
 					{#each botRun.commissions as commission (commission.date)}
 						<tr>
-							<td class="w-32">{commission.date.toLocaleDateString()}</td>
+							<td class="w-32">{commission.date.toUTCString()}</td>
 							<td class="w-32">{commission.balance}</td>
 							<td class="w-32">{commission.high_mark}</td>
 							<td class="w-32">{commission.fee}</td>
