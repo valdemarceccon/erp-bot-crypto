@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strconv"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/hirokisan/bybit/v2"
+	"github.com/shopspring/decimal"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware/constants"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -20,18 +23,21 @@ type UserController struct {
 	roleStore store.Role
 	apiStore  store.ApiKey
 	validate  *validator.Validate
+	config    *model.AppConfig
 }
 
+// Should always return a user if used after the auth middlewares
 func getCurrentUserFromContext(c *fiber.Ctx) *model.User {
 	return c.Locals(constants.ContextKeyCurrentUser).(*model.User)
 }
 
-func NewUserController(ur store.User, role store.Role, apiKey store.ApiKey) *UserController {
+func NewUserController(ur store.User, role store.Role, apiKey store.ApiKey, appConfig *model.AppConfig) *UserController {
 	return &UserController{
 		userStore: ur,
 		roleStore: role,
 		apiStore:  apiKey,
 		validate:  validator.New(),
+		config:    appConfig,
 	}
 }
 
@@ -170,7 +176,6 @@ func (uc *UserController) ClientToggleApiKey(c *fiber.Ctx) error {
 	err = uc.apiStore.Save(apiKey)
 
 	if err != nil {
-		fmt.Println(err)
 		if err == store.ErrApiKeyNotFound {
 			return fiber.ErrNotFound
 		}
@@ -300,6 +305,161 @@ func getNewApiKeyStatus(status model.ApiKeyStatus) model.ApiKeyStatus {
 	return newStatus
 }
 
-func (uc *UserController) CalculateComission(c fiber.Ctx) error {
-	return fiber.NewError(fiber.StatusInternalServerError, store.ErrNotImplemented.Error())
+type CommissionReponse struct {
+	Start       time.Time    `json:"start"`
+	Stop        *time.Time   `json:"stop"`
+	Commissions []Commission `json:"commissions"`
+	Username    string       `json:"username"`
+}
+
+type Commission struct {
+	Date     time.Time       `json:"date"`
+	Profit   decimal.Decimal `json:"profit"`
+	Fee      decimal.Decimal `json:"fee"`
+	HighMark decimal.Decimal `json:"high_mark"`
+	Balance  decimal.Decimal `json:"balance"`
+}
+
+func (uc *UserController) CalculateComission(c *fiber.Ctx) error {
+	username := c.Params("username")
+	var userId uint32 = 0
+
+	if username != "" {
+		user, err := uc.userStore.ByUsername(username)
+
+		if err != nil {
+			if errors.Is(err, store.ErrUserNotFound) {
+				return fiber.NewError(fiber.StatusNotFound, fmt.Errorf("user controller: invalid user: %w", err).Error())
+			}
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller:%w", err).Error())
+		}
+		userId = user.Id
+	}
+
+	botRuns, err := uc.apiStore.GetBotRunsStartStop(userId)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
+	}
+
+	calc := make([]CommissionReponse, 0)
+	for _, br := range botRuns {
+		c := CommissionReponse{
+			Start:       *br.StartTime,
+			Stop:        br.StopTime,
+			Commissions: make([]Commission, 0),
+			Username:    br.Username,
+		}
+
+		comissions, err := uc.calcComissionForBotRun(br.UserId, br.ApiKeyId, br.StartTime, br.StopTime, *br.StartBalance)
+
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Errorf("user controller: %w", err).Error())
+		}
+		c.Commissions = append(c.Commissions, comissions...)
+		calc = append(calc, c)
+	}
+
+	return c.JSON(calc)
+}
+
+func (uc *UserController) calcComissionForBotRun(userId, apiKeyId uint32, start, stop *time.Time, startBalance decimal.Decimal) ([]Commission, error) {
+	// TODO: refactor this abomination
+	allCommissions := make([]Commission, 0)
+	var stopTime *time.Time
+	if stopTime == nil {
+		stopTime, _ = getUpperBound(strconv.FormatInt(time.Now().UnixMilli(), 10))
+	} else {
+		stopTime = stop
+	}
+	cpnl, err := uc.userStore.GetClosedPnL(userId, apiKeyId, start.UnixMilli(), stopTime.UnixMilli())
+
+	if err != nil {
+		return nil, fmt.Errorf("user controller: %w", err)
+	}
+
+	var currentCommissionDate *time.Time
+	var commission Commission
+	var acc decimal.Decimal = decimal.Zero
+
+	for _, cpnlItem := range cpnl {
+		commissionDate, err := getUpperBound(cpnlItem.CreatedTime)
+		if err != nil {
+			return nil, fmt.Errorf("user controller: %w", err)
+		}
+
+		acc = acc.Add(decimal.RequireFromString(cpnlItem.ClosedPnl))
+		if currentCommissionDate != nil && !(*currentCommissionDate).Equal(*commissionDate) {
+			commission.Date = *currentCommissionDate
+
+			if len(allCommissions) == 0 {
+				commission.Balance = startBalance.Add(acc)
+				commission.HighMark = commission.Balance
+				commission.Profit = decimal.Zero
+			} else {
+				commission.Balance = commission.Balance.Add(acc)
+
+				lastHighMark := allCommissions[len(allCommissions)-1].HighMark
+				if commission.Balance.GreaterThan(lastHighMark) {
+					commission.HighMark = commission.Balance
+				} else {
+					commission.HighMark = lastHighMark
+				}
+
+				commission.Profit = commission.HighMark.Sub(lastHighMark)
+			}
+			commission.Fee = uc.config.Commission.Mul(commission.Profit)
+			allCommissions = append(allCommissions, commission)
+
+			commission = Commission{}
+			acc = decimal.Zero
+		}
+
+		currentCommissionDate = commissionDate
+	}
+
+	commission.Date = *currentCommissionDate
+	commission.Fee = uc.config.Commission.Mul(commission.Profit)
+
+	if len(allCommissions) == 0 {
+		commission.Balance = startBalance.Add(acc)
+		commission.HighMark = commission.Balance
+		commission.Profit = decimal.Zero
+	} else {
+		commission.Balance = commission.Balance.Add(acc)
+
+		lastHighMark := allCommissions[len(allCommissions)-1].HighMark
+		if commission.Balance.GreaterThan(lastHighMark) {
+			commission.HighMark = commission.Balance
+		} else {
+			commission.HighMark = lastHighMark
+		}
+
+		commission.Profit = commission.HighMark.Sub(lastHighMark)
+	}
+	commission.Fee = uc.config.Commission.Mul(commission.Profit)
+	allCommissions = append(allCommissions, commission)
+
+	return allCommissions, nil
+}
+
+func getUpperBound(t string) (*time.Time, error) {
+	a, err := strconv.ParseInt(t, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("user controller: invalid date for commission: %w", err)
+	}
+
+	createTime := time.Unix(0, a*int64(time.Millisecond))
+	var ini int
+	var iniMonth time.Month
+	if createTime.Day() < 15 {
+		ini = 15
+		iniMonth = createTime.Month()
+	} else {
+		a := time.Date(createTime.Year(), createTime.Month(), 1, 0, 0, 0, 0, createTime.Location()).AddDate(0, 1, -1)
+		ini = a.Day()
+		iniMonth = a.Month()
+	}
+
+	ret := time.Date(createTime.Year(), iniMonth, ini, 0, 0, 0, 0, createTime.Location())
+	return &ret, nil
 }

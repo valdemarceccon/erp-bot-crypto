@@ -1,6 +1,11 @@
 package schema
 
-import "github.com/valdemarceccon/crypto-bot-erp/backend/model"
+import (
+	"time"
+
+	"github.com/shopspring/decimal"
+	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
+)
 
 type UserResponse struct {
 	Id       uint32 `json:"id"`
@@ -35,6 +40,15 @@ type ApiKeyRequest struct {
 	ApiKey       string             `json:"api_key"`
 	ApiKeySecret string             `json:"api_secret"`
 	Status       model.ApiKeyStatus `json:"status"`
+}
+
+type ComissionReponse struct {
+	ComissionDate *time.Time       `json:"ComissionDate"`
+	Ballance      *decimal.Decimal `json:"Ballance"`
+	HighWaterMark *decimal.Decimal `json:"HighWaterMark"`
+	Profit        *decimal.Decimal `json:"Profit"`
+	TotalProfit   *decimal.Decimal `json:"TotalProfit"`
+	Fee           *decimal.Decimal `json:"Fee"`
 }
 
 func FromUserModel(user *model.User) *UserResponse {

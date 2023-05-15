@@ -69,21 +69,10 @@ CREATE TABLE closed_pnl (
     api_key_id INTEGER NOT NULL REFERENCES api_key(id),
     symbol VARCHAR(100) NOT NULL,
     orderId VARCHAR(100) NOT NULL,
-    side VARCHAR(100) NOT NULL,
-    qty VARCHAR(100) NOT NULL,
-    orderPrice VARCHAR(100) NOT NULL,
-    orderType VARCHAR(100) NOT NULL,
     execType VARCHAR(100) NOT NULL,
-    closedSize VARCHAR(100) NOT NULL,
-    cumEntryValue VARCHAR(100) NOT NULL,
-    avgEntryPrice VARCHAR(100) NOT NULL,
-    cumExitValue VARCHAR(100) NOT NULL,
-    avgExitPrice VARCHAR(100) NOT NULL,
-    closedPnl VARCHAR(100) NOT NULL,
-    fillCount VARCHAR(100) NOT NULL,
-    leverage VARCHAR(100) NOT NULL,
-    createdTime VARCHAR(100) NOT NULL,
-    updatedTime VARCHAR(100) NOT NULL,
+    closedPnl DECIMAL(25,15) NOT NULL,
+    createdTime BIGINT NOT NULL,
+    updatedTime BIGINT NOT NULL,
     created_at timestamp not null,
     updated_at timestamp not null,
     deleted_at timestamp null
@@ -91,10 +80,56 @@ CREATE TABLE closed_pnl (
 
 CREATE INDEX ix_closed_pnl_api_key_id ON closed_pnl(api_key_id);
 CREATE INDEX ix_closed_pnl_user_id ON closed_pnl(user_id);
+
+CREATE TABLE bot_start (
+  id SERIAL,
+  api_key_id INTEGER NOT NULL,
+  start_time TIMESTAMP NOT NULL,
+  wallet_balance NUMERIC(23,8) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (api_key_id) REFERENCES api_key(id)
+);
+
+CREATE TABLE bot_stop (
+  id SERIAL,
+  stop_time TIMESTAMP NOT NULL,
+  start_time_id INTEGER NOT NULL,
+  wallet_balance NUMERIC(23,8) NOT NULL,
+  PRIMARY key (id),
+  FOREIGN KEY (start_time_id) REFERENCES bot_start(id)
+);
+
+CREATE TABLE comission (
+  user_id INTEGER NOT NULL,
+  comission_date DATE NOT NULL,
+  balance NUMERIC(23,8) NOT NULL,
+  high_watermark NUMERIC(23,8) NOT NULL,
+  tpnl NUMERIC(23,8) NOT NULL,
+  net_profit NUMERIC(23,8) NOT NULL,
+  fee NUMERIC(23,8) NOT NULL,
+  PRIMARY KEY (user_id, comission_date),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+
+);
+
+CREATE TABLE damon_process (
+  id SERIAL,
+  api_key_id INTEGER,
+  start_time TIMESTAMP,
+  end_time TIMESTAMP,
+  status INTEGER, -- 0 ok 1 not ok
+  message TEXT,
+  PRIMARY KEY(id),
+  FOREIGN KEY(api_key_id) REFERENCES api_key(id)
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+DROP TABLE IF EXISTS damon_process;
+DROP TABLE IF EXISTS comission;
+DROP TABLE IF EXISTS bot_stop;
+DROP TABLE IF EXISTS bot_start;
 DROP TABLE IF EXISTS closed_pnl;
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS role_permission;

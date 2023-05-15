@@ -35,6 +35,7 @@ type User interface {
 	ByUsername(string) (*model.User, error)
 
 	SaveClosedPnL(userId, apiKeyId uint32, pnlResult []bybit.V5GetClosedPnLItem) error
+	GetClosedPnL(userId, apiKeyId uint32, startTime, endTime int64) ([]bybit.V5GetClosedPnLItem, error)
 	StartBot(apikey *model.ApiKey, balance *big.Float) error
 	StopBot(apikey *model.ApiKey, balance *big.Float) error
 }
@@ -46,6 +47,7 @@ type ApiKey interface {
 	Save(apiKey *model.ApiKey) error
 	FromUser(uint32) ([]model.ApiKey, error)
 	ListActive(uint32) ([]model.ApiKey, error)
+	GetBotRunsStartStop(userId uint32) ([]model.ApiKeyRun, error)
 }
 
 type Role interface {

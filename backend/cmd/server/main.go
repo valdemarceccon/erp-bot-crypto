@@ -11,6 +11,7 @@ import (
 	jwtware "github.com/gofiber/jwt/v3"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
+	"github.com/shopspring/decimal"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/controller/schema"
 	"github.com/valdemarceccon/crypto-bot-erp/backend/middleware"
@@ -64,12 +65,16 @@ func main() {
 		jwtSecret = "some-secret"
 	}
 
+	config := &model.AppConfig{
+		Commission: decimal.RequireFromString("0.4"),
+	}
+
 	userStore := store.NewUserPsql(db)
 	roleStore := store.NewRolePsql(db)
 	apiStore := store.NewApiKeyPsql(db)
 
 	authControler := controller.NewJwtAuthController(userStore, controller.WithHS256Secret(jwtSecret))
-	userController := controller.NewUserController(userStore, roleStore, apiStore)
+	userController := controller.NewUserController(userStore, roleStore, apiStore, config)
 	dataCollectorController := controller.NewDataCollector(userStore, apiStore)
 
 	authMiddleware := middleware.NewAuthMiddleware(userStore, roleStore, jwtSecret)
@@ -99,8 +104,10 @@ func main() {
 		},
 	})
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(schema.MessageResponse{
+			Message: "ok",
+		})
 	})
 
 	authGroup := app.Group("/auth")
@@ -123,6 +130,7 @@ func main() {
 	userGroup.Post("/api_keys", userController.AddApiKey)
 	userGroup.Patch("/api_keys/client-toggle/:apiKeyId", userController.ClientToggleApiKey)
 	userGroup.Patch("/api_keys/admin-toggle/:userId/:apiKeyId", guard.WithPermission(model.WriteApiKeysPermission, userController.AdminToggleApiKey))
+	userGroup.Get("/comission/:username?", guard.WithPermission(model.GetUserCommission, userController.CalculateComission))
 	userGroup.Get("/me", userController.Me)
 
 	collectorGroup := app.Group("/collector")

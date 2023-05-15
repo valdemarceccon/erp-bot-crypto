@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/valdemarceccon/crypto-bot-erp/backend/model"
@@ -148,6 +149,39 @@ func (api *apiKeyPsql) List() ([]model.ApiKey, error) {
 		}
 
 		resp = append(resp, apiKey)
+	}
+
+	return resp, nil
+}
+
+func (api *apiKeyPsql) GetBotRunsStartStop(userId uint32) ([]model.ApiKeyRun, error) {
+	row, err := api.db.Query(query.BotStartStopApiKey, userId)
+	if err != nil {
+		log.Println(fmt.Errorf("api key store: %w", err))
+		return nil, err
+	}
+	defer row.Close()
+	resp := make([]model.ApiKeyRun, 0)
+
+	for row.Next() {
+		var run model.ApiKeyRun
+
+		err = row.Scan(
+			&run.Id,
+			&run.UserId,
+			&run.Username,
+			&run.ApiKeyId,
+			&run.StartTime,
+			&run.StartBalance,
+			&run.StopTime,
+			&run.StopBalanace,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		resp = append(resp, run)
 	}
 
 	return resp, nil

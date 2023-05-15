@@ -39,7 +39,7 @@
 						<td class="justify-center">
 							<!-- <a class="btn btn-sm variant-filled-error" href="/">del</a>
 							<a class="btn btn-sm variant-filled-warning" href="/">edit</a> -->
-							{row.name}
+							{row.username}
 						</td>
 						<td class="w-32">{row.exchange}</td>
 						<td class="w-32">{row.username}</td>

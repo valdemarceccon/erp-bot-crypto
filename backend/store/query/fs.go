@@ -13,6 +13,8 @@ var (
 	StarBotUser string
 	//go:embed user/save_closed_pnl.sql
 	SaveClosedPnLUser string
+	//go:embed user/get_closed_pnl.sql
+	GetClosedPnLUser string
 	//go:embed user/get_username.sql
 	GetUsernameUser string
 	//go:embed user/get_id.sql
@@ -34,8 +36,8 @@ var (
 	SaveApiKey string
 	//go:embed api_key/active.sql
 	ListActiveApiKey string
-	//go:embed api_key/active.sql
-	BotRunsApiKey string
+	//go:embed api_key/bot_start_stop.sql
+	BotStartStopApiKey string
 )
 
 var (
